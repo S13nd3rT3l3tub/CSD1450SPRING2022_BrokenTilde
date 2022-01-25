@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Extern/AlphaEngine_V3.08/include/docs/html
+/Extern/AlphaEngine_V3.08/include/Doxyfile
