@@ -1,8 +1,10 @@
 // ---------------------------------------------------------------------------
 // includes
 
-#include "AEEngine.h"
 #include <Windows.h>
+
+#include "AEEngine.h"
+#include "player.h"
 
 
 // ---------------------------------------------------------------------------
@@ -21,12 +23,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	int gGameRunning = 1;
 
+	char* filename = "tank.png";
 
-	AEGfxVertexList* pTankMesh(0);
+	player_load(filename, 0, 0, 30, 30);
+	/*AEGfxVertexList* pTankMesh(0);
+	AEGfxVertexList* pEnemyMesh(0);
 
 	AEGfxTexture* pTankTexture;
+	AEGfxTexture* pEnemyTexture;
 
 	float tankPosX(0.0f), tankPosY(0.0f);
+	float enemyPosX(20.0f), enemyPosY(20.0f);*/
 
 	float camX, camY;		// Used to temporary store camera position
 
@@ -57,7 +64,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	////////////////////////////////
 	// Creating the objects (Shapes)
 
-	AEGfxMeshStart();
+	/*AEGfxMeshStart();
 	AEGfxTriAdd(
 		-30.0f, -30.0f, 0x00FF00FF, 0.0f, 1.0f,
 		30.0f, -30.0f, 0x00FFFF00, 1.0f, 1.0f,
@@ -69,6 +76,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	pTankMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pTankMesh, "Failed to create pTankMesh");
 
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-30.0f, -30.0f, 0x00FF00FF, 0.0f, 1.0f,
+		30.0f, -30.0f, 0x00FFFF00, 1.0f, 1.0f,
+		-30.0f, 30.0f, 0x0000FFFF, 0.0f, 0.0f);
+	AEGfxTriAdd(
+		30.0f, -30.0f, 0x00FFFFFF, 1.0f, 1.0f,
+		30.0f, 30.0f, 0x00FFFFFF, 1.0f, 0.0f,
+		-30.0f, 30.0f, 0x00FFFFFF, 0.0f, 0.0f);
+	pEnemyMesh = AEGfxMeshEnd();
+	AE_ASSERT_MESG(pEnemyMesh, "Failed to create pEnemyMesh");
+	*/
 	// Creating the objects (Shapes) end
 	////////////////////////////////////
 
@@ -77,7 +96,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	////////////////////////////
 	// Loading textures (images)
 
-	pTankTexture = AEGfxTextureLoad("tank.png");
+	//pTankTexture = AEGfxTextureLoad("tank.png");
+	//pEnemyTexture = AEGfxTextureLoad("soldier.png");
 
 	// Loading textures (images) end
 	//////////////////////////////////
@@ -121,7 +141,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Game loop draw
 
 		// Drawing object 1
-		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+		/*AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 		// Set position for object 1
 		AEGfxSetPosition(tankPosX, tankPosY);
 		// No texture for object 1
@@ -130,6 +150,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 		// Drawing the mesh (list of triangles)
 		AEGfxMeshDraw(pTankMesh, AE_GFX_MDM_TRIANGLES);
+
+		// Drawing object 1
+		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+		// Set position for object 1
+		AEGfxSetPosition(enemyPosX, enemyPosY);
+		// No texture for object 1
+		AEGfxTextureSet(pEnemyTexture, 0, 0);
+		// No tint
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+		// Drawing the mesh (list of triangles)
+		AEGfxMeshDraw(pEnemyMesh, AE_GFX_MDM_TRIANGLES);*/
 
 		// Game loop draw end
 		/////////////////////
