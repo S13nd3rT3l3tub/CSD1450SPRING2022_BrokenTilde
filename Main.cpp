@@ -23,9 +23,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	int gGameRunning = 1;
 
-	char* filename = "tank.png";
-
-	player_load(filename, 0, 0, 30, 30);
 	/*AEGfxVertexList* pTankMesh(0);
 	AEGfxVertexList* pEnemyMesh(0);
 
@@ -63,6 +60,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	////////////////////////////////
 	// Creating the objects (Shapes)
+
+	const char* filename = "tank.png";
+	player_load(filename, 0, 0, 30, 30);
 
 	/*AEGfxMeshStart();
 	AEGfxTriAdd(
@@ -133,12 +133,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			AEGfxSetCamPosition(camX - 2, camY);
 		else if (AEInputCheckCurr(AEVK_D))
 			AEGfxSetCamPosition(camX + 2, camY);
+
+		player_update();
 		// Game loop update end
 		///////////////////////
 
 
 		//////////////////
 		// Game loop draw
+
+		player_draw(playerPos, pPlayerTexture, pPlayerMesh);
+
 
 		// Drawing object 1
 		/*AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
