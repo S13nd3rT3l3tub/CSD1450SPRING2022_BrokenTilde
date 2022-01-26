@@ -6,19 +6,6 @@ AEGfxVertexList* pPlayerMesh;
 AEGfxTexture* pPlayerTexture;
 AEVec2 playerPos;
 
-void makerect(float x, float  y, float length, float height)
-{
-	AEGfxTriAdd(
-		x, y - height, 0xFFFF0000, 0.0f, 1.0f,
-		x + length, y - height, 0xFFFF0000, 1.0f, 1.0f,
-		x, y, 0xFFFF0000, 0.0f, 0.0f);
-
-	AEGfxTriAdd(
-		x + length, y, 0xFFFF0000, 1.0f, 0.0f,
-		x + length, y - height, 0xFFFF0000, 1.0f, 1.0f,
-		x, y, 0xFFFF0000, 0.0f, 0.0f);
-}
-
 void player_load(const char* texture_filename, float startPosX, float startPosY, float width, float height) {
 	const s8* filename = texture_filename;
 	

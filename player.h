@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AEEngine.h"
+#include "globals.h"
 #include <iostream>
 
 extern AEGfxVertexList* pPlayerMesh;
