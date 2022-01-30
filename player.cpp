@@ -6,10 +6,9 @@ AEGfxVertexList* pPlayerMesh;
 AEGfxTexture* pPlayerTexture;
 AEVec2 playerPos;
 
-void player_load(const char* texture_filename, float startPosX, float startPosY, float width, float height) {
-	const s8* filename = texture_filename;
+void player_load(float startPosX, float startPosY, float width, float height) {
 	
-	pPlayerTexture = AEGfxTextureLoad(texture_filename);
+	pPlayerTexture = AEGfxTextureLoad("tank.png");
 	AE_ASSERT_MESG(pPlayerTexture, "Failed to create pPlayerTexture");
 	
 	playerPos.x = startPosX;

@@ -91,7 +91,7 @@
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="GameStateManager.cpp" />
     <ClCompile Include="globals.cpp" />
-    <ClCompile Include="level.cpp" />
+    <ClCompile Include="level1.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="player.cpp" />
   </ItemGroup>
@@ -100,7 +100,7 @@
     <ClInclude Include="GameStateList.h" />
     <ClInclude Include="GameStateManager.h" />
     <ClInclude Include="globals.h" />
-    <ClInclude Include="level.h" />
+    <ClInclude Include="level1.h" />
     <ClInclude Include="player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

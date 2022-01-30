@@ -10,7 +10,7 @@ extern AEVec2 playerPos;
 
 // Add or edit functions as required
 
-void player_load(const char* texture_filename, float startPosX, float startPosY, float width, float height);
+void player_load(float startPosX, float startPosY, float width, float height);
 
 void player_update();
 

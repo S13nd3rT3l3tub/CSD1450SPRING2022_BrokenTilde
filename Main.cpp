@@ -4,6 +4,8 @@
 #include <Windows.h>
 
 #include "AEEngine.h"
+#include "GameStateManager.h"
+#include "GameStateList.h"
 #include "player.h"
 
 
@@ -21,7 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	///////////////////////
 	// Variable declaration
 
-	int gGameRunning = 1;
+	//int gGameRunning = 1; 
 
 	/*AEGfxVertexList* pTankMesh(0);
 	AEGfxVertexList* pEnemyMesh(0);
@@ -40,18 +42,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	/////////////////
 	// Initialization
-	
+	// ---------- System Initialize ----------
 	// Using custom window procedure
 	AESysInit(hInstance, nCmdShow, GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN), 1, 60, true, NULL);
-	
 	// Change background color
 	AEGfxSetBackgroundColor(255.0f, 255.0f, 255.0f);
-
 	// Changing the window title
 	AESysSetWindowTitle("Assignment 1");
-
 	// reset the system modules
 	AESysReset();
+	// ---------------------------------------
+	
+	// ---------- GSM Initialize ----------
+	GSM_Initialize(GS_LEVEL1);
+	// ------------------------------------
 
 	// Initialization end
 	/////////////////////
@@ -61,8 +65,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	////////////////////////////////
 	// Creating the objects (Shapes)
 
-	const char* filename = "tank.png";
-	player_load(filename, 0, 0, 30, 30);
+	//player_load(0, 0, 30, 30);
 
 	/*AEGfxMeshStart();
 	AEGfxTriAdd(
@@ -110,73 +113,103 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 
 	// Game Loop
-	while (gGameRunning)
-	{
-		// Informing the system about the loop's start
-		AESysFrameStart();
+	//while (gGameRunning)
+	//{
+	//	// Informing the system about the loop's start
+	//	AESysFrameStart();
 
-		// Handling Input
-		AEInputUpdate();
+	//	// Handling Input
+	//	AEInputUpdate();
 
-		///////////////////
-		// Game loop update
+	//	///////////////////
+	//	// Game loop update
 
-		// Move the camera
-		AEGfxGetCamPosition(&camX, &camY);
-		if (AEInputCheckCurr(AEVK_W))
-			AEGfxSetCamPosition(camX, camY + 2);
-		else if (AEInputCheckCurr(AEVK_S))
-			AEGfxSetCamPosition(camX, camY - 2);
+	//	// Move the camera
+	//	AEGfxGetCamPosition(&camX, &camY);
+	//	if (AEInputCheckCurr(AEVK_W))
+	//		AEGfxSetCamPosition(camX, camY + 2);
+	//	else if (AEInputCheckCurr(AEVK_S))
+	//		AEGfxSetCamPosition(camX, camY - 2);
 
-		AEGfxGetCamPosition(&camX, &camY);
-		if (AEInputCheckCurr(AEVK_A))
-			AEGfxSetCamPosition(camX - 2, camY);
-		else if (AEInputCheckCurr(AEVK_D))
-			AEGfxSetCamPosition(camX + 2, camY);
+	//	AEGfxGetCamPosition(&camX, &camY);
+	//	if (AEInputCheckCurr(AEVK_A))
+	//		AEGfxSetCamPosition(camX - 2, camY);
+	//	else if (AEInputCheckCurr(AEVK_D))
+	//		AEGfxSetCamPosition(camX + 2, camY);
 
-		player_update();
-		// Game loop update end
-		///////////////////////
-
-
-		//////////////////
-		// Game loop draw
-
-		player_draw(playerPos, pPlayerTexture, pPlayerMesh);
+	//	player_update();
+	//	// Game loop update end
+	//	///////////////////////
 
 
-		// Drawing object 1
-		/*AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-		// Set position for object 1
-		AEGfxSetPosition(tankPosX, tankPosY);
-		// No texture for object 1
-		AEGfxTextureSet(pTankTexture, 0, 0);
-		// No tint
-		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-		// Drawing the mesh (list of triangles)
-		AEGfxMeshDraw(pTankMesh, AE_GFX_MDM_TRIANGLES);
+	//	//////////////////
+	//	// Game loop draw
 
-		// Drawing object 1
-		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-		// Set position for object 1
-		AEGfxSetPosition(enemyPosX, enemyPosY);
-		// No texture for object 1
-		AEGfxTextureSet(pEnemyTexture, 0, 0);
-		// No tint
-		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-		// Drawing the mesh (list of triangles)
-		AEGfxMeshDraw(pEnemyMesh, AE_GFX_MDM_TRIANGLES);*/
-
-		// Game loop draw end
-		/////////////////////
+	//	player_draw(playerPos, pPlayerTexture, pPlayerMesh);
 
 
-		// Informing the system about the loop's end
-		AESysFrameEnd();
+	//	// Drawing object 1
+	//	/*AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+	//	// Set position for object 1
+	//	AEGfxSetPosition(tankPosX, tankPosY);
+	//	// No texture for object 1
+	//	AEGfxTextureSet(pTankTexture, 0, 0);
+	//	// No tint
+	//	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+	//	// Drawing the mesh (list of triangles)
+	//	AEGfxMeshDraw(pTankMesh, AE_GFX_MDM_TRIANGLES);
 
-		// check if forcing the application to quit
-		if (AEInputCheckTriggered(AEVK_ESCAPE) || 0 == AESysDoesWindowExist())
-			gGameRunning = 0;
+	//	// Drawing object 1
+	//	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+	//	// Set position for object 1
+	//	AEGfxSetPosition(enemyPosX, enemyPosY);
+	//	// No texture for object 1
+	//	AEGfxTextureSet(pEnemyTexture, 0, 0);
+	//	// No tint
+	//	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+	//	// Drawing the mesh (list of triangles)
+	//	AEGfxMeshDraw(pEnemyMesh, AE_GFX_MDM_TRIANGLES);*/
+
+	//	// Game loop draw end
+	//	/////////////////////
+
+
+	//	// Informing the system about the loop's end
+	//	AESysFrameEnd();
+
+	//	// check if forcing the application to quit
+	//	if (AEInputCheckTriggered(AEVK_ESCAPE) || 0 == AESysDoesWindowExist())
+	//		gGameRunning = 0;
+	//}
+	while (currentState != GS_QUIT) {
+		if (currentState != GS_RESTART) {
+			GSM_Update();
+			fpLoad();
+		}
+		else {
+			nextState = previousState;
+			currentState = previousState;
+		}
+
+		fpInitialize();
+
+		// Game Loop
+		while (nextState == currentState) {
+			AESysFrameStart();
+			// InputHandle
+			fpUpdate();
+			fpDraw();
+			AESysFrameEnd();
+		}
+
+		fpFree();
+
+		if (nextState != GS_RESTART) {
+			fpUnload();
+		}
+
+		previousState = currentState;
+		currentState = nextState;
 	}
 
 	//////////////////////////////////
