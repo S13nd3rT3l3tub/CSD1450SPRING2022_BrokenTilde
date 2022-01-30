@@ -1,0 +1,11 @@
+#pragma once
+
+enum GS_STATES {
+	GS_SPLASHSCREEN = 0,
+	GS_MAINMENU,
+	GS_LEVEL1,
+	GS_LEVEL2,
+
+	GS_QUIT,
+	GS_RESTART
+};
