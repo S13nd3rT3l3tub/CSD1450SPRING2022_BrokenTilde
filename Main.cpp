@@ -200,6 +200,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			fpUpdate();
 			fpDraw();
 			AESysFrameEnd();
+
+			if (AESysDoesWindowExist() == 0)
+				nextState = GS_QUIT;
 		}
 
 		fpFree();

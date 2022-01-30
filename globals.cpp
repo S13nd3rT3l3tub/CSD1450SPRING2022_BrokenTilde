@@ -1,7 +1,6 @@
 #include "globals.h"
 
-void makerect(float x, float  y, float length, float height)
-{
+void RectMeshAdd(float x, float  y, float length, float height){
 	AEGfxTriAdd(
 		x, y - height, 0xFFFF0000, 0.0f, 1.0f,
 		x + length, y - height, 0xFFFF0000, 1.0f, 1.0f,
