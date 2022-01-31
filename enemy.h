@@ -4,16 +4,16 @@
 #include "globals.h"
 
 enum E_TYPES {
-
+	STANDARD
 };
 
 enum E_STATES {
+	BLANK,
 	IDLE,
 	ATTACK
 };
 
 struct Enemy {
-	AEGfxVertexList* pEnemyMesh;
 	AEVec2 enemyPos;
 	AEVec2 enemyVelocity;
 
@@ -26,12 +26,13 @@ struct Enemy {
 	bool aliveFlag;
 };
 
+extern	AEGfxVertexList* pEnemyMesh;
 extern AEGfxTexture* pEnemyTexture;
-// Add additional textures for different enemy types
+// Add additional textures and meshes for different enemy types
 
 // Add or edit functions as required
 
-Enemy* Enemy_Load(const s8* texture_filename, float width, float height);
+Enemy* Enemy_Load(const s8* texture_filename, int enemyType, float width, float height);
 
 void Enemy_Initialize(AEVec2& enemyPos, float startPosX, float startPosY, bool& enemyRenderFlag, bool& enemyAliveFlag);
 
