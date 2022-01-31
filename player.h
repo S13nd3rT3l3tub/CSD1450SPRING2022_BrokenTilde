@@ -8,24 +8,25 @@ struct Player {
 	AEGfxTexture* pPlayerTexture;
 	AEGfxVertexList* pPlayerMesh;
 	AEVec2 playerPos;
+	AEVec2 playerVelocity;
 	
 	float width;
 	float height;
 
-	bool toRender;
-	bool aliveStatus;
+	bool renderFlag;
+	bool aliveFlag;
 };
 
 // Add or edit functions as required
 
-Player* player_load(const s8* texture_filename, float width, float height);
+Player* Player_Load(const s8* texture_filename, float width, float height);
 
-void player_initialize(AEVec2 &playerPos, float startPosX, float startPosY, bool &playerRender, bool &playerAlive);
+void Player_Initialize(AEVec2 &playerPos, float startPosX, float startPosY, bool &playerRenderFlag, bool &playerAliveFlag);
 
-void player_update(Player* &player);
+void Player_Update(Player* &player);
 
-void player_draw(AEGfxTexture* &texture, AEGfxVertexList* &mesh, AEVec2 &position, bool &toRender);
+void Player_Draw(AEGfxTexture* &texture, AEGfxVertexList* &mesh, AEVec2 &position, bool &playerRenderFlag);
 
-void player_free(bool &toRender, bool &aliveStatus);
+void Player_Free(bool &playerRenderFlag, bool &playerAliveFlag);
 
-void player_unload(Player* &player);
+void Player_Unload(Player* &player);

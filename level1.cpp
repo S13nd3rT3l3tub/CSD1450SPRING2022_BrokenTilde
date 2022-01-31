@@ -5,26 +5,26 @@
 Player* player;
 
 void Level1_Load() {
-	player = player_load("tank.png", 100, 50);
+	player = Player_Load("tank.png", 100, 50);
 }
 
 void Level1_Initialize() {
-	player_initialize(player->playerPos, 0, 0, player->toRender, player->aliveStatus);
+	Player_Initialize(player->playerPos, 0, 0, player->renderFlag, player->aliveFlag);
 }
 
 void Level1_Update() {
-	player_update(player);
+	Player_Update(player);
 
 }
 
 void Level1_Draw() {
-	player_draw(player->pPlayerTexture, player->pPlayerMesh, player->playerPos, player->toRender);
+	Player_Draw(player->pPlayerTexture, player->pPlayerMesh, player->playerPos, player->renderFlag);
 }
 
 void Level1_Free(){
-	player_free(player->toRender, player->aliveStatus);
+	Player_Free(player->renderFlag, player->aliveFlag);
 }
 
 void Level1_Unload() {
-	player_unload(player);
+	Player_Unload(player);
 }

@@ -2,7 +2,7 @@
 
 // Add or edit functions as required
 
-Player* player_load(const s8* texture_filename, float width, float height) {
+Player* Player_Load(const s8* texture_filename, float width, float height) {
 	
 	Player* player = new Player;
 
@@ -17,13 +17,13 @@ Player* player_load(const s8* texture_filename, float width, float height) {
 	player->width = width;
 	player->height = height;
 
-	player->toRender = false;
-	player->aliveStatus = false;
+	player->renderFlag = false;
+	player->aliveFlag = false;
 
 	return player;
 }
 
-void player_initialize(AEVec2 &playerPos, float startPosX, float startPosY, bool &playerRender, bool &playerAlive){
+void Player_Initialize(AEVec2 &playerPos, float startPosX, float startPosY, bool &playerRender, bool &playerAlive){
 	playerPos.x = startPosX;
 	playerPos.y = startPosY;
 
@@ -31,11 +31,11 @@ void player_initialize(AEVec2 &playerPos, float startPosX, float startPosY, bool
 	playerAlive = true;
 }
 
-void player_update(Player* &player)  {
+void Player_Update(Player* &player)  {
 
 }
 
-void player_draw(AEGfxTexture* &texture, AEGfxVertexList* &mesh, AEVec2 &position, bool &toRender) {
+void Player_Draw(AEGfxTexture* &texture, AEGfxVertexList* &mesh, AEVec2 &position, bool &toRender) {
 	if (toRender) {
 		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 		// Set position for object 1
@@ -49,12 +49,12 @@ void player_draw(AEGfxTexture* &texture, AEGfxVertexList* &mesh, AEVec2 &positio
 	}
 }
 
-void player_free(bool &toRender, bool &aliveStatus){
+void Player_Free(bool &toRender, bool &aliveStatus){
 	toRender = false;
 	aliveStatus = false;
 }
 
-void player_unload(Player* &player) {
+void Player_Unload(Player* &player) {
 	AEGfxTextureUnload(player->pPlayerTexture);
 	delete player;
 }
