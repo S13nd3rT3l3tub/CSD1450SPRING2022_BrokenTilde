@@ -40,7 +40,6 @@ enum TYPE
 	TYPE_PLAYER = 0,
 	TYPE_BULLET,
 	TYPE_PLATFORM,
-
 	TYPE_NUM
 };
 
@@ -97,7 +96,7 @@ static unsigned long		sGameObjInstNum;							// The number of used game object i
 
 // pointer to the ship object
 static GameObjInst* Player;										// Pointer to the "Ship" game object instance
-
+static GameObjInst* plat[4];
 // number of ship available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
 
@@ -148,10 +147,16 @@ void GameStateAsteroidsLoad(void)
 	pObj->type = TYPE_PLAYER;
 
 	AEGfxMeshStart();
+
 	AEGfxTriAdd(
-		-0.5f, 0.5f, 0xFFFF0000, 0.0f, 0.0f,
 		-0.5f, -0.5f, 0xFFFF0000, 0.0f, 0.0f,
-		0.5f, 0.0f, 0xFFFFFFFF, 0.0f, 0.0f);
+		0.5f, -0.5f, 0xFFFF0000, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0xFFFFFFFF, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		0.5f, -0.5f, 0xFFFF0000, 0.0f, 0.0f,
+		0.5f, 0.5f, 0xFFFF0000, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0xFFFFFFFF, 0.0f, 0.0f);
 
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create ship object!!");
@@ -175,6 +180,7 @@ void GameStateAsteroidsLoad(void)
 		-0.5f, 0.125f, 0xFFFFFF00, 0.0f, 0.0f,
 		0.5f, 0.125f, 0xFFFFFF00, 1.0f, 0.0f,
 		0.5f, -0.125f, 0xFFFFFF00, 1.0f, 1.0f);
+
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create bullet object!!");
 
@@ -230,6 +236,18 @@ void GameStateAsteroidsInit(void)
 		GameObjInst* sAsteroid = gameObjInstCreate(TYPE_PLATFORM, rSize, &rPos, &rVel, 0);
 		AE_ASSERT(sAsteroid);
 	}
+
+	AEVec2 platVel, platPos;
+
+	platVel = { 0, 0 };
+	platPos = { -400,200 };
+	plat[0] = gameObjInstCreate(TYPE_PLATFORM, 150, &platPos, &platVel, 0.0f); // left wall
+	platPos = { -200,-300 };
+	plat[1] = gameObjInstCreate(TYPE_PLATFORM, 100, &platPos, &platVel, 0.0f); //floor
+	platPos = { 400, 200 };
+	plat[2] = gameObjInstCreate(TYPE_PLATFORM, 175, &platPos, &platVel, 0.0f); // right wall
+	platPos = { 200,1000 };
+	plat[3] = gameObjInstCreate(TYPE_PLATFORM, 60, &platPos, &platVel, 0.0f); // ceiling
 
 	// reset the score and the number of ships
 	playerScore = 0;
@@ -491,7 +509,35 @@ void GameStateAsteroidsUpdate(void)
 			continue;
 
 		// Compute the scaling matrix
-		AEMtx33Scale(&scale, pInst->scale, pInst->scale);
+		if (pInst->pObject->type == TYPE_PLAYER)
+		{
+			AEMtx33Scale(&scale, pInst->scale * 3, pInst->scale);
+		}
+		else if (pInst->pObject->type == TYPE_PLATFORM)
+		{
+			if (pInst == plat[0])
+			{
+				AEMtx33Scale(&scale, pInst->scale * 1, pInst->scale * 40);
+			}
+			else if (pInst == plat[1])
+			{
+				AEMtx33Scale(&scale, pInst->scale * 400, pInst->scale);
+			}
+			else if (pInst == plat[2])
+			{
+				AEMtx33Scale(&scale, pInst->scale * 1, pInst->scale * 40);
+			}
+			else if (pInst == plat[3])
+			{
+				AEMtx33Scale(&scale, pInst->scale * 400, pInst->scale);
+			}
+		}
+		else
+		{
+			AEMtx33Scale(&scale, pInst->scale, pInst->scale);
+		}
+
+		
 		// Compute the rotation matrix 
 		AEMtx33Rot(&rot, pInst->dirCurr);
 		// Compute the translation matrix
