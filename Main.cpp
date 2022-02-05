@@ -1,225 +1,103 @@
+/******************************************************************************/
+/*!
+\file		Main.cpp
+\author 	DigiPen
+\par    	email: digipen\@digipen.edu
+\date   	January 01, 20xx
+\brief		ToDo: give a brief explanation here
+
+Copyright (C) 20xx DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+ */
+/******************************************************************************/
+
+#include "main.h"
+#include <memory>
+
 // ---------------------------------------------------------------------------
-// includes
-
-#include <Windows.h>
-
-#include "AEEngine.h"
-#include "GameStateManager.h"
-#include "GameStateList.h"
-#include "player.h"
+// Globals
+float	 g_dt;
+double	 g_appTime;
 
 
-// ---------------------------------------------------------------------------
-// main
-
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPWSTR    lpCmdLine,
-	_In_ int       nCmdShow)
+/******************************************************************************/
+/*!
+	Starting point of the application
+*/
+/******************************************************************************/
+int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_line, int show)
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(prevInstanceH);
+	UNREFERENCED_PARAMETER(command_line);
 
-	///////////////////////
-	// Variable declaration
+	//// Enable run-time memory check for debug builds.
+	//#if defined(DEBUG) | defined(_DEBUG)
+	//	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	//#endif
 
-	//int gGameRunning = 1; 
-
-	/*AEGfxVertexList* pTankMesh(0);
-	AEGfxVertexList* pEnemyMesh(0);
-
-	AEGfxTexture* pTankTexture;
-	AEGfxTexture* pEnemyTexture;
-
-	float tankPosX(0.0f), tankPosY(0.0f);
-	float enemyPosX(20.0f), enemyPosY(20.0f);*/
-
-	float camX, camY;		// Used to temporary store camera position
-
-	// Variable declaration end
-	///////////////////////////
+	//int * pi = new int;
+	////delete pi;
 
 
-	/////////////////
-	// Initialization
-	// ---------- System Initialize ----------
-	// Using custom window procedure
-	AESysInit(hInstance, nCmdShow, GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN), 1, 60, true, NULL);
-	// Change background color
-	AEGfxSetBackgroundColor(255.0f, 255.0f, 255.0f);
+	// Initialize the system
+	AESysInit (instanceH, show, 800, 600, 1, 60, false, NULL);
+
 	// Changing the window title
-	AESysSetWindowTitle("Assignment 1");
-	// reset the system modules
-	AESysReset();
-	// ---------------------------------------
-	
-	// ---------- GSM Initialize ----------
-	GSM_Initialize(GS_LEVEL1);
-	// ------------------------------------
+	AESysSetWindowTitle("Asteroids Demo!");
 
-	// Initialization end
-	/////////////////////
+	//set background color
+	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
 
 
-	////////////////////////////////
-	// Creating the objects (Shapes)
+	GameStateMgrInit(GS_ASTEROIDS);
 
-	//player_load(0, 0, 30, 30);
+	while(gGameStateCurr != GS_QUIT)
+	{
+		// reset the system modules
+		AESysReset();
 
-	/*AEGfxMeshStart();
-	AEGfxTriAdd(
-		-30.0f, -30.0f, 0x00FF00FF, 0.0f, 1.0f,
-		30.0f, -30.0f, 0x00FFFF00, 1.0f, 1.0f,
-		-30.0f, 30.0f, 0x0000FFFF, 0.0f, 0.0f);
-	AEGfxTriAdd(
-		30.0f, -30.0f, 0x00FFFFFF, 1.0f, 1.0f,
-		30.0f, 30.0f, 0x00FFFFFF, 1.0f, 0.0f,
-		-30.0f, 30.0f, 0x00FFFFFF, 0.0f, 0.0f);
-	pTankMesh = AEGfxMeshEnd();
-	AE_ASSERT_MESG(pTankMesh, "Failed to create pTankMesh");
-
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-30.0f, -30.0f, 0x00FF00FF, 0.0f, 1.0f,
-		30.0f, -30.0f, 0x00FFFF00, 1.0f, 1.0f,
-		-30.0f, 30.0f, 0x0000FFFF, 0.0f, 0.0f);
-	AEGfxTriAdd(
-		30.0f, -30.0f, 0x00FFFFFF, 1.0f, 1.0f,
-		30.0f, 30.0f, 0x00FFFFFF, 1.0f, 0.0f,
-		-30.0f, 30.0f, 0x00FFFFFF, 0.0f, 0.0f);
-	pEnemyMesh = AEGfxMeshEnd();
-	AE_ASSERT_MESG(pEnemyMesh, "Failed to create pEnemyMesh");
-	*/
-	// Creating the objects (Shapes) end
-	////////////////////////////////////
-
-
-
-	////////////////////////////
-	// Loading textures (images)
-
-	//pTankTexture = AEGfxTextureLoad("tank.png");
-	//pEnemyTexture = AEGfxTextureLoad("soldier.png");
-
-	// Loading textures (images) end
-	//////////////////////////////////
-
-	//////////////////////////////////
-	// Creating Fonts	
-
-	// Creating Fonts end
-	//////////////////////////////////
-
-
-	// Game Loop
-	//while (gGameRunning)
-	//{
-	//	// Informing the system about the loop's start
-	//	AESysFrameStart();
-
-	//	// Handling Input
-	//	AEInputUpdate();
-
-	//	///////////////////
-	//	// Game loop update
-
-	//	// Move the camera
-	//	AEGfxGetCamPosition(&camX, &camY);
-	//	if (AEInputCheckCurr(AEVK_W))
-	//		AEGfxSetCamPosition(camX, camY + 2);
-	//	else if (AEInputCheckCurr(AEVK_S))
-	//		AEGfxSetCamPosition(camX, camY - 2);
-
-	//	AEGfxGetCamPosition(&camX, &camY);
-	//	if (AEInputCheckCurr(AEVK_A))
-	//		AEGfxSetCamPosition(camX - 2, camY);
-	//	else if (AEInputCheckCurr(AEVK_D))
-	//		AEGfxSetCamPosition(camX + 2, camY);
-
-	//	player_update();
-	//	// Game loop update end
-	//	///////////////////////
-
-
-	//	//////////////////
-	//	// Game loop draw
-
-	//	player_draw(playerPos, pPlayerTexture, pPlayerMesh);
-
-
-	//	// Drawing object 1
-	//	/*AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-	//	// Set position for object 1
-	//	AEGfxSetPosition(tankPosX, tankPosY);
-	//	// No texture for object 1
-	//	AEGfxTextureSet(pTankTexture, 0, 0);
-	//	// No tint
-	//	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-	//	// Drawing the mesh (list of triangles)
-	//	AEGfxMeshDraw(pTankMesh, AE_GFX_MDM_TRIANGLES);
-
-	//	// Drawing object 1
-	//	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-	//	// Set position for object 1
-	//	AEGfxSetPosition(enemyPosX, enemyPosY);
-	//	// No texture for object 1
-	//	AEGfxTextureSet(pEnemyTexture, 0, 0);
-	//	// No tint
-	//	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-	//	// Drawing the mesh (list of triangles)
-	//	AEGfxMeshDraw(pEnemyMesh, AE_GFX_MDM_TRIANGLES);*/
-
-	//	// Game loop draw end
-	//	/////////////////////
-
-
-	//	// Informing the system about the loop's end
-	//	AESysFrameEnd();
-
-	//	// check if forcing the application to quit
-	//	if (AEInputCheckTriggered(AEVK_ESCAPE) || 0 == AESysDoesWindowExist())
-	//		gGameRunning = 0;
-	//}
-	while (currentState != GS_QUIT) {
-		if (currentState != GS_RESTART) {
-			GSM_Update();
-			fpLoad();
+		// If not restarting, load the gamestate
+		if(gGameStateCurr != GS_RESTART)
+		{
+			GameStateMgrUpdate();
+			GameStateLoad();
 		}
-		else {
-			nextState = previousState;
-			currentState = previousState;
-		}
+		else
+			gGameStateNext = gGameStateCurr = gGameStatePrev;
 
-		fpInitialize();
+		// Initialize the gamestate
+		GameStateInit();
 
-		// Game Loop
-		while (nextState == currentState) {
+		while(gGameStateCurr == gGameStateNext)
+		{
 			AESysFrameStart();
-			// InputHandle
-			fpUpdate();
-			fpDraw();
+
+			AEInputUpdate();
+
+			GameStateUpdate();
+
+			GameStateDraw();
+			
 			AESysFrameEnd();
 
-			if (AESysDoesWindowExist() == 0)
-				nextState = GS_QUIT;
+			// check if forcing the application to quit
+			if ((AESysDoesWindowExist() == false) || AEInputCheckTriggered(AEVK_ESCAPE))
+				gGameStateNext = GS_QUIT;
+
+			g_dt = (f32)AEFrameRateControllerGetFrameTime();
+			g_appTime += g_dt;
 		}
+		
+		GameStateFree();
 
-		fpFree();
+		if(gGameStateNext != GS_RESTART)
+			GameStateUnload();
 
-		if (nextState != GS_RESTART) {
-			fpUnload();
-		}
-
-		previousState = currentState;
-		currentState = nextState;
+		gGameStatePrev = gGameStateCurr;
+		gGameStateCurr = gGameStateNext;
 	}
-
-	//////////////////////////////////
-	// Free-ing Assets Used	
-
-	// Free-ing Assets Used
-	//////////////////////////////////
 
 	// free the system
 	AESysExit();

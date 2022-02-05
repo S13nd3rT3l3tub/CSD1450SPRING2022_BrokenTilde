@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*!
-\file		GameStateList.h
+\file		GameState_Asteroids.h
 \author 	DigiPen
 \par    	email: digipen\@digipen.edu
 \date   	January 01, 20xx
@@ -12,23 +12,20 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  */
 /******************************************************************************/
 
-#ifndef CSD1130_GAME_STATE_LIST_H_
-#define CSD1130_GAME_STATE_LIST_H_
-
-// ---------------------------------------------------------------------------
-// game state list
-
-enum
-{
-	// list of all game states 
-	GS_ASTEROIDS = 0, 
-	
-	// special game state. Do not change
-	GS_RESTART,
-	GS_QUIT, 
-	GS_NONE
-};
+#ifndef CSD1130_GAME_STATE_PLAY_H_
+#define CSD1130_GAME_STATE_PLAY_H_
 
 // ---------------------------------------------------------------------------
 
-#endif // CSD1130_GAME_STATE_LIST_H_
+void GameStateAsteroidsLoad(void);
+void GameStateAsteroidsInit(void);
+void GameStateAsteroidsUpdate(void);
+void GameStateAsteroidsDraw(void);
+void GameStateAsteroidsFree(void);
+void GameStateAsteroidsUnload(void);
+
+// ---------------------------------------------------------------------------
+
+#endif // CSD1130_GAME_STATE_PLAY_H_
+
+

@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*!
-\file		GameStateList.h
+\file		Main.h
 \author 	DigiPen
 \par    	email: digipen\@digipen.edu
 \date   	January 01, 20xx
@@ -12,23 +12,36 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  */
 /******************************************************************************/
 
-#ifndef CSD1130_GAME_STATE_LIST_H_
-#define CSD1130_GAME_STATE_LIST_H_
+
+#ifndef CS230_MAIN_H_
+#define CS230_MAIN_H_
+
+//------------------------------------
+// Globals
+
+extern float	g_dt;
+extern double	g_appTime;
 
 // ---------------------------------------------------------------------------
-// game state list
+// includes
 
-enum
-{
-	// list of all game states 
-	GS_ASTEROIDS = 0, 
-	
-	// special game state. Do not change
-	GS_RESTART,
-	GS_QUIT, 
-	GS_NONE
-};
+#include "AEEngine.h"
+#include "Math.h"
 
-// ---------------------------------------------------------------------------
+#include "GameStateMgr.h"
+#include "GameState_Asteroids.h"
+#include "Collision.h"
 
-#endif // CSD1130_GAME_STATE_LIST_H_
+
+#endif
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-#include "globals.h"
+#include "Globals.h"
 
 void RectMeshAdd(float x, float  y, float length, float height){
 	AEGfxTriAdd(
