@@ -41,7 +41,9 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 
 
 	// Initialize the system
-	AESysInit (instanceH, show, 800, 600, 1, 60, false, NULL);
+	//AESysInit (instanceH, show, AEGetWindowWidth(), AEGetWindowHeight(), 1, 60, false, NULL);
+	AESysInit(instanceH, show, 800,600, 1, 60, false, NULL);
+
 
 	// Changing the window title
 	AESysSetWindowTitle("Asteroids Demo!");

@@ -104,6 +104,9 @@ static long					playerLives;									// The number of lives left
 // the score = number of asteroid destroyed
 static unsigned long		playerScore;										// Current score
 
+static signed int mouseX{ 0 }, mouseY{ 0 };
+static AEVec2 dir0{ 30.0f,0.0f };
+
 // ---------------------------------------------------------------------------
 
 // functions to create/destroy a game object instance
@@ -262,9 +265,17 @@ void GameStateAsteroidsUpdate(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 
 
+	AEInputGetCursorPosition(&mouseX, &mouseY);
+	// Coordinate conversion
+	mouseX -= (AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2;
+	mouseY -= (AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2;
+	mouseY = -mouseY;
+	float dotProduct = atan2(mouseY, mouseX);
+	Player->dirCurr = dotProduct;
+
 	if (AEInputCheckCurr(AEVK_UP))
 	{
-		AEVec2 added;
+		/*AEVec2 added;
 		AEVec2Set(&added, cosf(Player->dirCurr), sinf(Player->dirCurr));
 		//AEVec2Add(&spShip->posCurr, &spShip->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
 
@@ -273,12 +284,12 @@ void GameStateAsteroidsUpdate(void)
 		added.y *= PLAYER_ACCEL_FORWARD * AEFrameRateControllerGetFrameTime();
 		AEVec2Add(&Player->velCurr, &Player->velCurr, &added);
 		// Limit your speed over here
-		AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);
+		AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);*/
 	}
 
 	if (AEInputCheckCurr(AEVK_DOWN))
 	{
-		AEVec2 added;
+		/*AEVec2 added;
 		AEVec2Set(&added, -cosf(Player->dirCurr), -sinf(Player->dirCurr));
 		//AEVec2Add(&spShip->posCurr, &spShip->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
 
@@ -287,19 +298,19 @@ void GameStateAsteroidsUpdate(void)
 		added.y *= PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
 		AEVec2Add(&Player->velCurr, &Player->velCurr, &added);
 		// Limit your speed over here
-		AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);
+		AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);*/
 	}
 
 	if (AEInputCheckCurr(AEVK_LEFT))
 	{
-		Player->dirCurr += PLAYER_ROT_SPEED * (float)(AEFrameRateControllerGetFrameTime());
-		Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
+		//Player->dirCurr += PLAYER_ROT_SPEED * (float)(AEFrameRateControllerGetFrameTime());
+		//Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
 	}
 
 	if (AEInputCheckCurr(AEVK_RIGHT))
 	{
-		Player->dirCurr -= PLAYER_ROT_SPEED * (float)(AEFrameRateControllerGetFrameTime());
-		Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
+		//Player->dirCurr -= PLAYER_ROT_SPEED * (float)(AEFrameRateControllerGetFrameTime());
+		//Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -307,7 +318,7 @@ void GameStateAsteroidsUpdate(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 
 	// Shoot a bullet if space is triggered (Create a new object instance)
-	if (AEInputCheckTriggered(AEVK_SPACE))
+	if (AEInputCheckTriggered(VK_LBUTTON))
 	{
 		// Get the bullet's direction according to the ship's direction
 		AEVec2 dirBullet;
