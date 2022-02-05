@@ -55,10 +55,23 @@ bool CollisionIntersection_RectRect(const AABB& aabb1, const AEVec2& vel1,
 	Step 5: Otherwise the rectangles intersect
 	*/
 
-	if (aabb1.min.x > aabb2.max.x || aabb1.min.y > aabb2.max.y)
+	/*if (aabb1.min.x > aabb2.max.x)
 		return false;
-	if (aabb2.min.x > aabb1.max.x || aabb2.min.y > aabb1.max.y)
+	if (aabb1.min.y > aabb2.max.y)
 		return false;
+	if (aabb2.min.x > aabb1.max.x)
+		return false;
+	if (aabb2.min.y > aabb1.max.y)
+		return false;*/
+	if (aabb1.max.x < aabb2.min.x)
+		return false;
+	if (aabb1.min.x > aabb2.max.x)
+		return false;
+	if (aabb1.max.y < aabb2.min.y)
+		return false;
+	if (aabb1.min.y > aabb2.max.y)
+		return false;
+
 
 	float tFirst{ 0 }, tLast{ g_dt }, tTmp{ 0 };
 	AEVec2 Vb{};
@@ -69,17 +82,24 @@ bool CollisionIntersection_RectRect(const AABB& aabb1, const AEVec2& vel1,
 	if (Vb.x < 0) {
 		if (aabb1.min.x > aabb2.max.x) // Case 1
 			return false;
-		if (aabb1.max.x < aabb2.min.x) // Case 4
-			tFirst = (aabb1.max.x - aabb2.min.x) / Vb.x;
-		if (aabb1.min.x < aabb2.max.x) // Case 4
-			tLast = (aabb1.min.x - aabb2.max.x) / Vb.x;
-
+		if (aabb1.max.x < aabb2.min.x) {// Case 4
+			tTmp = (aabb1.max.x - aabb2.min.x) / Vb.x;
+			tFirst = tTmp > tFirst ? tTmp : tFirst;
+		}
+		if (aabb1.min.x < aabb2.max.x) {// Case 4
+			tTmp = (aabb1.min.x - aabb2.max.x) / Vb.x;
+			tLast = tTmp < tLast ? tTmp : tLast;
+		}
 	}
 	if (Vb.x > 0) {
-		if (aabb1.min.x > aabb2.max.x) // Case 2
-			tFirst = (aabb1.min.x - aabb2.max.x) / Vb.x;
-		if (aabb1.max.x > aabb2.min.x) // Case 2
-			tLast = (aabb1.max.x - aabb2.min.x) / Vb.x;
+		if (aabb1.min.x > aabb2.max.x) {// Case 2
+			tTmp = (aabb1.min.x - aabb2.max.x) / Vb.x;
+			tFirst = tTmp > tFirst ? tTmp : tFirst;
+		}
+		if (aabb1.max.x > aabb2.min.x) {// Case 2
+			tTmp = (aabb1.max.x - aabb2.min.x) / Vb.x;
+			tLast = tTmp < tLast ? tTmp : tLast;
+		}
 		if (aabb1.max.x < aabb2.min.x) // Case 3
 			return false;
 	}
@@ -90,17 +110,24 @@ bool CollisionIntersection_RectRect(const AABB& aabb1, const AEVec2& vel1,
 	if (Vb.y < 0) {
 		if (aabb1.min.y > aabb2.max.y) // Case 1
 			return false;
-		if (aabb1.max.y < aabb2.min.y) // Case 4
-			tFirst = (aabb1.max.y - aabb2.min.y) / Vb.y;
-		if (aabb1.min.y < aabb2.max.y) // Case 4
-			tLast = (aabb1.min.y - aabb2.max.y) / Vb.y;
-
+		if (aabb1.max.y < aabb2.min.y) {// Case 4
+			tTmp = (aabb1.max.y - aabb2.min.y) / Vb.y;
+			tFirst = tTmp > tFirst ? tTmp : tFirst;
+		}
+		if (aabb1.min.y < aabb2.max.y) {// Case 4
+			tTmp = (aabb1.min.y - aabb2.max.y) / Vb.y;
+			tLast = tTmp < tLast ? tTmp : tLast;
+		}
 	}
 	if (Vb.y > 0) {
-		if (aabb1.min.y > aabb2.max.y) // Case 2
-			tFirst = (aabb1.min.y - aabb2.max.y) / Vb.y;
-		if (aabb1.max.y > aabb2.min.y) // Case 2
-			tLast = (aabb1.max.y - aabb2.min.y) / Vb.y;
+		if (aabb1.min.y > aabb2.max.y) {// Case 2
+			tTmp = (aabb1.min.y - aabb2.max.y) / Vb.y;
+			tFirst = tTmp > tFirst ? tTmp : tFirst;
+		}
+		if (aabb1.max.y > aabb2.min.y) {// Case 2
+			tTmp = (aabb1.max.y - aabb2.min.y) / Vb.y;
+			tLast = tTmp < tLast ? tTmp : tLast;
+		}
 		if (aabb1.max.y < aabb2.min.y) // Case 3
 			return false;
 	}

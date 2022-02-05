@@ -26,12 +26,13 @@ const unsigned int	GAME_OBJ_INST_NUM_MAX = 2048;			//The total number of differe
 
 
 const unsigned int	PLAYER_INITIAL_NUM = 3;			// initial number of ship lives
-const float			PLAYER_SIZE = 16.0f;		// ship size
+static AEVec2		PLAYER_SIZE = {90.0f, 30.0f};		// ship size
 const float			PLAYER_ACCEL_FORWARD = 40.0f;		// ship forward acceleration (in m/s^2)
 const float			PLAYER_ACCEL_BACKWARD = 40.0f;		// ship backward acceleration (in m/s^2)
 const float			PLAYER_ROT_SPEED = (2.0f * PI);	// ship rotation speed (degree/second)
 
-const float			BULLET_SPEED = 100.0f;		// bullet speed (m/s)
+const float			BULLET_SPEED = 150.0f;		// bullet speed (m/s)
+static AEVec2		BULLET_SIZE = { 10.0f, 10.0f };
 
 // -----------------------------------------------------------------------------
 enum TYPE
@@ -68,7 +69,7 @@ struct GameObjInst
 {
 	GameObj* pObject;	// pointer to the 'original' shape
 	unsigned long		flag;		// bit flag or-ed together
-	float				scale;		// scaling value of the object instance
+	AEVec2				scale;		// scaling value of the object instance
 	AEVec2				posCurr;	// object current position
 	AEVec2				velCurr;	// object current velocity
 	float				dirCurr;	// object current direction
@@ -104,16 +105,13 @@ static long					playerLives;									// The number of lives left
 static unsigned long		playerScore;										// Current score
 
 static signed int mouseX{ 0 }, mouseY{ 0 };
-static AEVec2 dir0{ 30.0f,0.0f };
 
 // ---------------------------------------------------------------------------
 
 // functions to create/destroy a game object instance
-GameObjInst* gameObjInstCreate(unsigned long type, float scale,
+GameObjInst* gameObjInstCreate(unsigned long type, AEVec2* pScale,
 	AEVec2* pPos, AEVec2* pVel, float dir);
 void					gameObjInstDestroy(GameObjInst* pInst);
-
-
 
 
 /******************************************************************************/
@@ -173,13 +171,13 @@ void GameStateAsteroidsLoad(void)
 	pObj->type = TYPE_BULLET;
 	AEGfxMeshStart(); // width = 1.0f, height = 0.25f
 	AEGfxTriAdd(
-		-0.5f, 0.125f, 0xFFFFFF00, 0.0f, 0.0f,
-		-0.5f, -0.125f, 0xFFFFFF00, 0.0f, 1.0f,
-		0.5f, -0.125f, 0xFFFFFF00, 1.0f, 1.0f);
+		-0.5f, 0.5f, 0xFFFFFF00, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0xFFFFFF00, 0.0f, 1.0f,
+		0.5f, -0.5f, 0xFFFFFF00, 1.0f, 1.0f);
 	AEGfxTriAdd(
-		-0.5f, 0.125f, 0xFFFFFF00, 0.0f, 0.0f,
-		0.5f, 0.125f, 0xFFFFFF00, 1.0f, 0.0f,
-		0.5f, -0.125f, 0xFFFFFF00, 1.0f, 1.0f);
+		-0.5f, 0.5f, 0xFFFFFF00, 0.0f, 0.0f,
+		0.5f, 0.5f, 0xFFFFFF00, 1.0f, 0.0f,
+		0.5f, -0.5f, 0xFFFFFF00, 1.0f, 1.0f);
 
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create bullet object!!");
@@ -191,13 +189,13 @@ void GameStateAsteroidsLoad(void)
 	pObj->type = TYPE_PLATFORM;
 	AEGfxMeshStart();
 	AEGfxTriAdd( // width = 0.5f, height = 0.5f
-		-0.25f, 0.25f, 0xFF4D5853, 0.0f, 0.0f,
-		-0.25f, -0.25f, 0xFF4D5853, 0.0f, 1.0f,
-		0.25f, -0.25f, 0xFF4D5853, 1.0f, 1.0f);
+		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0xFF4D5853, 0.0f, 1.0f,
+		0.5f, -0.5f, 0xFF4D5853, 1.0f, 1.0f);
 	AEGfxTriAdd(
-		-0.25f, 0.25f, 0xFF4D5853, 0.0f, 0.0f,
-		0.25f, 0.25f, 0xFF4D5853, 1.0f, 0.0f,
-		0.25f, -0.25f, 0xFF4D5853, 1.0f, 1.0f);
+		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f,
+		0.5f, 0.5f, 0xFF4D5853, 1.0f, 0.0f,
+		0.5f, -0.5f, 0xFF4D5853, 1.0f, 1.0f);
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create asteroid object!!");
 
@@ -211,43 +209,23 @@ void GameStateAsteroidsLoad(void)
 void GameStateAsteroidsInit(void)
 {
 	// create the player
-	Player = gameObjInstCreate(TYPE_PLAYER, PLAYER_SIZE, nullptr, nullptr, 0.0f);
+	Player = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SIZE, nullptr, nullptr, 0.0f);
 	AE_ASSERT(Player);
 
-	std::default_random_engine generator;
-	std::uniform_real_distribution<float> sizeDistribution(20.0f, 200.0f);
-	std::uniform_real_distribution<float> posXDistribution(AEGfxGetWinMinX(), AEGfxGetWinMaxX());
-	std::uniform_real_distribution<float> posYDistribution(AEGfxGetWinMinY(), AEGfxGetWinMaxY());
-	std::uniform_real_distribution<float> velXDistribution(0.0f, 100.0f);
-	std::uniform_real_distribution<float> velYDistribution(0.0f, 100.0f);
-
-	// CREATE THE INITIAL ASTEROIDS INSTANCES USING THE "gameObjInstCreate" FUNCTION
-	for (int i(0); i < 4; ++i) {
-		float rSize{ sizeDistribution(generator) },
-			rPosX{ 0 }, rPosY{ 0 },
-			rVelX{ velXDistribution(generator) }, rVelY{ velYDistribution(generator) };
-		do {
-			rPosX = posXDistribution(generator);
-		} while (rPosX + 200.0f <= Player->posCurr.x);
-		do {
-			rPosY = posXDistribution(generator);
-		} while (rPosY + 200.0f <= Player->posCurr.y);
-		AEVec2 rPos{ rPosX, rPosY }, rVel{ rVelX, rVelY };
-		GameObjInst* sAsteroid = gameObjInstCreate(TYPE_PLATFORM, rSize, &rPos, &rVel, 0);
-		AE_ASSERT(sAsteroid);
-	}
-
-	AEVec2 platVel, platPos;
-
+	AEVec2 platVel, platPos, platScale;
 	platVel = { 0, 0 };
-	platPos = { -400,200 };
-	plat[0] = gameObjInstCreate(TYPE_PLATFORM, 150, &platPos, &platVel, 0.0f); // left wall
-	platPos = { -200,-300 };
-	plat[1] = gameObjInstCreate(TYPE_PLATFORM, 100, &platPos, &platVel, 0.0f); //floor
-	platPos = { 400, 200 };
-	plat[2] = gameObjInstCreate(TYPE_PLATFORM, 175, &platPos, &platVel, 0.0f); // right wall
-	platPos = { 200,1000 };
-	plat[3] = gameObjInstCreate(TYPE_PLATFORM, 60, &platPos, &platVel, 0.0f); // ceiling
+	platScale = { 100, 400 };
+	platPos = { AEGfxGetWinMinX(), 0 };
+	plat[0] = gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // left wall
+	platPos = { 0,AEGfxGetWinMinY() };
+	platScale = { 400, 100 };
+	plat[1] = gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); //floor
+	platPos = { AEGfxGetWinMaxX(), 0 };
+	platScale = { 100, 400 };
+	plat[2] = gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // right wall
+	platPos = { 0,AEGfxGetWinMaxY() };
+	platScale = { 400, 100 };
+	plat[3] = gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // ceiling
 
 	// reset the score and the number of ships
 	playerScore = 0;
@@ -288,7 +266,7 @@ void GameStateAsteroidsUpdate(void)
 	mouseX -= (AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2;
 	mouseY -= (AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2;
 	mouseY = -mouseY;
-	float dotProduct = atan2(mouseY, mouseX);
+	float dotProduct = atan2(mouseY - Player->posCurr.y, mouseX - Player->posCurr.x);
 	Player->dirCurr = dotProduct;
 
 	if (AEInputCheckCurr(AEVK_UP))
@@ -345,7 +323,7 @@ void GameStateAsteroidsUpdate(void)
 		dirBullet.x *= BULLET_SPEED;
 		dirBullet.y *= BULLET_SPEED;
 		// Create an instance
-		gameObjInstCreate(TYPE_BULLET, 10.0f, &Player->posCurr, &dirBullet, Player->dirCurr);
+		gameObjInstCreate(TYPE_BULLET, &BULLET_SIZE, &Player->posCurr, &dirBullet, Player->dirCurr);
 	}
 
 	// ======================================================
@@ -369,32 +347,12 @@ void GameStateAsteroidsUpdate(void)
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the bounding rect size based on the size used for the mesh
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
-		
-		switch (pInst->pObject->type) {
-		case TYPE_PLAYER:
-			pInst->boundingBox.min.x = -0.5f * 2 * pInst->scale + pInst->posCurr.x;
-			pInst->boundingBox.min.y = -0.5f * 2 * pInst->scale + pInst->posCurr.y;
+		pInst->boundingBox.min.x = -0.5f * pInst->scale.x + pInst->posCurr.x;
+		pInst->boundingBox.min.y = -0.5f * pInst->scale.y + pInst->posCurr.y;
 
-			pInst->boundingBox.max.x = 0.5f * 2 * pInst->scale + pInst->posCurr.x;
-			pInst->boundingBox.max.y = 0.5f * 2 * pInst->scale + pInst->posCurr.y;
-			break;
-		case TYPE_BULLET:
-			pInst->boundingBox.min.x = -0.5f * pInst->scale + pInst->posCurr.x;
-			pInst->boundingBox.min.y = -0.125f * pInst->scale + pInst->posCurr.y;
-
-			pInst->boundingBox.max.x = 0.5f * pInst->scale + pInst->posCurr.x;
-			pInst->boundingBox.max.y = 0.125f * pInst->scale + pInst->posCurr.y;
-			break;
-		case TYPE_PLATFORM:
-			pInst->boundingBox.min.x = -0.25f * pInst->scale + pInst->posCurr.x;
-			pInst->boundingBox.min.y = -0.25f * pInst->scale + pInst->posCurr.y;
-
-			pInst->boundingBox.max.x = 0.25f * pInst->scale + pInst->posCurr.x;
-			pInst->boundingBox.max.y = 0.25f * pInst->scale + pInst->posCurr.y;
-			break;
-		}
+		pInst->boundingBox.max.x = 0.5f * pInst->scale.x + pInst->posCurr.x;
+		pInst->boundingBox.max.y = 0.5f * pInst->scale.y + pInst->posCurr.y;
 	}
-
 	// ====================
 	// check for collision
 	// ====================
@@ -421,6 +379,13 @@ void GameStateAsteroidsUpdate(void)
 						// ----------------------------------------------------------------------------------------------------------------------------------------------
 						// Change to bullet spawning on mouse click in direction
 						// ----------------------------------------------------------------------------------------------------------------------------------------------
+						// newVel = oldVel - 2(oldVel.normal)normal
+						AEVec2 normal, newBulletVel;
+						normal = { -pOtherInst->boundingBox.max.y, pOtherInst->boundingBox.max.x };
+						AEVec2Normalize(&normal, &normal);
+						newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+						newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+						pInst->velCurr = newBulletVel;
 					}
 					break;
 				case TYPE_PLAYER:
@@ -466,10 +431,10 @@ void GameStateAsteroidsUpdate(void)
 			// check if the object is a ship
 		case TYPE_PLAYER:
 			// warp the ship from one end of the screen to the other
-			pInst->posCurr.x = AEWrap(pInst->posCurr.x, AEGfxGetWinMinX() - PLAYER_SIZE,
-				AEGfxGetWinMaxX() + PLAYER_SIZE);
-			pInst->posCurr.y = AEWrap(pInst->posCurr.y, AEGfxGetWinMinY() - PLAYER_SIZE,
-				AEGfxGetWinMaxY() + PLAYER_SIZE);
+			pInst->posCurr.x = AEWrap(pInst->posCurr.x, AEGfxGetWinMinX() - pInst->scale.x,
+				AEGfxGetWinMaxX() + pInst->scale.x);
+			pInst->posCurr.y = AEWrap(pInst->posCurr.y, AEGfxGetWinMinY() - pInst->scale.y,
+				AEGfxGetWinMaxY() + pInst->scale.y);
 			break;
 			// Wrap asteroids here
 		case TYPE_PLATFORM:
@@ -509,35 +474,7 @@ void GameStateAsteroidsUpdate(void)
 			continue;
 
 		// Compute the scaling matrix
-		if (pInst->pObject->type == TYPE_PLAYER)
-		{
-			AEMtx33Scale(&scale, pInst->scale * 3, pInst->scale);
-		}
-		else if (pInst->pObject->type == TYPE_PLATFORM)
-		{
-			if (pInst == plat[0])
-			{
-				AEMtx33Scale(&scale, pInst->scale * 1, pInst->scale * 40);
-			}
-			else if (pInst == plat[1])
-			{
-				AEMtx33Scale(&scale, pInst->scale * 400, pInst->scale);
-			}
-			else if (pInst == plat[2])
-			{
-				AEMtx33Scale(&scale, pInst->scale * 1, pInst->scale * 40);
-			}
-			else if (pInst == plat[3])
-			{
-				AEMtx33Scale(&scale, pInst->scale * 400, pInst->scale);
-			}
-		}
-		else
-		{
-			AEMtx33Scale(&scale, pInst->scale, pInst->scale);
-		}
-
-		
+		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
 		// Compute the rotation matrix 
 		AEMtx33Rot(&rot, pInst->dirCurr);
 		// Compute the translation matrix
@@ -634,7 +571,7 @@ void GameStateAsteroidsUnload(void)
 */
 /******************************************************************************/
 GameObjInst* gameObjInstCreate(unsigned long type,
-	float scale,
+	AEVec2* pScale,
 	AEVec2* pPos,
 	AEVec2* pVel,
 	float dir)
@@ -655,7 +592,7 @@ GameObjInst* gameObjInstCreate(unsigned long type,
 			// it is not used => use it to create the new instance
 			pInst->pObject = sGameObjList + type;
 			pInst->flag = FLAG_ACTIVE;
-			pInst->scale = scale;
+			pInst->scale = pScale ? *pScale : zero;
 			pInst->posCurr = pPos ? *pPos : zero;
 			pInst->velCurr = pVel ? *pVel : zero;
 			pInst->dirCurr = dir;
