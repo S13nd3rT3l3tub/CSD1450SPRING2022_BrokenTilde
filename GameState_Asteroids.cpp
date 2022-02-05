@@ -27,12 +27,12 @@ const unsigned int	GAME_OBJ_INST_NUM_MAX = 2048;			//The total number of differe
 
 const unsigned int	PLAYER_INITIAL_NUM = 3;			// initial number of ship lives
 static AEVec2		PLAYER_SIZE = {90.0f, 30.0f};		// ship size
-const float			PLAYER_ACCEL_FORWARD = 40.0f;		// ship forward acceleration (in m/s^2)
-const float			PLAYER_ACCEL_BACKWARD = 40.0f;		// ship backward acceleration (in m/s^2)
+const float			PLAYER_ACCEL_FORWARD = 80.0f;		// ship forward acceleration (in m/s^2)
+const float			PLAYER_ACCEL_BACKWARD = 80.0f;		// ship backward acceleration (in m/s^2)
 const float			PLAYER_ROT_SPEED = (2.0f * PI);	// ship rotation speed (degree/second)
 
-const float			BULLET_SPEED = 150.0f;		// bullet speed (m/s)
 static AEVec2		BULLET_SIZE = { 10.0f, 10.0f };
+const float			BULLET_SPEED = 300.0f;		// bullet speed (m/s)
 
 // -----------------------------------------------------------------------------
 enum TYPE
@@ -97,7 +97,8 @@ static unsigned long		sGameObjInstNum;							// The number of used game object i
 
 // pointer to the ship object
 static GameObjInst* Player;										// Pointer to the "Ship" game object instance
-static GameObjInst* plat[4];
+static GameObjInst* tankbody;
+static GameObjInst* plat[3];
 // number of ship available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
 
@@ -199,6 +200,21 @@ void GameStateAsteroidsLoad(void)
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create asteroid object!!");
 
+
+	//tank body
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_PLAYER;
+	AEGfxMeshStart();
+	AEGfxTriAdd( // width = 0.5f, height = 0.5f
+		-0.25f, 0.25f, 0xFF4D5853, 0.0f, 0.0f,
+		-0.25f, -0.25f, 0xFF4D5853, 0.0f, 1.0f,
+		0.25f, -0.25f, 0xFF4D5853, 1.0f, 1.0f);
+	AEGfxTriAdd(
+		-0.25f, 0.25f, 0xFF4D5853, 0.0f, 0.0f,
+		0.25f, 0.25f, 0xFF4D5853, 1.0f, 0.0f,
+		0.25f, -0.25f, 0xFF4D5853, 1.0f, 1.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create asteroid object!!");
 }
 
 /******************************************************************************/
@@ -209,7 +225,8 @@ void GameStateAsteroidsLoad(void)
 void GameStateAsteroidsInit(void)
 {
 	// create the player
-	Player = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SIZE, nullptr, nullptr, 0.0f);
+	AEVec2 spawnpoint = { 0,-230 };
+	Player = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SIZE, &spawnpoint, nullptr, 0.0f);
 	AE_ASSERT(Player);
 
 	AEVec2 platVel, platPos, platScale;
@@ -271,42 +288,64 @@ void GameStateAsteroidsUpdate(void)
 
 	if (AEInputCheckCurr(AEVK_UP))
 	{
-		/*AEVec2 added;
-		AEVec2Set(&added, cosf(Player->dirCurr), sinf(Player->dirCurr));
-		//AEVec2Add(&spShip->posCurr, &spShip->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
+		//AEVec2 added;
+		//AEVec2Set(&added, cosf(Player->dirCurr), sinf(Player->dirCurr));
+		//AEVec2Add(&Player->posCurr, &Player->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
 
-		// Find the velocity according to the acceleration
-		added.x *= PLAYER_ACCEL_FORWARD * AEFrameRateControllerGetFrameTime();
-		added.y *= PLAYER_ACCEL_FORWARD * AEFrameRateControllerGetFrameTime();
-		AEVec2Add(&Player->velCurr, &Player->velCurr, &added);
-		// Limit your speed over here
-		AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);*/
+		//// Find the velocity according to the acceleration
+		//added.x *= PLAYER_ACCEL_FORWARD * AEFrameRateControllerGetFrameTime();
+		//added.y *= PLAYER_ACCEL_FORWARD * AEFrameRateControllerGetFrameTime();
+		//AEVec2Add(&Player->velCurr, &Player->velCurr, &added);
+		//// Limit your speed over here
+		//AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);
 	}
 
 	if (AEInputCheckCurr(AEVK_DOWN))
 	{
-		/*AEVec2 added;
-		AEVec2Set(&added, -cosf(Player->dirCurr), -sinf(Player->dirCurr));
-		//AEVec2Add(&spShip->posCurr, &spShip->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
-
-		// Find the velocity according to the acceleration
-		added.x *= PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
-		added.y *= PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
-		AEVec2Add(&Player->velCurr, &Player->velCurr, &added);
-		// Limit your speed over here
-		AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);*/
+		//AEVec2 added;
+		//AEVec2Set(&added, -cosf(Player->dirCurr), -sinf(Player->dirCurr));
+		////AEVec2Add(&spShip->posCurr, &spShip->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
+		//// Find the velocity according to the acceleration
+		//added.x *= PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
+		//added.y *= PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
+		//AEVec2Add(&Player->velCurr, &Player->velCurr, &added);
+		//// Limit your speed over here
+		//AEVec2Scale(&Player->velCurr, &Player->velCurr, 0.99f);
 	}
 
 	if (AEInputCheckCurr(AEVK_LEFT))
 	{
 		//Player->dirCurr += PLAYER_ROT_SPEED * (float)(AEFrameRateControllerGetFrameTime());
 		//Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
+		//added.x *= PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
+
+		AEVec2 added;
+		AEVec2Set(&added, cosf(tankbody->dirCurr), sinf(tankbody->dirCurr));
+		//AEVec2Add(&tankbody->posCurr, &tankbody->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
+
+		// Find the velocity according to the acceleration
+		added.x *= -PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
+		added.y *= -PLAYER_ACCEL_BACKWARD * AEFrameRateControllerGetFrameTime();
+		AEVec2Add(&tankbody->velCurr, &tankbody->velCurr, &added);
+		// Limit your speed over here
+		AEVec2Scale(&tankbody->velCurr, &tankbody->velCurr, 0.99f);
 	}
 
 	if (AEInputCheckCurr(AEVK_RIGHT))
 	{
 		//Player->dirCurr -= PLAYER_ROT_SPEED * (float)(AEFrameRateControllerGetFrameTime());
 		//Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
+
+		AEVec2 added;
+		AEVec2Set(&added, cosf(tankbody->dirCurr), sinf(tankbody->dirCurr));
+		//AEVec2Add(&Player->posCurr, &Player->posCurr, &added);//YOU MAY NEED TO CHANGE/REPLACE THIS LINE
+
+		// Find the velocity according to the acceleration
+		added.x *= PLAYER_ACCEL_FORWARD * AEFrameRateControllerGetFrameTime();
+		added.y *= PLAYER_ACCEL_FORWARD * AEFrameRateControllerGetFrameTime();
+		AEVec2Add(&tankbody->velCurr, &tankbody->velCurr, &added);
+		// Limit your speed over here
+		AEVec2Scale(&tankbody->velCurr, &tankbody->velCurr, 0.99f);
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -343,6 +382,21 @@ void GameStateAsteroidsUpdate(void)
 		AEVec2 velDt;
 		AEVec2Scale(&velDt, &pInst->velCurr, static_cast<f32>(AEFrameRateControllerGetFrameTime()));
 		AEVec2Add(&pInst->posCurr, &pInst->posCurr, &velDt);
+
+		if (pInst == tankbody) //force gravity
+		{
+			pInst->velCurr.x *= 0.98; // brakes tank when no longer holding the arrow keys.
+			pInst->velCurr.y *= 0.98;
+			if (pInst->posCurr.y != -255)
+			{
+				pInst->posCurr.y = -255;
+			}
+		}
+		if (pInst == Player) // attach tankbody to turret
+		{
+			pInst->posCurr = tankbody->posCurr;
+		}
+
 
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the bounding rect size based on the size used for the mesh
