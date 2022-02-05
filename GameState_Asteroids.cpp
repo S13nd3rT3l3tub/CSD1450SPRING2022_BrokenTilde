@@ -169,13 +169,13 @@ void GameStateAsteroidsLoad(void)
 	pObj->type = TYPE_PLAYERGUN;
 	AEGfxMeshStart();
 	AEGfxTriAdd(
-		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f,
-		-0.5f, -0.5f, 0xFF4D5853, 0.0f, 1.0f,
-		0.5f, -0.5f, 0xFF4D5853, 1.0f, 1.0f);
+		-0.5f, 0.5f, 0xFFFF0000, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0xFFFF0000, 0.0f, 1.0f,
+		0.5f, -0.5f, 0xFFFFFFFF, 1.0f, 1.0f);
 	AEGfxTriAdd(
-		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f,
-		0.5f, 0.5f, 0xFF4D5853, 1.0f, 0.0f,
-		0.5f, -0.5f, 0xFF4D5853, 1.0f, 1.0f);
+		-0.5f, 0.5f, 0xFFFF0000, 0.0f, 0.0f,
+		0.5f, 0.5f, 0xFFFF0000, 1.0f, 0.0f,
+		0.5f, -0.5f, 0xFFFFFFFF, 1.0f, 1.0f);
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
 
@@ -223,11 +223,11 @@ void GameStateAsteroidsLoad(void)
 void GameStateAsteroidsInit(void)
 {
 	// create the player
-	AEVec2 spawnpoint = { 0,0 };
+	AEVec2 spawnpoint = { 0,100 };
 	PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SIZE, &spawnpoint, nullptr, 0.0f);
 	AE_ASSERT(PlayerBody);
 
-	PlayerGun = gameObjInstCreate(TYPE_PLAYER, &GUN_SIZE, &spawnpoint, nullptr, 0.0f);
+	PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SIZE, nullptr, nullptr, 0.0f);
 	AE_ASSERT(PlayerGun);
 
 	AEVec2 platVel, platPos, platScale;
@@ -388,10 +388,10 @@ void GameStateAsteroidsUpdate(void)
 		{
 			pInst->velCurr.x *= 0.98; // brakes tank when no longer holding the arrow keys.
 			pInst->velCurr.y *= 0.98;
-			if (pInst->posCurr.y != -255)
-			{
-				pInst->posCurr.y = -255;
-			}
+			//if (pInst->posCurr.y != -255)
+			//{
+			//	pInst->posCurr.y = -255;
+			//}
 		}
 		if (pInst == PlayerGun) // attach turret to body
 		{
@@ -435,12 +435,14 @@ void GameStateAsteroidsUpdate(void)
 						// ----------------------------------------------------------------------------------------------------------------------------------------------
 						// newVel = oldVel - 2(oldVel.normal)normal
 						std::cout << "Reflecting ... ";
-						AEVec2 normal, newBulletVel;
+						/*AEVec2 normal, newBulletVel;
 						normal = { -pOtherInst->boundingBox.max.y, pOtherInst->boundingBox.max.x };
 						AEVec2Normalize(&normal, &normal);
 						newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 						newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-						pInst->velCurr = newBulletVel;
+						pInst->velCurr = newBulletVel;*/
+
+
 					}
 					break;
 				case TYPE_PLAYER:
