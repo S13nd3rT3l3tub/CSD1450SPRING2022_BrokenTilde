@@ -53,7 +53,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 
 
 
-	GameStateMgrInit(GS_ASTEROIDS);
+	GameStateMgrInit(GS_LEVEL1);
 
 	while(gGameStateCurr != GS_QUIT)
 	{

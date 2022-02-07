@@ -13,14 +13,14 @@
   <ItemGroup>
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="GameStateMgr.cpp" />
-    <ClCompile Include="GameState_Asteroids.cpp" />
+    <ClCompile Include="GameState_Level1.cpp" />
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameStateList.h" />
     <ClInclude Include="GameStateMgr.h" />
-    <ClInclude Include="GameState_Asteroids.h" />
+    <ClInclude Include="GameState_Level1.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Main.h" />
   </ItemGroup>

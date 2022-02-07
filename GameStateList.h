@@ -21,7 +21,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 enum
 {
 	// list of all game states 
-	GS_ASTEROIDS = 0, 
+	GS_LEVEL1 = 0, 
 	
 	// special game state. Do not change
 	GS_RESTART,

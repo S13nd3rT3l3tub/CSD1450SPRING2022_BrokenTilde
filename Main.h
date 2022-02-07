@@ -29,7 +29,7 @@ extern double	g_appTime;
 #include "Math.h"
 
 #include "GameStateMgr.h"
-#include "GameState_Asteroids.h"
+#include "GameState_Level1.h"
 #include "Collision.h"
 
 

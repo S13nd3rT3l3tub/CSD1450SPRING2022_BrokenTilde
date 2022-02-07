@@ -1,6 +1,6 @@
 /******************************************************************************/
 /*!
-\file		GameState_Asteroids.h
+\file		GameState_Level1.h
 \author 	DigiPen
 \par    	email: digipen\@digipen.edu
 \date   	January 01, 20xx
@@ -17,12 +17,12 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 // ---------------------------------------------------------------------------
 
-void GameStateAsteroidsLoad(void);
-void GameStateAsteroidsInit(void);
-void GameStateAsteroidsUpdate(void);
-void GameStateAsteroidsDraw(void);
-void GameStateAsteroidsFree(void);
-void GameStateAsteroidsUnload(void);
+void GameStateLevel1Load(void);
+void GameStateLevel1Init(void);
+void GameStateLevel1Update(void);
+void GameStateLevel1Draw(void);
+void GameStateLevel1Free(void);
+void GameStateLevel1Unload(void);
 
 // ---------------------------------------------------------------------------
 

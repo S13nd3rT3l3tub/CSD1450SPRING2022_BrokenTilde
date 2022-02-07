@@ -62,13 +62,13 @@ void GameStateMgrUpdate()
 
 	switch (gGameStateCurr)
 	{
-	case GS_ASTEROIDS:
-		GameStateLoad = GameStateAsteroidsLoad;
-		GameStateInit = GameStateAsteroidsInit;
-		GameStateUpdate = GameStateAsteroidsUpdate;
-		GameStateDraw = GameStateAsteroidsDraw;
-		GameStateFree = GameStateAsteroidsFree;
-		GameStateUnload = GameStateAsteroidsUnload;
+	case GS_LEVEL1:
+		GameStateLoad = GameStateLevel1Load;
+		GameStateInit = GameStateLevel1Init;
+		GameStateUpdate = GameStateLevel1Update;
+		GameStateDraw = GameStateLevel1Draw;
+		GameStateFree = GameStateLevel1Free;
+		GameStateUnload = GameStateLevel1Unload;
 		break;
 	default:
 		AE_FATAL_ERROR("invalid state!!");
