@@ -281,12 +281,24 @@ void GameStateLevel1Update(void)
 	float dotProduct = atan2(mouseY - PlayerBody->posCurr.y, mouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
 
-	/*if (AEInputCheckCurr(AEVK_UP))
+	if (AEInputCheckCurr(AEVK_UP))
 	{
 		// Add jump
+
+		for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
+			GameObjInst* pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if ((pInst->flag & FLAG_ACTIVE) == 0)
+				continue;
+
+			if (pInst->pObject->type == TYPE_BULLET)
+				gameObjInstDestroy(pInst);
+
+		}
 	}
 
-	if (AEInputCheckCurr(AEVK_DOWN))
+	/*if (AEInputCheckCurr(AEVK_DOWN))
 	{
 		
 	}*/
