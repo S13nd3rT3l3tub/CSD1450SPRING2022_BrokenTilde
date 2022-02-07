@@ -162,7 +162,7 @@ void GameStateLevel1Load(void)
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player object!!");
 
 	// =====================
-	// create the player shape
+	// create the player gun shape
 	// =====================
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PLAYERGUN;
@@ -231,18 +231,26 @@ void GameStateLevel1Init(void)
 
 	AEVec2 platVel, platPos, platScale;
 	platVel = { 0, 0 };
-	platScale = { 100, 400 };
+	platScale = { 100, 600 };
 	platPos = { AEGfxGetWinMinX(), 0 };
 	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // left wall
 	platPos = { 0,AEGfxGetWinMinY() };
-	platScale = { 400, 100 };
+	platScale = { 700, 100 };
 	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); //floor
 	platPos = { AEGfxGetWinMaxX(), 0 };
-	platScale = { 100, 400 };
+	platScale = { 100, 600 };
 	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // right wall
 	platPos = { 0,AEGfxGetWinMaxY() };
-	platScale = { 400, 100 };
+	platScale = { 700, 100 };
 	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // ceiling
+
+	platPos = { AEGfxGetWinMinX() + 100, AEGfxGetWinMinY() + 150 };
+	platScale = { 150, 50 };
+	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // platform1
+
+	//platPos = { 0,AEGfxGetWinMaxY() };
+	//platScale = { 700, 100 };
+	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // platform2
 
 	// reset the score and the number of lives
 	playerScore = 0;
@@ -567,9 +575,6 @@ void GameStateLevel1Draw(void)
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
-
-		if (pInst->pObject->type == TYPE_BULLET)
-			std::cout << "Draw Bullet velo: " << pInst->velCurr.x << ", " << pInst->velCurr.y << std::endl;
 
 		// Set the current object instance's transform matrix using "AEGfxSetTransform"
 		AEGfxSetTransform(pInst->transform.m);
