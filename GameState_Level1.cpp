@@ -438,6 +438,17 @@ void GameStateLevel1Update(void)
 						AEVec2Scale(&velDt, &pInst->velCurr, static_cast<f32>(g_dt));
 						AEVec2Add(&pInst->posCurr, &pInst->posCurr, &velDt);
 						//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << std::endl;
+					
+						// Find new angle first
+						//float newDirection = pOtherInst->dirCurr - (pInst->dirCurr - pOtherInst->dirCurr);
+						//newDirection = AEWrap(newDirection, -PI, PI);
+						////std::cout << newDirection << std::endl;
+						//pInst->dirCurr = newDirection;
+
+						//// Get the new velocity
+						//AEVec2Set(&pInst->velCurr, cosf(pInst->dirCurr), sinf(pInst->dirCurr));
+						//pInst->velCurr.x *= BULLET_SPEED;
+						//pInst->velCurr.y *= BULLET_SPEED;
 					}
 					break;
 				case TYPE_PLAYER:
