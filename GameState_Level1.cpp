@@ -25,14 +25,14 @@ const unsigned int	GAME_OBJ_INST_NUM_MAX = 2048;			//The total number of differe
 
 
 const unsigned int	PLAYER_INITIAL_NUM = 3;			// initial number of player lives
-static AEVec2		PLAYER_SIZE = {90.0f, 30.0f};		// player size
-static AEVec2		GUN_SIZE = { 50.0f, 10.0f };		// gun size
+static AEVec2		PLAYER_SIZE = {70.0f, 30.0f};		// player size
+static AEVec2		GUN_SIZE = { 80.0f, 15.0f };		// gun size
 
 const float			PLAYER_ACCEL_FORWARD = 80.0f;		// player forward acceleration (in m/s^2)
 const float			PLAYER_ACCEL_BACKWARD = 80.0f;		// player backward acceleration (in m/s^2)
 const float			GRAVITY = 9.8f;
 
-static AEVec2		BULLET_SIZE = { 10.0f, 10.0f };
+static AEVec2		BULLET_SIZE = { 7.5f, 7.5f };
 const float			BULLET_SPEED = 300.0f;		// bullet speed (m/s)
 
 // -----------------------------------------------------------------------------
@@ -168,13 +168,13 @@ void GameStateLevel1Load(void)
 	pObj->type = TYPE_PLAYERGUN;
 	AEGfxMeshStart();
 	AEGfxTriAdd(
-		-0.5f, 0.5f, 0xFFFF0000, 0.0f, 0.0f,
-		-0.5f, -0.5f, 0xFFFF0000, 0.0f, 1.0f,
-		0.5f, -0.5f, 0xFFFFFFFF, 1.0f, 1.0f);
+		0.0f, 0.25f, 0xFFFF0000, 0.0f, 0.0f,
+		0.0f, -0.25f, 0xFFFF0000, 0.0f, 1.0f,
+		0.5f, -0.25f, 0xFFFFFFFF, 1.0f, 1.0f);
 	AEGfxTriAdd(
-		-0.5f, 0.5f, 0xFFFF0000, 0.0f, 0.0f,
-		0.5f, 0.5f, 0xFFFF0000, 1.0f, 0.0f,
-		0.5f, -0.5f, 0xFFFFFFFF, 1.0f, 1.0f);
+		0.0f, 0.25f, 0xFFFF0000, 0.0f, 0.0f,
+		0.5f, 0.25f, 0xFFFF0000, 1.0f, 0.0f,
+		0.5f, -0.25f, 0xFFFFFFFF, 1.0f, 1.0f);
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
 
@@ -337,6 +337,9 @@ void GameStateLevel1Update(void)
 		// Set the velocity
 		dirBullet.x *= BULLET_SPEED;
 		dirBullet.y *= BULLET_SPEED;
+		// Calculate end of gun barrel position
+		// 
+		// 
 		// Create an instance
 		gameObjInstCreate(TYPE_BULLET, &BULLET_SIZE, &PlayerGun->posCurr, &dirBullet, PlayerGun->dirCurr);
 	}
