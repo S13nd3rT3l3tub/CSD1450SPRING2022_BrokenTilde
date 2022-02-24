@@ -28,8 +28,8 @@ const unsigned int	PLAYER_INITIAL_NUM = 3;			// initial number of player lives
 static AEVec2		PLAYER_SIZE = {70.0f, 30.0f};		// player size
 static AEVec2		GUN_SIZE = { 80.0f, 15.0f };		// gun size
 
-const float			PLAYER_ACCEL_FORWARD = 80.0f;		// player forward acceleration (in m/s^2)
-const float			PLAYER_ACCEL_BACKWARD = 80.0f;		// player backward acceleration (in m/s^2)
+const float			PLAYER_ACCEL_FORWARD = 250.0f;		// player forward acceleration (in m/s^2)
+const float			PLAYER_ACCEL_BACKWARD = 250.0f;		// player backward acceleration (in m/s^2)
 const float			GRAVITY = 9.8f;
 
 static AEVec2		BULLET_SIZE = { 7.5f, 7.5f };
@@ -281,10 +281,8 @@ void GameStateLevel1Update(void)
 	float dotProduct = atan2(mouseY - PlayerBody->posCurr.y, mouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
 
-	if (AEInputCheckCurr(AEVK_UP))
+	if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
 	{
-		// Add jump
-
 		for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
 			GameObjInst* pInst = sGameObjInstList + i;
 
@@ -298,17 +296,21 @@ void GameStateLevel1Update(void)
 		}
 	}
 
-	/*if (AEInputCheckCurr(AEVK_DOWN))
-	{
-		
-	}*/
+	if (AEInputCheckTriggered(AEVK_W)) // JUMP - right now, can infinitely jump. Need to implement hotspot at bottom of tank to detect
+	{									// whether the tank is touching the ground or not.
+		AEVec2 added;
+		AEVec2Set(&added, 0.f, 1.f);
 
-	if (AEInputCheckCurr(AEVK_LEFT))
-	{
-		//Player->dirCurr += PLAYER_ROT_SPEED * (float)(g_dt);
-		//Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
-		//added.x *= PLAYER_ACCEL_BACKWARD * g_dt;
+		// Find the velocity according to the acceleration
+		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
+		added.y *= 29000 * g_dt;
+		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+		// Limit your speed over here
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+	}
 
+	if (AEInputCheckCurr(AEVK_A)) // Move left
+	{
 		AEVec2 added;
 		AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
 
@@ -320,7 +322,7 @@ void GameStateLevel1Update(void)
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
 	}
 
-	if (AEInputCheckCurr(AEVK_RIGHT))
+	if (AEInputCheckCurr(AEVK_D))
 	{
 		//Player->dirCurr -= PLAYER_ROT_SPEED * (float)(g_dt);
 		//Player->dirCurr = AEWrap(Player->dirCurr, -PI, PI);
