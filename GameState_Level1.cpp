@@ -355,7 +355,10 @@ void GameStateLevel1Update(void)
 		// 
 		// 
 		// Create an instance
-		gameObjInstCreate(TYPE_BULLET, &BULLET_SIZE, &PlayerGun->posCurr, &dirBullet, PlayerGun->dirCurr);
+		AEVec2 BarrelEnd;
+		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.11;
+		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.11;
+		gameObjInstCreate(TYPE_BULLET, &BULLET_SIZE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr);
 	}
 
 	// ======================================================
