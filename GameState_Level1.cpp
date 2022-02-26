@@ -78,7 +78,7 @@ struct GameObjInst
 	AABB				boundingBox;// object bouding box that encapsulates the object
 	AEMtx33				transform;	// object transformation matrix: Each frame, 
 									// calculate the object instance's transformation matrix and save it here
-
+	int					bulletbounce{};
 	//void				(*pfUpdate)(void);
 	//void				(*pfDraw)(void);
 };
@@ -466,6 +466,14 @@ void GameStateLevel1Update(void)
 						//AEVec2Set(&pInst->velCurr, cosf(pInst->dirCurr), sinf(pInst->dirCurr));
 						//pInst->velCurr.x *= BULLET_SPEED;
 						//pInst->velCurr.y *= BULLET_SPEED;
+
+						//Limit number of bullet bounces:
+						++(pInst->bulletbounce);
+						if (pInst->bulletbounce >= 3)
+						{
+							gameObjInstDestroy(pInst);
+							pInst->bulletbounce = 0;
+						}
 					}
 					break;
 				case TYPE_PLAYER:
