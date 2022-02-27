@@ -33,7 +33,7 @@ const float			PLAYER_ACCEL_BACKWARD = 250.0f;		// player backward acceleration (
 const float			GRAVITY = 9.8f;
 
 static AEVec2		BULLET_SIZE = { 7.5f, 7.5f };
-const float			BULLET_SPEED = 300.0f;		// bullet speed (m/s)
+const float			BULLET_SPEED = 500.0f;		// bullet speed (m/s)
 
 // -----------------------------------------------------------------------------
 enum TYPE
@@ -303,7 +303,20 @@ void GameStateLevel1Update(void)
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 29000 * g_dt;
+		added.y *= 15000 * g_dt; // 29000
+		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+		// Limit your speed over here
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+	}
+
+	if (AEInputCheckCurr(AEVK_W)) // Hold to hover (experimental) 
+	{									
+		AEVec2 added;
+		AEVec2Set(&added, 0.f, 1.f);
+
+		// Find the velocity according to the acceleration
+		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
+		added.y *= 480 * g_dt; //500
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
@@ -356,8 +369,8 @@ void GameStateLevel1Update(void)
 		// 
 		// Create an instance
 		AEVec2 BarrelEnd;
-		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.11;
-		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.11;
+		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.07;
+		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.07;
 		gameObjInstCreate(TYPE_BULLET, &BULLET_SIZE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr);
 	}
 
