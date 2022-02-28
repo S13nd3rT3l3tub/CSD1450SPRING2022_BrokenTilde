@@ -31,7 +31,7 @@ extern double	g_appTime;
 #include "GameStateMgr.h"
 #include "GameState_Level1.h"
 #include "Collision.h"
-
+#include "BinaryMap.h"
 
 #endif
 

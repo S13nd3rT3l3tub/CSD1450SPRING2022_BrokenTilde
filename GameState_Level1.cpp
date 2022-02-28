@@ -140,6 +140,13 @@ void GameStateLevel1Load(void)
 	GameObj* pObj;
 
 	// =====================
+	// Load Level 1 Binary Map
+	// =====================
+	
+	//	Import Level1.txt from Bin folder
+	ImportMapDataFromFile("Level1.txt");
+
+	// =====================
 	// create the player shape
 	// =====================
 
@@ -230,27 +237,55 @@ void GameStateLevel1Init(void)
 	AE_ASSERT(PlayerGun);
 
 	AEVec2 platVel, platPos, platScale;
-	platVel = { 0, 0 };
-	platScale = { 100, 600 };
-	platPos = { AEGfxGetWinMinX(), 0 };
-	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // left wall
-	platPos = { 0,AEGfxGetWinMinY() };
-	platScale = { 700, 100 };
-	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); //floor
-	platPos = { AEGfxGetWinMaxX(), 0 };
-	platScale = { 100, 600 };
-	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // right wall
-	platPos = { 0,AEGfxGetWinMaxY() };
-	platScale = { 700, 100 };
-	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // ceiling
 
-	platPos = { AEGfxGetWinMinX() + 100, AEGfxGetWinMinY() + 150 };
-	platScale = { 150, 50 };
-	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // platform1
+	//platVel = { 0, 0 };
+	//platScale = { 100, 600 };
+	//platPos = { AEGfxGetWinMinX(), 0 };
+	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // left wall
+	//platPos = { 0,AEGfxGetWinMinY() };
+	//platScale = { 700, 100 };
+	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); //floor
+	//platPos = { AEGfxGetWinMaxX(), 0 };
+	//platScale = { 100, 600 };
+	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // right wall
+	//platPos = { 0,AEGfxGetWinMaxY() };
+	//platScale = { 700, 100 };
+	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // ceiling
+
+	//platPos = { AEGfxGetWinMinX() + 100, AEGfxGetWinMinY() + 150 };
+	//platScale = { 150, 50 };
+	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // platform1
 
 	//platPos = { 0,AEGfxGetWinMaxY() };
 	//platScale = { 700, 100 };
 	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // platform2
+
+	// Initialise Binary map
+	for (int row = 0; row < BINARY_MAP_HEIGHT; row++)
+	{
+		for (int col = 0; col < BINARY_MAP_WIDTH; col++)
+		{
+			std::cout << MapData[row][col] << " ";
+			switch(MapData[row][col])
+				{
+					//	Boundary walls - Top and Bottom
+					case 1:
+						platVel = { 0, 0 };
+						platScale = { 150, 50 };
+						platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
+						gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0);
+						break;
+					//	Platforms
+					case 2:
+						platVel = { 0, 0 };
+						platScale = { 150, 25 };
+						platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
+						gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0);
+						break;
+				}
+		}
+		std::cout << std::endl;
+	}
 
 	// reset the score and the number of lives
 	playerScore = 0;
@@ -648,6 +683,8 @@ void GameStateLevel1Free(void)
 
 		gameObjInstDestroy(pInst);
 	}
+
+	FreeMapData();
 }
 
 /******************************************************************************/

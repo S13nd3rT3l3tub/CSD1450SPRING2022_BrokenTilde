@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BinaryMap.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="GameStateMgr.cpp" />
     <ClCompile Include="GameState_Level1.cpp" />
@@ -18,6 +19,7 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryMap.h" />
     <ClInclude Include="GameStateList.h" />
     <ClInclude Include="GameStateMgr.h" />
     <ClInclude Include="GameState_Level1.h" />
