@@ -35,6 +35,15 @@ const float			GRAVITY = 9.8f;
 static AEVec2		BULLET_SIZE = { 7.5f, 7.5f };
 const float			BULLET_SPEED = 500.0f;		// bullet speed (m/s)
 
+
+//Gameplay related variables and values
+//const float			GRAVITY = -20.0f;
+//const float			JUMP_VELOCITY = 11.0f;
+//const float			MOVE_VELOCITY_HERO = 4.0f;
+//const float			MOVE_VELOCITY_ENEMY = 7.5f;
+//const double		ENEMY_IDLE_TIME = 2.0;
+
+
 // -----------------------------------------------------------------------------
 enum TYPE
 {
@@ -48,8 +57,15 @@ enum TYPE
 
 // -----------------------------------------------------------------------------
 // object flag definition
+const unsigned int	FLAG_ACTIVE = 0x00000001;
+const unsigned int	FLAG_VISIBLE = 0x00000002;
+const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
 
-const unsigned long FLAG_ACTIVE = 0x00000001;
+// Collision flags
+const unsigned int	COLLISION_LEFT = 0x00000001;	//0001
+const unsigned int	COLLISION_RIGHT = 0x00000002;	//0010
+const unsigned int	COLLISION_TOP = 0x00000004;	//0100
+const unsigned int	COLLISION_BOTTOM = 0x00000008;	//1000
 
 /******************************************************************************/
 /*!
@@ -79,6 +95,20 @@ struct GameObjInst
 	AEMtx33				transform;	// object transformation matrix: Each frame, 
 									// calculate the object instance's transformation matrix and save it here
 	int					bulletbounce{};
+
+	//Used to hold the current 
+	int				gridCollisionFlag;
+
+	// pointer to custom data specific for each object type
+	//void* pUserData;
+
+	//State of the object instance
+	//enum			STATE state;
+	//enum			INNER_STATE innerState;
+
+	//General purpose counter (This variable will be used for the enemy state machine)
+	double			counter;
+
 	//void				(*pfUpdate)(void);
 	//void				(*pfDraw)(void);
 };
@@ -97,16 +127,21 @@ static unsigned long		sGameObjNum;								// The number of defined game objects
 static GameObjInst			sGameObjInstList[GAME_OBJ_INST_NUM_MAX];	// Each element in this array represents a unique game object instance (sprite)
 static unsigned long		sGameObjInstNum;							// The number of used game object instances
 
+
 // pointer to the PlayerBody and gun object
 static GameObjInst* PlayerBody;										
 static GameObjInst* PlayerGun;
+
 // number of player lives available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
-
-// the score = number of enemies destroyed
-static unsigned long		playerScore;										// Current score
-
+													
+// Current mouse position
 static signed int mouseX{ 0 }, mouseY{ 0 };
+
+// Transform matrix containing shift of grid to world coordinates
+// concatenate this with object instance's own transform matrix
+static AEMtx33			MapTransform;
+
 
 // ---------------------------------------------------------------------------
 
@@ -133,18 +168,11 @@ void GameStateLevel1Load(void)
 	// No game object instances (sprites) at this point
 	sGameObjInstNum = 0;
 
-	
 	PlayerBody = nullptr;
+	PlayerGun = nullptr;
 
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
-
-	// =====================
-	// Load Level 1 Binary Map
-	// =====================
-	
-	//	Import Level1.txt from Bin folder
-	ImportMapDataFromFile("Level1.txt");
 
 	// =====================
 	// create the player shape
@@ -209,16 +237,55 @@ void GameStateLevel1Load(void)
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PLATFORM;
 	AEGfxMeshStart();
-	AEGfxTriAdd( 
+	/*AEGfxTriAdd( 
 		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f,
 		-0.5f, -0.5f, 0xFF4D5853, 0.0f, 1.0f,
 		0.5f, -0.5f, 0xFF4D5853, 1.0f, 1.0f);
 	AEGfxTriAdd(
 		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f,
 		0.5f, 0.5f, 0xFF4D5853, 1.0f, 0.0f,
-		0.5f, -0.5f, 0xFF4D5853, 1.0f, 1.0f);
+		0.5f, -0.5f, 0xFF4D5853, 1.0f, 1.0f);*/
+	AEGfxTriAdd(
+		-0.5f, -0.5f, 0xFF4D5853, 0.0f, 0.0f,
+		0.5f, -0.5f, 0xFF4D5853, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		-0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f,
+		0.5f, -0.5f, 0xFF4D5853, 0.0f, 0.0f,
+		0.5f, 0.5f, 0xFF4D5853, 0.0f, 0.0f);
 	pObj->pMesh = AEGfxMeshEnd();
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create platform object!!");
+
+	// =====================
+	// Load Level 1 Binary Map
+	// =====================
+
+	//	Import Level1.txt from Bin folder
+		ImportMapDataFromFile("Level1.txt");
+
+	//Computing the matrix which take a point out of the normalized coordinates system
+	//of the binary map
+	/***********
+	Compute a transformation matrix and save it in "MapTransform".
+	This transformation transforms any point from the normalized coordinates system of the binary map.
+	Later on, when rendering each object instance, we should concatenate "MapTransform" with the
+	object instance's own transformation matrix
+
+	Compute a translation matrix (-Grid width/2, -Grid height/2) and save it in "trans"
+	Compute a scaling matrix and save it in "scale". The scale must account for the window width and height.
+		Alpha engine has 2 helper functions to get the window width and height: AEGetWindowWidth() and AEGetWindowHeight()
+	Concatenate scale and translate and save the result in "MapTransform"
+	***********/
+	AEMtx33 scale, trans;
+
+	//UNREFERENCED_PARAMETER(scale);
+	//UNREFERENCED_PARAMETER(trans);
+	AEMtx33Trans(&trans, -(AEGetWindowWidth() / 2), -(AEGetWindowHeight() / 2));
+	AEMtx33Scale(&scale, AEGetWindowWidth() / BINARY_MAP_WIDTH, AEGetWindowHeight() / BINARY_MAP_HEIGHT);
+	AEMtx33Concat(&MapTransform, &trans, &scale);
+	// Or move camera to (0,0)?
+	
 }
 
 /******************************************************************************/
@@ -236,29 +303,7 @@ void GameStateLevel1Init(void)
 	PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SIZE, nullptr, nullptr, 0.0f);
 	AE_ASSERT(PlayerGun);
 
-	AEVec2 platVel, platPos, platScale;
-
-	//platVel = { 0, 0 };
-	//platScale = { 100, 600 };
-	//platPos = { AEGfxGetWinMinX(), 0 };
-	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // left wall
-	//platPos = { 0,AEGfxGetWinMinY() };
-	//platScale = { 700, 100 };
-	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); //floor
-	//platPos = { AEGfxGetWinMaxX(), 0 };
-	//platScale = { 100, 600 };
-	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, PI/2); // right wall
-	//platPos = { 0,AEGfxGetWinMaxY() };
-	//platScale = { 700, 100 };
-	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // ceiling
-
-	//platPos = { AEGfxGetWinMinX() + 100, AEGfxGetWinMinY() + 150 };
-	//platScale = { 150, 50 };
-	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // platform1
-
-	//platPos = { 0,AEGfxGetWinMaxY() };
-	//platScale = { 700, 100 };
-	//gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0.0f); // platform2
+	AEVec2 platPos, platScale;
 
 	// Initialise Binary map
 	for (int row = 0; row < BINARY_MAP_HEIGHT; row++)
@@ -270,17 +315,15 @@ void GameStateLevel1Init(void)
 				{
 					//	Boundary walls - Top and Bottom
 					case 1:
-						platVel = { 0, 0 };
 						platScale = { 150, 50 };
 						platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
-						gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0);
+						gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
 						break;
 					//	Platforms
 					case 2:
-						platVel = { 0, 0 };
 						platScale = { 150, 25 };
 						platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
-						gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, &platVel, 0);
+						gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
 						break;
 				}
 		}
@@ -288,7 +331,6 @@ void GameStateLevel1Init(void)
 	}
 
 	// reset the score and the number of lives
-	playerScore = 0;
 	playerLives = PLAYER_INITIAL_NUM;
 }
 
@@ -310,8 +352,8 @@ void GameStateLevel1Update(void)
 
 	AEInputGetCursorPosition(&mouseX, &mouseY);
 	// Coordinate conversion
-	mouseX -= (AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2;
-	mouseY -= (AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2;
+	mouseX -= static_cast<int>((AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2);
+	mouseY -= static_cast<int>((AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2);
 	mouseY = -mouseY;
 	float dotProduct = atan2(mouseY - PlayerBody->posCurr.y, mouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
@@ -411,10 +453,10 @@ void GameStateLevel1Update(void)
 
 	// ======================================================
 	// update physics of all active game object instances
+	//	-- Positions of the instances are updated here with the computed velocity
 	//  -- Get the bounding rectangle of every active instance:
 	//		boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
 	//		boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-	//	-- Positions of the instances are updated here with the computed velocity
 	// ======================================================
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
 		GameObjInst* pInst = sGameObjInstList + i;
@@ -426,6 +468,14 @@ void GameStateLevel1Update(void)
 		AEVec2 velDt;
 		AEVec2Scale(&velDt, &pInst->velCurr, static_cast<f32>(g_dt));
 		AEVec2Add(&pInst->posCurr, &pInst->posCurr, &velDt);
+
+		/****************
+		Apply gravity
+			Velocity Y = Gravity * Frame Time + Velocity Y
+
+		If object instance is an enemy
+			Apply enemy state machine
+		****************/
 
 		if (pInst == PlayerBody) 
 		{
@@ -442,6 +492,8 @@ void GameStateLevel1Update(void)
 			pInst->posCurr = PlayerBody->posCurr;
 		}
 
+
+
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the bounding rect size based on the size used for the mesh
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -451,6 +503,41 @@ void GameStateLevel1Update(void)
 		pInst->boundingBox.max.x = 0.5f * pInst->scale.x + pInst->posCurr.x;
 		pInst->boundingBox.max.y = 0.5f * pInst->scale.y + pInst->posCurr.y;
 	}
+
+	//Check for grid collision
+	for (int i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+	{
+		GameObjInst* pInst = sGameObjInstList + i;
+
+		// skip non-active object instances
+		if (0 == (pInst->flag & FLAG_ACTIVE))
+			continue;
+
+		/*************
+		Update grid collision flag
+
+		if collision from bottom
+			Snap to cell on Y axis
+			Velocity Y = 0
+
+		if collision from top
+			Snap to cell on Y axis
+			Velocity Y = 0
+
+		if collision from left
+			Snap to cell on X axis
+			Velocity X = 0
+
+		if collision from right
+			Snap to cell on X axis
+			Velocity X = 0
+		*************/
+
+		// Reflect bullet here?
+
+
+	}
+
 	// ====================
 	// check for collision
 	// ====================
@@ -472,10 +559,10 @@ void GameStateLevel1Update(void)
 				if ((pOtherInst->flag & FLAG_ACTIVE) == 0)
 					continue;
 
-				switch (pOtherInst->pObject->type) {
-				case TYPE_PLATFORM:
-					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						// ----------------------------------------------------------------------------------------------------------------------------------------------
+				//switch (pOtherInst->pObject->type) {
+				//case TYPE_PLATFORM:
+				//	if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
+				// ----------------------------------------------------------------------------------------------------------------------------------------------
 						// Change to bullet spawning on mouse click in direction
 						// ----------------------------------------------------------------------------------------------------------------------------------------------
 						// newVel = oldVel - 2(oldVel.normal)normal
@@ -488,22 +575,22 @@ void GameStateLevel1Update(void)
 
 						// Find angle instead
 						//std::cout << "Old dir: " << AERadToDeg(pInst->dirCurr) << " | ";
-						float newDir = pOtherInst->dirCurr - (pInst->dirCurr - pOtherInst->dirCurr);
-						newDir = AEWrap(newDir, -PI, PI);
-						pInst->dirCurr = newDir;
-						//std::cout << "New dir: " << AERadToDeg(pInst->dirCurr) << std::endl;
-						AEVec2 added;
-						AEVec2Set(&added, cosf(pInst->dirCurr), sinf(pInst->dirCurr));
-						//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
-						// Find the velocity according to the acceleration
-						added.x *= BULLET_SPEED;
-						added.y *= BULLET_SPEED;
-						pInst->velCurr = added;
-						AEVec2 velDt;
-						AEVec2Scale(&velDt, &pInst->velCurr, static_cast<f32>(g_dt));
-						AEVec2Add(&pInst->posCurr, &pInst->posCurr, &velDt);
+						//float newDir = pOtherInst->dirCurr - (pInst->dirCurr - pOtherInst->dirCurr);
+						//newDir = AEWrap(newDir, -PI, PI);
+						//pInst->dirCurr = newDir;
+						////std::cout << "New dir: " << AERadToDeg(pInst->dirCurr) << std::endl;
+						//AEVec2 added;
+						//AEVec2Set(&added, cosf(pInst->dirCurr), sinf(pInst->dirCurr));
+						////std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+						//// Find the velocity according to the acceleration
+						//added.x *= BULLET_SPEED;
+						//added.y *= BULLET_SPEED;
+						//pInst->velCurr = added;
+						//AEVec2 velDt;
+						//AEVec2Scale(&velDt, &pInst->velCurr, static_cast<f32>(g_dt));
+						//AEVec2Add(&pInst->posCurr, &pInst->posCurr, &velDt);
 						//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << std::endl;
-					
+
 						// Find new angle first
 						//float newDirection = pOtherInst->dirCurr - (pInst->dirCurr - pOtherInst->dirCurr);
 						//newDirection = AEWrap(newDirection, -PI, PI);
@@ -515,27 +602,26 @@ void GameStateLevel1Update(void)
 						//pInst->velCurr.x *= BULLET_SPEED;
 						//pInst->velCurr.y *= BULLET_SPEED;
 
-						//Limit number of bullet bounces:
-						++(pInst->bulletbounce);
-						if (pInst->bulletbounce >= 3)
-						{
-							gameObjInstDestroy(pInst);
-							pInst->bulletbounce = 0;
-						}
-					}
-					break;
-				case TYPE_PLAYER:
-					continue;
-					break;
-				case TYPE_BULLET:
-					/*if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst);
-						gameObjInstDestroy(pOtherInst);
-					}*/
-					continue;
-					break;
-				}
-
+				//		//Limit number of bullet bounces:
+				//		++(pInst->bulletbounce);
+				//		if (pInst->bulletbounce >= 3)
+				//		{
+				//			gameObjInstDestroy(pInst);
+				//			pInst->bulletbounce = 0;
+				//		}
+				//	}
+				//	break;
+				//case TYPE_PLAYER:
+				//	continue;
+				//	break;
+				//case TYPE_BULLET:
+				//	/*if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
+				//		gameObjInstDestroy(pInst);
+				//		gameObjInstDestroy(pOtherInst);
+				//	}*/
+				//	continue;
+				//	break;
+				//}
 			}
 			break;
 		case TYPE_PLAYER:
@@ -568,8 +654,6 @@ void GameStateLevel1Update(void)
 			break;
 		}
 	}
-
-
 
 
 	// ===================================
@@ -618,9 +702,9 @@ void GameStateLevel1Update(void)
 		GameObjInst* pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
 
-		UNREFERENCED_PARAMETER(trans);
-		UNREFERENCED_PARAMETER(rot);
-		UNREFERENCED_PARAMETER(scale);
+		//UNREFERENCED_PARAMETER(trans);
+		//UNREFERENCED_PARAMETER(rot);
+		//UNREFERENCED_PARAMETER(scale);
 
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
@@ -640,6 +724,12 @@ void GameStateLevel1Update(void)
 		AEMtx33Concat(&pInst->transform, &trans, &rot);
 		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
+
+	// Update Camera position, for Level2
+		// To follow the player's position
+		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
+			// You may use an alpha engine helper function to clamp the camera position: AEClamp()
+
 }
 
 /******************************************************************************/
@@ -654,6 +744,33 @@ void GameStateLevel1Draw(void)
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);
 
+	//Drawing the tile map (the grid)
+	AEMtx33 cellTranslation, cellFinalTransformation;
+
+	//Drawing the tile map
+
+	/******REMINDER*****
+	You need to concatenate MapTransform with the transformation matrix
+	of any object you want to draw. MapTransform transform the instance
+	from the normalized coordinates system of the binary map
+	*******************/
+	/*********
+	for each array element in BinaryCollisionArray (2 loops)
+		Compute the cell's translation matrix acoording to its
+		X and Y coordinates and save it in "cellTranslation"
+		Concatenate MapTransform with the cell's transformation
+		and save the result in "cellFinalTransformation"
+		Send the resultant matrix to the graphics manager using "AEGfxSetTransform"
+
+		Draw the instance's shape depending on the cell's value using "AEGfxMeshDraw"
+			Use the black instance in case the cell's value is TYPE_OBJECT_EMPTY
+			Use the white instance in case the cell's value is TYPE_OBJECT_COLLISION
+	*********/
+	for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
+		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
+		{
+	}
+
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
@@ -663,7 +780,12 @@ void GameStateLevel1Draw(void)
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
 
+		//Don't forget to concatenate the MapTransform matrix with the transformation of each game object instance
+		//AEMtx33 concatTransform{};
+		//AEMtx33Concat(&concatTransform, &MapTransform, &pInst->transform);
+
 		// Set the current object instance's transform matrix using "AEGfxSetTransform"
+		//AEGfxSetTransform(concatTransform.m);
 		AEGfxSetTransform(pInst->transform.m);
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
@@ -732,6 +854,20 @@ GameObjInst* gameObjInstCreate(unsigned long type,
 			pInst->posCurr = pPos ? *pPos : zero;
 			pInst->velCurr = pVel ? *pVel : zero;
 			pInst->dirCurr = dir;
+
+
+			// it is not used => use it to create the new instance
+			/*pInst->pObject = sGameObjList + type;
+			pInst->flag = FLAG_ACTIVE | FLAG_VISIBLE;
+			pInst->scale = scale;
+			pInst->posCurr = pPos ? *pPos : zero;
+			pInst->velCurr = pVel ? *pVel : zero;
+			pInst->dirCurr = dir;
+			pInst->pUserData = 0;
+			pInst->gridCollisionFlag = 0;
+			pInst->state = startState;
+			pInst->innerState = INNER_STATE_ON_ENTER;
+			pInst->counter = 0;*/
 
 			// return the newly created instance
 			return pInst;
