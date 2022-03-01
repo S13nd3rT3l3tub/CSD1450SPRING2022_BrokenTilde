@@ -20,5 +20,6 @@ extern int** BinaryCollisionArray;
 int		ImportMapDataFromFile(const char* FileName);
 int		GetCellValue(int X, int Y);
 void	FreeMapData(void);
+void	SnapToCell(float* Coordinate);
 
 #endif // BINARY_MAP_H_

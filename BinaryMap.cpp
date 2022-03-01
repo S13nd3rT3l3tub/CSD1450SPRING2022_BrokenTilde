@@ -1,5 +1,7 @@
 #include "BinaryMap.h"
 
+
+
 /*The number of horizontal elements*/
 int BINARY_MAP_WIDTH;
 
@@ -99,4 +101,11 @@ void FreeMapData(void)
 
 	delete[] MapData;
 	delete[] BinaryCollisionArray;
+}
+
+void SnapToCell(float* Coordinate)
+{
+	int coord{};
+	coord = static_cast<int>(*Coordinate);
+	*Coordinate = static_cast<float>(coord) + 0.5f;
 }
