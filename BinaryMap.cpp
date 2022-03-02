@@ -1,5 +1,7 @@
 #include "main.h"
 
+
+
 /*The number of horizontal elements*/
 int BINARY_MAP_WIDTH;
 int BINARY_CELL_WIDTH;

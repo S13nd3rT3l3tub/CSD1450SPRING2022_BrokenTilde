@@ -27,5 +27,6 @@ void	SnapToCell(float* Coordinate);
 void PrintRetrievedInformation(void);
 int	CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY);
 void	FreeMapData(void);
+void	SnapToCell(float* Coordinate);
 
 #endif // BINARY_MAP_H_
