@@ -20,6 +20,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 float	 g_dt;
 double	 g_appTime;
 
+int winWidth{ 1280 }, winHeight{ 720 };
 
 /******************************************************************************/
 /*!
@@ -42,7 +43,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 
 	// Initialize the system
 	//AESysInit (instanceH, show, AEGetWindowWidth(), AEGetWindowHeight(), 1, 60, false, NULL);
-	AESysInit(instanceH, show, 800,600, 1, 60, false, NULL);
+	AESysInit(instanceH, show, winWidth, winHeight, 1, 60, false, NULL);
 
 
 	// Changing the window title
