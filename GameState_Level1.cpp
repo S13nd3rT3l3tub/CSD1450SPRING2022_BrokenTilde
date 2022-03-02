@@ -741,7 +741,7 @@ void GameStateLevel1Update(void)
 		AEMtx33Concat(&pInst->transform, &trans, &rot);
 		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
-
+	
 	// Update Camera position, for Level2
 		// To follow the player's position
 		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
