@@ -26,7 +26,7 @@ const unsigned int	GAME_OBJ_INST_NUM_MAX	= 2048;			//The total number of differe
 
 const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player lives
 AEVec2		PLAYER_MESHSIZE			= { 1.0f, 1.0f };
-AEVec2		PLAYER_SCALE			= { 1.0f, 1.0f};		// player scaling
+AEVec2		PLAYER_SCALE			= { 2.0f, 1.0f};		// player scaling
 AEVec2		GUN_MESHSIZE			= { 0.5f, 0.5f };
 AEVec2		GUN_SCALE				= { 1.0f, 1.0f };		// gun size
 
@@ -406,7 +406,8 @@ void GameStateLevel1Update(void)
 	// Change the following input movement based on our player movement
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	AEInputGetCursorPosition(&mouseX, &mouseY);
-	// Coordinate conversion
+
+
 	mouseX -= static_cast<int>((AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2);
 	mouseY -= static_cast<int>((AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2);
 	mouseY = -mouseY;
@@ -427,15 +428,15 @@ void GameStateLevel1Update(void)
 
 		}
 	}
-
-	if (AEInputCheckTriggered(AEVK_W)) // JUMP - right now, can infinitely jump. Need to implement hotspot at bottom of tank to detect
+	std::cout << PlayerBody->gridCollisionFlag;
+	if (AEInputCheckTriggered(AEVK_W) && ((PlayerBody->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)) // JUMP - right now, can infinitely jump. Need to implement hotspot at bottom of tank to detect
 	{									// whether the tank is touching the ground or not.
 		AEVec2 added;
 		AEVec2Set(&added, 0.f, 1.f);
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 15000 * g_dt; // 29000
+		added.y *= 420 * g_dt; // 29000
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
@@ -448,7 +449,7 @@ void GameStateLevel1Update(void)
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 480 * g_dt; //500
+		added.y *= 7 * g_dt; //500
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
@@ -618,7 +619,10 @@ void GameStateLevel1Update(void)
 		}
 
 		// Reflect bullet here?
-
+		//if (pInst->pObject->type == PlayerBody->pObject->type)
+		//{
+		//	std::cout << PlayerBody->gridCollisionFlag;
+		//}
 
 	}
 
