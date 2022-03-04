@@ -28,7 +28,7 @@ const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player live
 AEVec2		PLAYER_MESHSIZE			= { 1.0f, 1.0f };
 AEVec2		PLAYER_SCALE			= { 2.0f, 1.0f};		// player scaling
 AEVec2		GUN_MESHSIZE			= { 0.5f, 0.5f };
-AEVec2		GUN_SCALE				= { 1.0f, 1.0f };		// gun size
+AEVec2		GUN_SCALE				= { 3.0f, 0.75f };		// gun size
 
 AEVec2		BULLET_MESHSIZE			= { 1.0f, 1.0f };
 AEVec2		BULLET_SCALE			= { 1.0f, 1.0f };
@@ -163,6 +163,7 @@ static long					playerLives;									// The number of lives left
 													
 // Current mouse position
 static signed int mouseX{ 0 }, mouseY{ 0 };
+static float localMouseX{ 0 }, localMouseY{ 0 };
 
 // Transform matrix containing shift of grid to world coordinates
 // concatenate this with object instance's own transform matrix
@@ -268,22 +269,22 @@ void GameStateLevel1Load(void)
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PLAYERGUN;
 	AEGfxMeshStart();
-	//AEGfxTriAdd(
-	//	0.0f, GUN_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-	//	0.0f, -GUN_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 1.0f,
-	//	GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
-	//AEGfxTriAdd(
-	//	0.0f, GUN_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-	//	GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFFFF0000, 1.0f, 0.0f,
-	//	GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
 	AEGfxTriAdd(
+		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+		0.0f, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+	AEGfxTriAdd(
+		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+		GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+	/*AEGfxTriAdd(
 		-GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
 		GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
 		-GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
 	AEGfxTriAdd(
 		-GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
 		GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+		GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);*/
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ GUN_MESHSIZE.x, GUN_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
@@ -407,12 +408,13 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	AEInputGetCursorPosition(&mouseX, &mouseY);
 
+	//mouseX -= static_cast<int>((AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2);
+	//mouseY -= static_cast<int>((AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2);
+	//mouseY = -mouseY;
+	// dotProduct = atan2(mouseY - PlayerBody->posCurr.y, mouseX - PlayerBody->posCurr.x);
+	//PlayerGun->dirCurr = dotProduct;
 
-	mouseX -= static_cast<int>((AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2);
-	mouseY -= static_cast<int>((AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2);
-	mouseY = -mouseY;
-	float dotProduct = atan2(mouseY - PlayerBody->posCurr.y, mouseX - PlayerBody->posCurr.x);
-	PlayerGun->dirCurr = dotProduct;
+
 
 	if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
 	{
@@ -428,7 +430,7 @@ void GameStateLevel1Update(void)
 
 		}
 	}
-	std::cout << PlayerBody->gridCollisionFlag;
+	//std::cout << PlayerBody->gridCollisionFlag;
 	if (AEInputCheckTriggered(AEVK_W) && ((PlayerBody->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)) // JUMP - right now, can infinitely jump. Need to implement hotspot at bottom of tank to detect
 	{									// whether the tank is touching the ground or not.
 		AEVec2 added;
@@ -465,7 +467,7 @@ void GameStateLevel1Update(void)
 		added.y *= -MOVE_VELOCITY * g_dt;
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 	}
 	else if (AEInputCheckCurr(AEVK_D))
 	{
@@ -480,9 +482,10 @@ void GameStateLevel1Update(void)
 		added.y *= MOVE_VELOCITY * g_dt;
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 	}
 	else
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.95f);
 		
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
