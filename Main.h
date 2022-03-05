@@ -13,14 +13,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 /******************************************************************************/
 
 
-#ifndef CS230_MAIN_H_
-#define CS230_MAIN_H_
-
-//------------------------------------
-// Globals
-
-extern float	g_dt;
-extern double	g_appTime;
+#ifndef _MAIN_H_
+#define _MAIN_H_
 
 // ---------------------------------------------------------------------------
 // includes
@@ -29,9 +23,19 @@ extern double	g_appTime;
 #include "Math.h"
 
 #include "GameStateMgr.h"
+#include "GameState_MainMenu.h"
 #include "GameState_Level1.h"
 #include "Collision.h"
 #include "BinaryMap.h"
+
+//------------------------------------
+// Globals
+
+extern float	g_dt;
+extern double	g_appTime;
+extern s8		g_font12;
+extern int		g_mouseX;
+extern int		g_mouseY;
 
 #endif
 

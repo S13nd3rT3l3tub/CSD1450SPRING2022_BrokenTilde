@@ -12,8 +12,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  */
 /******************************************************************************/
 
-#ifndef CSD1130_GAME_STATE_MGR_H_
-#define CSD1130_GAME_STATE_MGR_H_
+#ifndef GAME_STATE_MGR_H_
+#define GAME_STATE_MGR_H_
 
 // ---------------------------------------------------------------------------
 

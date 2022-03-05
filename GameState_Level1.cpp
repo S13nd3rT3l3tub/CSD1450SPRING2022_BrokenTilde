@@ -1,5 +1,18 @@
+/******************************************************************************/
+/*!
+\file		GameState_Level1.cpp
+\author 	DigiPen
+\par    	email: digipen\@digipen.edu
+\date   	January 01, 20xx
+\brief		ToDo: give a brief explanation here
+
+Copyright (C) 20xx DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
+
 #include "main.h"
-#include <iostream>
 
 /******************************************************************************/
 /*!
@@ -34,6 +47,23 @@ const double		ENEMY_IDLE_TIME = 2.0;
 const int			HERO_LIVES = 3;
 
 // -----------------------------------------------------------------------------
+// object flag definition
+const unsigned int	FLAG_ACTIVE = 0x00000001;
+const unsigned int	FLAG_VISIBLE = 0x00000002;
+const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
+
+// Collision flags
+const unsigned int	COLLISION_LEFT = 0x00000001;	//0001
+const unsigned int	COLLISION_RIGHT = 0x00000002;	//0010
+const unsigned int	COLLISION_TOP = 0x00000004;	//0100
+const unsigned int	COLLISION_BOTTOM = 0x00000008;	//1000
+
+/******************************************************************************/
+/*!
+	Enums/Struct/Class Definitions
+*/
+/******************************************************************************/
+
 enum TYPE
 {
 	// list of game object types
@@ -148,7 +178,7 @@ static GameObjInst* PlatformInstance;
 static long					playerLives;									// The number of lives left
 													
 // Current mouse position
-static signed int mouseX{ 0 }, mouseY{ 0 };
+//static signed int mouseX{ 0 }, mouseY{ 0 };
 static float localMouseX{ 0 }, localMouseY{ 0 };
 
 // Transform matrix containing shift of grid to world coordinates
@@ -384,6 +414,10 @@ void GameStateLevel1Init(void)
 				//	platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
 				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
 				//	break;
+
+			case TYPE_PLATFORM:
+				gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
 				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
@@ -415,10 +449,10 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	// Change the following input movement based on our player movement
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	AEInputGetCursorPosition(&mouseX, &mouseY);
+	//AEInputGetCursorPosition(&mouseX, &mouseY);
 
-	localMouseX = static_cast<float>(mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(BINARY_MAP_WIDTH));
-	localMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT));
+	localMouseX = static_cast<float>(g_mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(BINARY_MAP_WIDTH));
+	localMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(g_mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT));
 	//std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
 	float dotProduct = atan2(localMouseY - PlayerBody->posCurr.y, localMouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
@@ -544,7 +578,7 @@ void GameStateLevel1Update(void)
 		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce > 9)
 			gameObjInstDestroy(pInst);
 		
-		if (pInst == PlayerBody || pInst->pObject->type == TYPE_ENEMY1)
+		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 			pInst->velCurr.y += GRAVITY * g_dt;
 
 		if (pInst->pObject->type == TYPE_ENEMY1){
@@ -552,6 +586,7 @@ void GameStateLevel1Update(void)
 		}
 
 	}
+
 
 	//Update object instances positions
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
