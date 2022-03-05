@@ -163,8 +163,7 @@ static long					playerLives;									// The number of lives left
 													
 // Current mouse position
 static signed int mouseX{ 0 }, mouseY{ 0 };
-static AEVec2 windowMouse{ mouseX, mouseY };
-static AEVec2 localMouse{0,0};
+static float localMouseX{ 0 }, localMouseY{ 0 };
 
 // Transform matrix containing shift of grid to world coordinates
 // concatenate this with object instance's own transform matrix
