@@ -377,9 +377,18 @@ void GameStateLevel1Init(void)
 				//	platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
 				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
 				//	break;
+
+			case TYPE_PLATFORM:
+				gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
 				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				break;
+
+			case TYPE_ENEMY1:
+				gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				break;
 			default:
 				break;
 			}
@@ -533,8 +542,10 @@ void GameStateLevel1Update(void)
 		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce > 9)
 			gameObjInstDestroy(pInst);
 		
-		if (pInst == PlayerBody || pInst->pObject->type == TYPE_ENEMY1)
+		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 			pInst->velCurr.y += GRAVITY * g_dt;
+
+
 
 		//if (pInst->pObject->type == TYPE_OBJECT_ENEMY1)
 			//EnemyStateMachine(pInst);
