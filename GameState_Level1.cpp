@@ -38,14 +38,13 @@ AEVec2		PLATFORM_SCALE			= { 1.0f, 1.0f };
 AEVec2		EMPTY_MESHSIZE =		{ 1.0f, 1.0f };
 AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 
-
 //Gameplay related variables and values
 const float			GRAVITY = -9.8f;
 const float			JUMP_VELOCITY = 11.0f;
 const float			MOVE_VELOCITY = 5.0f;
-//const float			MOVE_VELOCITY_ENEMY = 7.5f;
-//const double			ENEMY_IDLE_TIME = 2.0;
-
+const float			MOVE_VELOCITY_ENEMY = 7.5f;
+const double		ENEMY_IDLE_TIME = 2.0;
+const int			HERO_LIVES = 3;
 
 // -----------------------------------------------------------------------------
 // object flag definition
@@ -78,7 +77,7 @@ enum TYPE
 };
 
 //State machine states
-enum class STATE
+enum STATE
 {
 	STATE_NONE,
 	STATE_GOING_LEFT,
@@ -86,12 +85,31 @@ enum class STATE
 };
 
 //State machine inner states
-enum class INNER_STATE
+enum INNER_STATE
 {
 	INNER_STATE_ON_ENTER,
 	INNER_STATE_ON_UPDATE,
 	INNER_STATE_ON_EXIT
 };
+
+
+// -----------------------------------------------------------------------------
+// object flag definition
+const unsigned int	FLAG_ACTIVE = 0x00000001;
+const unsigned int	FLAG_VISIBLE = 0x00000002;
+const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
+
+// Collision flags
+const unsigned int	COLLISION_LEFT = 0x00000001;	//0001
+const unsigned int	COLLISION_RIGHT = 0x00000002;	//0010
+const unsigned int	COLLISION_TOP = 0x00000004;	//0100
+const unsigned int	COLLISION_BOTTOM = 0x00000008;	//1000
+
+/******************************************************************************/
+/*!
+	Struct/Class Definitions
+*/
+/******************************************************************************/
 
 //Game object structure
 struct GameObj
@@ -175,7 +193,7 @@ static GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	AEVec2* pPos, AEVec2* pVel,
 	float dir, enum STATE startState);
 void					gameObjInstDestroy(GameObjInst* pInst);
-
+void EnemyStateMachine(GameObjInst* pInst);
 
 /******************************************************************************/
 /*!
@@ -261,6 +279,8 @@ void GameStateLevel1Load(void)
 	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player object!!");
 
+
+
 	// =====================
 	// create the player gun shape
 	// =====================
@@ -305,9 +325,26 @@ void GameStateLevel1Load(void)
 	pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create bullet object!!");
 
-	// =======================
-	// create the enemy shape
-	// =======================
+	// =====================
+	// create the Enemy1 shape
+	// =====================
+
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_ENEMY1;
+
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY1 object!!");
 
 	// =====================
 	// Load Level 1 Binary Map
@@ -355,11 +392,11 @@ void GameStateLevel1Load(void)
 /******************************************************************************/
 void GameStateLevel1Init(void)
 {
-	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE::STATE_NONE);
+	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
 
-	PlatformInstance = gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, 0, 0, 0.0f, STATE::STATE_NONE);
+	PlatformInstance = gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
 
@@ -391,12 +428,11 @@ void GameStateLevel1Init(void)
 				gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
 				break;
 			case TYPE_PLAYER:
-				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
-				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
+				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
 				break;
-
 			case TYPE_ENEMY1:
-				gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				gameObjInstCreate(TYPE_ENEMY1, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_GOING_LEFT);
 				break;
 			default:
 				break;
@@ -523,7 +559,7 @@ void GameStateLevel1Update(void)
 		//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
 		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.15f;
 		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.15f;
-		gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE::STATE_NONE);
+		gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 	}
 
 	int i{};
@@ -554,11 +590,12 @@ void GameStateLevel1Update(void)
 		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 			pInst->velCurr.y += GRAVITY * g_dt;
 
+		if (pInst->pObject->type == TYPE_ENEMY1){
+			EnemyStateMachine(pInst);
+		}
 
-
-		//if (pInst->pObject->type == TYPE_OBJECT_ENEMY1)
-			//EnemyStateMachine(pInst);
 	}
+
 
 	//Update object instances positions
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
@@ -629,7 +666,7 @@ void GameStateLevel1Update(void)
 				pInst->velCurr = newBulletVel;
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//Limit number of bullet bounces:
-				std::cout << pInst->bulletbounce;
+				//std::cout << pInst->bulletbounce;
 				++(pInst->bulletbounce);
 			}
 			else {
@@ -647,7 +684,7 @@ void GameStateLevel1Update(void)
 				pInst->velCurr = newBulletVel;
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//Limit number of bullet bounces:
-				std::cout << pInst->bulletbounce;
+				//std::cout << pInst->bulletbounce;
 				++(pInst->bulletbounce);
 			}
 			else {
@@ -665,12 +702,13 @@ void GameStateLevel1Update(void)
 				pInst->velCurr = newBulletVel;
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//Limit number of bullet bounces:
-				std::cout << pInst->bulletbounce;
+				//std::cout << pInst->bulletbounce;
 				++(pInst->bulletbounce);
 			}
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
+				pInst->posCurr.x += 0.5f;
 			}
 		}
 
@@ -682,12 +720,13 @@ void GameStateLevel1Update(void)
 				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 				pInst->velCurr = newBulletVel;
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-				std::cout << pInst->bulletbounce;
+				//std::cout << pInst->bulletbounce;
 				++(pInst->bulletbounce);
 			}
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
+				pInst->posCurr.x -= 0.5f;
 			}
 		}		
 	}
@@ -741,8 +780,11 @@ void GameStateLevel1Update(void)
 						gameObjInstDestroy(PlayerGun);
 					}
 					break;
-				//case TYPE_ENEMY:
-					//break;
+				case TYPE_ENEMY1:
+					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
+						gameObjInstDestroy(pInst);
+						gameObjInstDestroy(pOtherInst);
+					}
 				}
 			}
 			break;
@@ -897,7 +939,7 @@ void GameStateLevel1Unload(void)
 /******************************************************************************/
 GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	AEVec2* pPos, AEVec2* pVel,
-	float dir, enum class STATE startState)
+	float dir, enum STATE startState)
 {
 	AEVec2 zero;
 	AEVec2Zero(&zero);
@@ -922,7 +964,7 @@ GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 			pInst->pUserData = 0;
 			pInst->gridCollisionFlag = 0;
 			pInst->state = startState;
-			pInst->innerState = INNER_STATE::INNER_STATE_ON_ENTER;
+			pInst->innerState = INNER_STATE_ON_ENTER;
 			pInst->counter = 0;
 			pInst->bulletbounce = 0;
 
@@ -948,3 +990,111 @@ void gameObjInstDestroy(GameObjInst* pInst)
 	// zero out the flag
 	pInst->flag = 0;
 }
+
+void EnemyStateMachine(GameObjInst* pInst)
+{
+	/***********
+	This state machine has 2 states: STATE_GOING_LEFT and STATE_GOING_RIGHT
+	Each state has 3 inner states: INNER_STATE_ON_ENTER, INNER_STATE_ON_UPDATE, INNER_STATE_ON_EXIT
+	Use "switch" statements to determine which state and inner state the enemy is currently in.
+
+
+	STATE_GOING_LEFT
+		INNER_STATE_ON_ENTER
+			Set velocity X to -MOVE_VELOCITY_ENEMY
+			Set inner state to "on update"
+
+		INNER_STATE_ON_UPDATE
+			If collision on left side OR bottom left cell is non collidable
+				Initialize the counter to ENEMY_IDLE_TIME
+				Set inner state to on exit
+				Set velocity X to 0
+
+
+		INNER_STATE_ON_EXIT
+			Decrement counter by frame time
+			if counter is less than 0 (sprite's idle time is over)
+				Set state to "going right"
+				Set inner state to "on enter"
+
+	STATE_GOING_RIGHT is basically the same, with few modifications.
+
+	***********/
+
+	//std::cout << pInst->innerState << std::endl;
+	int offsetcheck{};
+	//std::cout << pInst->velCurr.x << std::endl;
+	//std::cout << (pInst->gridCollisionFlag & COLLISION_RIGHT) << std::endl;
+	switch (pInst->state) {
+
+	case STATE_GOING_LEFT:
+
+		switch (pInst->innerState) {
+		case INNER_STATE_ON_ENTER:
+			//std::cout << "GOING LEFT :INNER_STATE_ON_ENTER\n";
+			pInst->velCurr.x = -MOVE_VELOCITY_ENEMY;
+			pInst->innerState = INNER_STATE_ON_UPDATE;
+			break;
+
+		case INNER_STATE_ON_UPDATE:
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x - 2, pInst->posCurr.y - 1, 2.f, 1.f);
+			//std::cout << "GOING LEFT : INNER_STATE_ON_UPDATE\n";
+			pInst->velCurr.x = -MOVE_VELOCITY_ENEMY;
+			if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || (offsetcheck & COLLISION_RIGHT) != COLLISION_RIGHT)
+			{
+				pInst->counter = ENEMY_IDLE_TIME;
+				pInst->innerState = INNER_STATE_ON_EXIT;
+				pInst->velCurr.x = 0;
+			}
+
+			break;
+
+
+		case INNER_STATE_ON_EXIT:
+			//std::cout << "GOING LEFT : INNER_STATE_ON_EXIT\n";
+			pInst->counter -= AEFrameRateControllerGetFrameTime();
+			if (pInst->counter < 0)
+			{
+				pInst->state = STATE_GOING_RIGHT;
+				pInst->innerState = INNER_STATE_ON_ENTER;
+			}
+			break;
+		}
+		break;
+	case STATE_GOING_RIGHT:
+
+		switch (pInst->innerState) {
+
+		case INNER_STATE_ON_ENTER:
+			pInst->velCurr.x = MOVE_VELOCITY_ENEMY;
+			pInst->innerState = INNER_STATE_ON_UPDATE;
+			//std::cout << "GOING RIGHT : INNER_STATE_ON_UPDATE\n";
+			break;
+
+		case INNER_STATE_ON_UPDATE:
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2, pInst->posCurr.y - 1, 2.f, 1.f);
+
+			if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT || (offsetcheck & COLLISION_LEFT) != COLLISION_LEFT)
+			{
+				pInst->counter = ENEMY_IDLE_TIME;
+				pInst->innerState = INNER_STATE_ON_EXIT;
+				pInst->velCurr.x = 0;
+				//std::cout << "GOING RIGHT : INNER_STATE_ON_UPDATE\n";
+			}
+
+			break;
+
+		case INNER_STATE_ON_EXIT:
+			pInst->counter -= AEFrameRateControllerGetFrameTime();
+			//std::cout << "GOING RIGHT : INNER_STATE_ON_EXIT\n";
+			if (pInst->counter < 0)
+			{
+				pInst->state = STATE_GOING_LEFT;
+				pInst->innerState = INNER_STATE_ON_ENTER;
+			}
+			break;
+		}
+
+	}
+}
+
