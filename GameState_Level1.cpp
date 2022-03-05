@@ -81,7 +81,8 @@ enum STATE
 {
 	STATE_NONE,
 	STATE_GOING_LEFT,
-	STATE_GOING_RIGHT
+	STATE_GOING_RIGHT,
+	STATE_ALERT
 };
 
 //State machine inner states
@@ -1096,7 +1097,23 @@ void EnemyStateMachine(GameObjInst* pInst)
 			}
 			break;
 		}
+		break;
+	case STATE_ALERT:
+		switch (pInst->innerState) {
 
+		case INNER_STATE_ON_ENTER:
+
+
+			break;
+		case INNER_STATE_ON_UPDATE:
+
+			break;
+
+
+		case INNER_STATE_ON_EXIT:
+
+			break;
+		}
 	}
 }
 
