@@ -887,6 +887,33 @@ void GameStateLevel1Draw(void)
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
+
+	//	Drawing for Font Level 1
+	f32 TextWidth = 1.0f;
+	f32 TextHeight = 1.0f;
+	char strBuffer[100];
+	memset(strBuffer, 0, 100 * sizeof(char));
+	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+
+	sprintf_s(strBuffer, "A key - Move Left");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.15f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "D key - Move Right");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.05f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Spacebar key - Jump Up");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.05f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.15f, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
+	AEGfxPrint(g_font20, strBuffer, -0.26f, 0.7f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "   to destroy the enemy tanks above   ");
+	AEGfxPrint(g_font20, strBuffer, -0.26f, 0.6f, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Destroy all enemy tanks");
+	AEGfxPrint(g_font20, strBuffer, 0.5f, -0.5f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "   to clear the level  ");
+	AEGfxPrint(g_font20, strBuffer, 0.5f, -0.6f, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/
@@ -904,6 +931,8 @@ void GameStateLevel1Free(void)
 	}
 
 	FreeMapData();
+	//	Free font for level 1
+	AEGfxDestroyFont(g_font20);
 }
 
 /******************************************************************************/
