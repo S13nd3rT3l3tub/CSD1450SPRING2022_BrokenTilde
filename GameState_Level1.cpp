@@ -1,17 +1,3 @@
-/******************************************************************************/
-/*!
-\file		GameState_Level1.cpp
-\author 	DigiPen
-\par    	email: digipen\@digipen.edu
-\date   	January 01, 20xx
-\brief		ToDo: give a brief explanation here
-
-Copyright (C) 20xx DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the
-prior written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
-
 #include "main.h"
 #include <iostream>
 
@@ -28,10 +14,10 @@ const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player live
 AEVec2		PLAYER_MESHSIZE			= { 1.0f, 1.0f };
 AEVec2		PLAYER_SCALE			= { 2.0f, 1.0f};		// player scaling
 AEVec2		GUN_MESHSIZE			= { 0.5f, 0.5f };
-AEVec2		GUN_SCALE				= { 3.0f, 0.75f };		// gun size
+AEVec2		GUN_SCALE				= { 3.0f, 0.7f };		// gun size
 
 AEVec2		BULLET_MESHSIZE			= { 1.0f, 1.0f };
-AEVec2		BULLET_SCALE			= { 1.0f, 1.0f };
+AEVec2		BULLET_SCALE			= { 0.25f, 0.25f };
 const float	BULLET_SPEED			= 10.0f;		// bullet speed (m/s)
 
 AEVec2		PLATFORM_MESHSIZE = { 1.0f, 1.0f };
@@ -62,7 +48,7 @@ enum TYPE
 };
 
 //State machine states
-enum STATE
+enum class STATE
 {
 	STATE_NONE,
 	STATE_GOING_LEFT,
@@ -70,7 +56,7 @@ enum STATE
 };
 
 //State machine inner states
-enum INNER_STATE
+enum class INNER_STATE
 {
 	INNER_STATE_ON_ENTER,
 	INNER_STATE_ON_UPDATE,
@@ -117,7 +103,7 @@ struct GameObjInst
 	AABB				boundingBox;// object bouding box that encapsulates the object
 	AEMtx33				transform;	// object transformation matrix: Each frame, 
 									// calculate the object instance's transformation matrix and save it here
-	int					bulletbounce{};
+	int					bulletbounce;
 
 	//Used to hold the current 
 	int					gridCollisionFlag;
@@ -348,11 +334,11 @@ void GameStateLevel1Load(void)
 /******************************************************************************/
 void GameStateLevel1Init(void)
 {
-	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
+	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE::STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
 
-	PlatformInstance = gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
+	PlatformInstance = gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, 0, 0, 0.0f, STATE::STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
 
@@ -380,8 +366,8 @@ void GameStateLevel1Init(void)
 				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
 				//	break;
 			case TYPE_PLAYER:
-				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
-				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
+				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
 			default:
 				break;
 			}
@@ -408,8 +394,8 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	AEInputGetCursorPosition(&mouseX, &mouseY);
 
-	localMouseX = mouseX / (AEGetWindowWidth() / BINARY_MAP_WIDTH);
-	localMouseY = (AEGetWindowHeight() - mouseY) / (AEGetWindowHeight() / BINARY_MAP_HEIGHT);
+	localMouseX = static_cast<float>(mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(BINARY_MAP_WIDTH));
+	localMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT));
 	//std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
 	float dotProduct = atan2(localMouseY - PlayerBody->posCurr.y, localMouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
@@ -504,9 +490,10 @@ void GameStateLevel1Update(void)
 		// 
 		// Create an instance
 		AEVec2 BarrelEnd;
-		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.07;
-		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.07;
-		//gameObjInstCreate(TYPE_BULLET, &BULLET_SIZE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr);
+		//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
+		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.15f;
+		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.15f;
+		gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE::STATE_NONE);
 	}
 
 	int i{};
@@ -529,10 +516,12 @@ void GameStateLevel1Update(void)
 			Apply enemy state machine
 		****************/
 		if (pInst == PlayerGun) // attach turret to body
-		{
 			pInst->posCurr = PlayerBody->posCurr;
-		}
-		else
+
+		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce > 9)
+			gameObjInstDestroy(pInst);
+		
+		if (pInst == PlayerBody || pInst->pObject->type == TYPE_ENEMY1)
 			pInst->velCurr.y += GRAVITY * g_dt;
 
 		//if (pInst->pObject->type == TYPE_OBJECT_ENEMY1)
@@ -568,9 +557,9 @@ void GameStateLevel1Update(void)
 	}
 
 	//Check for grid collision
-	for (int i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
-		GameObjInst* pInst = sGameObjInstList + i;
+		pInst = sGameObjInstList + i;
 
 		// skip non-active object instances
 		if (0 == (pInst->flag & FLAG_ACTIVE))
@@ -600,40 +589,84 @@ void GameStateLevel1Update(void)
 		*************/
 		pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y);
 		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM) {
-			SnapToCell(&pInst->posCurr.y);
-			pInst->velCurr.y = 0;
+			if (pInst->pObject->type == TYPE_BULLET) {
+				AEVec2 normal{ 0, 1 }, newBulletVel{};
+				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+				pInst->velCurr = newBulletVel;
+				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+				//Limit number of bullet bounces:
+				std::cout << pInst->bulletbounce;
+				++(pInst->bulletbounce);
+			}
+			else {
+				pInst->velCurr.y = 0;
+				SnapToCell(&pInst->posCurr.y);
+			}
 		}
 
 		if ((pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP) {
-			SnapToCell(&pInst->posCurr.y);
-			pInst->velCurr.y = 0;
+			if (pInst->pObject->type == TYPE_BULLET) {
+				AEVec2 normal{ 0, 1 }, newBulletVel{};
+				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+				pInst->velCurr = newBulletVel;
+				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+				//Limit number of bullet bounces:
+				std::cout << pInst->bulletbounce;
+				++(pInst->bulletbounce);
+			}
+			else {
+				pInst->velCurr.y = 0;
+				SnapToCell(&pInst->posCurr.y);
+			}
 		}
 
 		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
-			SnapToCell(&pInst->posCurr.x);
-			pInst->velCurr.x = 0;
+			if (pInst->pObject->type == TYPE_BULLET) {
+				AEVec2 normal{ 1, 0 }, newBulletVel{};
+				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+				pInst->velCurr = newBulletVel;
+				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+				//Limit number of bullet bounces:
+				std::cout << pInst->bulletbounce;
+				++(pInst->bulletbounce);
+			}
+			else {
+				pInst->velCurr.x = 0;
+				SnapToCell(&pInst->posCurr.x);
+			}
 		}
 
 		if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT) {
-			SnapToCell(&pInst->posCurr.x);
-			pInst->velCurr.x = 0;
-		}
-
-		// Reflect bullet here?
-		//if (pInst->pObject->type == PlayerBody->pObject->type)
-		//{
-		//	std::cout << PlayerBody->gridCollisionFlag;
-		//}
-
+			if (pInst->pObject->type == TYPE_BULLET) {
+				AEVec2 normal{ 1, 0 }, newBulletVel{};
+				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+				pInst->velCurr = newBulletVel;
+				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+				std::cout << pInst->bulletbounce;
+				++(pInst->bulletbounce);
+			}
+			else {
+				pInst->velCurr.x = 0;
+				SnapToCell(&pInst->posCurr.x);
+			}
+		}		
 	}
 
 	// ====================
 	// check for collision
 	// ====================
 
-	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
-		GameObjInst* pInst = sGameObjInstList + i;
+		pInst = sGameObjInstList + i;
 
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
@@ -651,59 +684,29 @@ void GameStateLevel1Update(void)
 				switch (pOtherInst->pObject->type) {
 				//case TYPE_PLATFORM:
 				//	if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-				//		//----------------------------------------------------------------------------------------------------------------------------------------------
-				//		// Change to bullet spawning on mouse click in direction
-				//		// ----------------------------------------------------------------------------------------------------------------------------------------------
-				//		// newVel = oldVel - 2(oldVel.normal)normal
-				//		/*AEVec2 normal, newBulletVel;
-				//		normal = { -pOtherInst->boundingBox.max.y, pOtherInst->boundingBox.max.x };
-				//		AEVec2Normalize(&normal, &normal);
+				//		std::cout << "Collided";
+				//		AEVec2 normal{}, newBulletVel{};
+				//		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM ||
+				//			(pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP)
+				//			normal = { 0, 1 };
+				//		else if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || 
+				//			(pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT)
+				//			normal = { 1, 0 };
+				//		//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 				//		newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 				//		newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-				//		pInst->velCurr = newBulletVel;*/
+				//		pInst->velCurr = newBulletVel;
+				//		//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 
-				//		 Find angle instead
-				//		std::cout << "Old dir: " << AERadToDeg(pInst->dirCurr) << " | ";
-				//		float newDir = pOtherInst->dirCurr - (pInst->dirCurr - pOtherInst->dirCurr);
-				//		newDir = AEWrap(newDir, -PI, PI);
-				//		pInst->dirCurr = newDir;
-				//		//std::cout << "New dir: " << AERadToDeg(pInst->dirCurr) << std::endl;
-				//		AEVec2 added;
-				//		AEVec2Set(&added, cosf(pInst->dirCurr), sinf(pInst->dirCurr));
-				//		//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
-				//		// Find the velocity according to the acceleration
-				//		added.x *= BULLET_SPEED;
-				//		added.y *= BULLET_SPEED;
-				//		pInst->velCurr = added;
-				//		AEVec2 velDt;
-				//		AEVec2Scale(&velDt, &pInst->velCurr, static_cast<f32>(g_dt));
-				//		AEVec2Add(&pInst->posCurr, &pInst->posCurr, &velDt);
-				//		std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << std::endl;
-
-				//		 Find new angle first
-				//		float newDirection = pOtherInst->dirCurr - (pInst->dirCurr - pOtherInst->dirCurr);
-				//		newDirection = AEWrap(newDirection, -PI, PI);
-				//		//std::cout << newDirection << std::endl;
-				//		pInst->dirCurr = newDirection;
-
-				//		// Get the new velocity
-				//		AEVec2Set(&pInst->velCurr, cosf(pInst->dirCurr), sinf(pInst->dirCurr));
-				//		pInst->velCurr.x *= BULLET_SPEED;
-				//		pInst->velCurr.y *= BULLET_SPEED;
-
-				//		//Limit number of bullet bounces:
+				//		// Increment bullet bounces
 				//		++(pInst->bulletbounce);
-				//		if (pInst->bulletbounce >= 3)
-				//		{
-				//			gameObjInstDestroy(pInst);
-				//			pInst->bulletbounce = 0;
-				//		}
 				//	}
 				//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 						gameObjInstDestroy(pInst);
-						gameObjInstDestroy(pOtherInst);
+						gameObjInstDestroy(PlayerBody);
+						gameObjInstDestroy(PlayerGun);
 					}
 					break;
 				//case TYPE_ENEMY:
@@ -719,9 +722,9 @@ void GameStateLevel1Update(void)
 	// calculate the matrix for all objects
 	// =====================================
 
-	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
-		GameObjInst* pInst = sGameObjInstList + i;
+		pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
 
 		//UNREFERENCED_PARAMETER(trans);
@@ -761,7 +764,7 @@ void GameStateLevel1Update(void)
 /******************************************************************************/
 void GameStateLevel1Draw(void)
 {
-	char strBuffer[1024];
+	//char strBuffer[1024];
 
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);
@@ -862,7 +865,7 @@ void GameStateLevel1Unload(void)
 /******************************************************************************/
 GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	AEVec2* pPos, AEVec2* pVel,
-	float dir, enum STATE startState)
+	float dir, enum class STATE startState)
 {
 	AEVec2 zero;
 	AEVec2Zero(&zero);
@@ -887,8 +890,9 @@ GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 			pInst->pUserData = 0;
 			pInst->gridCollisionFlag = 0;
 			pInst->state = startState;
-			pInst->innerState = INNER_STATE_ON_ENTER;
+			pInst->innerState = INNER_STATE::INNER_STATE_ON_ENTER;
 			pInst->counter = 0;
+			pInst->bulletbounce = 0;
 
 			// return the newly created instance
 			return pInst;
