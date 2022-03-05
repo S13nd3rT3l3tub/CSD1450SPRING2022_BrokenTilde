@@ -34,6 +34,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 extern float	g_dt;
 extern double	g_appTime;
 extern s8		g_font12;
+extern s8		g_font20;
 extern int		g_mouseX;
 extern int		g_mouseY;
 extern int		g_chosenLevel;
