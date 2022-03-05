@@ -21,7 +21,7 @@ extern const unsigned int	COLLISION_RIGHT;// = 0x00000002;	//0010
 extern const unsigned int	COLLISION_TOP;// = 0x00000004;	//0100
 extern const unsigned int	COLLISION_BOTTOM;// = 0x00000008;	//1000
 
-int		ImportMapDataFromFile(const char* FileName);
+int		ImportMapDataFromFile(std::string FileName);
 int		GetCellValue(int X, int Y);
 void	SnapToCell(float* Coordinate);
 void PrintRetrievedInformation(void);

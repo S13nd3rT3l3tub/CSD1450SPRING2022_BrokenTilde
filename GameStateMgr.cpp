@@ -62,6 +62,14 @@ void GameStateMgrUpdate()
 
 	switch (gGameStateCurr)
 	{
+	case GS_MAINMENU:
+		GameStateLoad = GameStateMainMenuLoad;
+		GameStateInit = GameStateMainMenuInit;
+		GameStateUpdate = GameStateMainMenuUpdate;
+		GameStateDraw = GameStateMainMenuDraw;
+		GameStateFree = GameStateMainMenuFree;
+		GameStateUnload = GameStateMainMenuUnload;
+		break;
 	case GS_LEVEL1:
 		GameStateLoad = GameStateLevel1Load;
 		GameStateInit = GameStateLevel1Init;

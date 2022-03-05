@@ -36,6 +36,7 @@ extern double	g_appTime;
 extern s8		g_font12;
 extern int		g_mouseX;
 extern int		g_mouseY;
+extern int		g_chosenLevel;
 
 #endif
 

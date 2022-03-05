@@ -171,7 +171,7 @@ static AEMtx33			MapTransform;
 // ---------------------------------------------------------------------------
 
 // functions to create/destroy a game object instance
-static GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
+GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	AEVec2* pPos, AEVec2* pVel,
 	float dir, enum STATE startState);
 void					gameObjInstDestroy(GameObjInst* pInst);
@@ -312,9 +312,18 @@ void GameStateLevel1Load(void)
 	// =====================
 	// Load Level 1 Binary Map
 	// =====================
+	//	Import Level data from txt file depending on chosen level
+	std::string fileName{ "" };
+	switch (g_chosenLevel) {
+	case 1:
+		fileName = "Level1.txt";
+		break;
+	default:break;
+	}
+	ImportMapDataFromFile(fileName);
 
-	//	Import Level1.txt from Bin folder
-		ImportMapDataFromFile("Level1.txt");
+	std::cout << g_chosenLevel << std::endl;
+	std::cout << BINARY_MAP_WIDTH << " | " << BINARY_MAP_HEIGHT << std::endl;
 
 	//Computing the matrix which take a point out of the normalized coordinates system
 	//of the binary map

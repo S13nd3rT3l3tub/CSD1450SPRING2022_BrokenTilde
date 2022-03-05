@@ -24,6 +24,10 @@ s8		 g_font12;
 s8		 g_font20;
 int		 g_mouseX;
 int		 g_mouseY;
+int		 g_chosenLevel;
+
+
+
 
 int winWidth{ 1280 }, winHeight{ 720 };
 
@@ -60,7 +64,11 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	g_font12 = AEGfxCreateFont("Roboto-Regular.ttf", 12);
 	g_font20 = AEGfxCreateFont("Roboto-Regular.ttf", 20);
 
-	GameStateMgrInit(GS_LEVEL1);
+	g_chosenLevel = 0;
+	std::cout << g_chosenLevel << std::endl;
+
+
+	GameStateMgrInit(GS_MAINMENU);
 
 	while(gGameStateCurr != GS_QUIT)
 	{

@@ -1,7 +1,5 @@
 #include "main.h"
 
-
-
 /*The number of horizontal elements*/
 int BINARY_MAP_WIDTH;
 int BINARY_CELL_WIDTH;
@@ -20,7 +18,7 @@ in MapData is 1, it represents a collision cell, any other value is a non-collis
 cell*/
 int** BinaryCollisionArray;
 
-int ImportMapDataFromFile(const char* FileName)
+int ImportMapDataFromFile(std::string FileName)
 {
 	//std::vector<int>	vint;
 	//std::string			line;
@@ -233,7 +231,7 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	// Check if any of the hotspot is colliding
 	//if (BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
-	if (GetCellValue(x1, y1) == 1 || GetCellValue(x2, y2) == 1)
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y2)) == 1)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
 	// Top side hotspots
@@ -247,7 +245,7 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	// Check if any of the hotspot is colliding
 	//if (BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
-	if (GetCellValue(x1, y1) == 1 || GetCellValue(x2, y2) == 1)
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y2)) == 1)
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
 
@@ -265,7 +263,7 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	//std::cout << "hs2 : (" << x2 << ", " << y2 << ") = " << BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)];
 	//if (BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
-	if (GetCellValue(x1, y1) == 1 || GetCellValue(x2, y2) == 1)
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y2)) == 1)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 		
 
@@ -280,7 +278,7 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	// Check if any of the hotspot is colliding
 	//if (BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
-	if (GetCellValue(x1, y1) == 1 || GetCellValue(x2, y2) == 1)
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y2)) == 1)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
 	//std::cout << std::endl;

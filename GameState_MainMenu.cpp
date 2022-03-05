@@ -13,7 +13,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  /******************************************************************************/
 
 #include "main.h"
-#include <iostream>
 
 /******************************************************************************/
 /*!
@@ -94,6 +93,13 @@ static unsigned long		sGameObjInstNum;							// The number of used game object i
 */
 /******************************************************************************/
 
+// ---------------------------------------------------------------------------
+
+// functions to create/destroy a game object instance
+GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
+	AEVec2* pPos, AEVec2* pVel,
+	float dir);
+void					gameObjInstDestroy(GameObjInst* pInst);
 
 
 /******************************************************************************/
@@ -123,6 +129,8 @@ void GameStateMainMenuLoad() {
 */
 /******************************************************************************/
 void GameStateMainMenuInit() {
+	g_chosenLevel = 1;
+	std::cout << "Main Menu: " << g_chosenLevel << std::endl;
 
 }
 
@@ -132,6 +140,8 @@ void GameStateMainMenuInit() {
 */
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
+	gGameStateNext = GS_LEVEL1;
+
 	// =========================
 	// update according to input
 	// =========================
@@ -193,7 +203,8 @@ void GameStateMainMenuUpdate() {
 			continue;
 
 		switch (pInst->pObject->type) {
-		
+		default:
+			break;
 		}
 	}
 
@@ -320,17 +331,3 @@ GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	return 0;
 }
 
-/******************************************************************************/
-/*!
-
-*/
-/******************************************************************************/
-void gameObjInstDestroy(GameObjInst* pInst)
-{
-	// if instance is destroyed before, just return
-	if (pInst->flag == 0)
-		return;
-
-	// zero out the flag
-	pInst->flag = 0;
-}
