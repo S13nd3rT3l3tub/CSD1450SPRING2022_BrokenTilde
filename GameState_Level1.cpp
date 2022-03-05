@@ -26,9 +26,9 @@ const unsigned int	GAME_OBJ_INST_NUM_MAX	= 2048;			//The total number of differe
 
 const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player lives
 AEVec2		PLAYER_MESHSIZE			= { 1.0f, 1.0f };
-AEVec2		PLAYER_SCALE			= { 1.0f, 1.0f};		// player scaling
+AEVec2		PLAYER_SCALE			= { 2.0f, 1.0f};		// player scaling
 AEVec2		GUN_MESHSIZE			= { 0.5f, 0.5f };
-AEVec2		GUN_SCALE				= { 1.0f, 1.0f };		// gun size
+AEVec2		GUN_SCALE				= { 3.0f, 0.75f };		// gun size
 
 AEVec2		BULLET_MESHSIZE			= { 1.0f, 1.0f };
 AEVec2		BULLET_SCALE			= { 1.0f, 1.0f };
@@ -163,6 +163,8 @@ static long					playerLives;									// The number of lives left
 													
 // Current mouse position
 static signed int mouseX{ 0 }, mouseY{ 0 };
+static AEVec2 windowMouse{ mouseX, mouseY };
+static AEVec2 localMouse{0,0};
 
 // Transform matrix containing shift of grid to world coordinates
 // concatenate this with object instance's own transform matrix
@@ -268,22 +270,22 @@ void GameStateLevel1Load(void)
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PLAYERGUN;
 	AEGfxMeshStart();
-	//AEGfxTriAdd(
-	//	0.0f, GUN_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-	//	0.0f, -GUN_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 1.0f,
-	//	GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
-	//AEGfxTriAdd(
-	//	0.0f, GUN_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-	//	GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFFFF0000, 1.0f, 0.0f,
-	//	GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
 	AEGfxTriAdd(
+		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+		0.0f, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+	AEGfxTriAdd(
+		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+		GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+	/*AEGfxTriAdd(
 		-GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
 		GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
 		-GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
 	AEGfxTriAdd(
 		-GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
 		GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+		GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);*/
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ GUN_MESHSIZE.x, GUN_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
@@ -406,11 +408,11 @@ void GameStateLevel1Update(void)
 	// Change the following input movement based on our player movement
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	AEInputGetCursorPosition(&mouseX, &mouseY);
-	// Coordinate conversion
-	mouseX -= static_cast<int>((AEGfxGetWinMaxX() - AEGfxGetWinMinX()) / 2);
-	mouseY -= static_cast<int>((AEGfxGetWinMaxY() - AEGfxGetWinMinY()) / 2);
-	mouseY = -mouseY;
-	float dotProduct = atan2(mouseY - PlayerBody->posCurr.y, mouseX - PlayerBody->posCurr.x);
+
+	localMouse.x = mouseX / (AEGetWindowWidth() / BINARY_MAP_WIDTH);
+	localMouse.y = (AEGetWindowHeight() - mouseY) / (AEGetWindowHeight() / BINARY_MAP_HEIGHT);
+	std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
+	float dotProduct = atan2(localMouse.y - PlayerBody->posCurr.y, localMouse.x - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
 
 	if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
@@ -427,15 +429,15 @@ void GameStateLevel1Update(void)
 
 		}
 	}
-
-	if (AEInputCheckTriggered(AEVK_W)) // JUMP - right now, can infinitely jump. Need to implement hotspot at bottom of tank to detect
+	//std::cout << PlayerBody->gridCollisionFlag;
+	if (AEInputCheckTriggered(AEVK_W) && ((PlayerBody->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)) // JUMP - right now, can infinitely jump. Need to implement hotspot at bottom of tank to detect
 	{									// whether the tank is touching the ground or not.
 		AEVec2 added;
 		AEVec2Set(&added, 0.f, 1.f);
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 15000 * g_dt; // 29000
+		added.y *= 420 * g_dt; // 29000
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
@@ -448,7 +450,7 @@ void GameStateLevel1Update(void)
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 480 * g_dt; //500
+		added.y *= 7 * g_dt; //500
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
@@ -464,7 +466,7 @@ void GameStateLevel1Update(void)
 		added.y *= -MOVE_VELOCITY * g_dt;
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 	}
 	else if (AEInputCheckCurr(AEVK_D))
 	{
@@ -479,9 +481,10 @@ void GameStateLevel1Update(void)
 		added.y *= MOVE_VELOCITY * g_dt;
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 	}
 	else
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.95f);
 		
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -618,7 +621,10 @@ void GameStateLevel1Update(void)
 		}
 
 		// Reflect bullet here?
-
+		//if (pInst->pObject->type == PlayerBody->pObject->type)
+		//{
+		//	std::cout << PlayerBody->gridCollisionFlag;
+		//}
 
 	}
 
@@ -741,7 +747,7 @@ void GameStateLevel1Update(void)
 		AEMtx33Concat(&pInst->transform, &trans, &rot);
 		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
-
+	
 	// Update Camera position, for Level2
 		// To follow the player's position
 		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
