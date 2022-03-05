@@ -19,6 +19,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 // Globals
 float	 g_dt;
 double	 g_appTime;
+s8		 g_font12;
+s8		 g_font20;
 
 int winWidth{ 1280 }, winHeight{ 720 };
 
@@ -45,14 +47,15 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	//AESysInit (instanceH, show, AEGetWindowWidth(), AEGetWindowHeight(), 1, 60, false, NULL);
 	AESysInit(instanceH, show, winWidth, winHeight, 1, 60, false, NULL);
 
-
 	// Changing the window title
-	AESysSetWindowTitle("Asteroids Demo!");
+	AESysSetWindowTitle("Broken Tilde Prototype");
 
 	//set background color
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
-
+	// Load font
+	g_font12 = AEGfxCreateFont("Roboto-Regular.ttf", 12);
+	g_font20 = AEGfxCreateFont("Roboto-Regular.ttf", 20);
 
 	GameStateMgrInit(GS_LEVEL1);
 
@@ -101,6 +104,10 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 		gGameStatePrev = gGameStateCurr;
 		gGameStateCurr = gGameStateNext;
 	}
+
+	// Free font
+	AEGfxDestroyFont(g_font12);
+	AEGfxDestroyFont(g_font20);
 
 	// free the system
 	AESysExit();
