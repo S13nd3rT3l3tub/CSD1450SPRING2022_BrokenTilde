@@ -16,15 +16,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
-//------------------------------------
-// Globals
-
-extern float	g_dt;
-extern double	g_appTime;
-extern s8		g_font12;
-extern int		g_mouseX;
-extern int		g_mouseY;
-
 // ---------------------------------------------------------------------------
 // includes
 
@@ -36,6 +27,15 @@ extern int		g_mouseY;
 #include "GameState_Level1.h"
 #include "Collision.h"
 #include "BinaryMap.h"
+
+//------------------------------------
+// Globals
+
+extern float	g_dt;
+extern double	g_appTime;
+extern s8		g_font12;
+extern int		g_mouseX;
+extern int		g_mouseY;
 
 #endif
 
