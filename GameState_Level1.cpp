@@ -408,10 +408,10 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	AEInputGetCursorPosition(&mouseX, &mouseY);
 
-	localMouse.x = mouseX / (AEGetWindowWidth() / BINARY_MAP_WIDTH);
-	localMouse.y = (AEGetWindowHeight() - mouseY) / (AEGetWindowHeight() / BINARY_MAP_HEIGHT);
-	std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
-	float dotProduct = atan2(localMouse.y - PlayerBody->posCurr.y, localMouse.x - PlayerBody->posCurr.x);
+	localMouseX = mouseX / (AEGetWindowWidth() / BINARY_MAP_WIDTH);
+	localMouseY = (AEGetWindowHeight() - mouseY) / (AEGetWindowHeight() / BINARY_MAP_HEIGHT);
+	//std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
+	float dotProduct = atan2(localMouseY - PlayerBody->posCurr.y, localMouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
 
 	if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
