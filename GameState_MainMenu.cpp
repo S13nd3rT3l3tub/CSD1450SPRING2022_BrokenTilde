@@ -66,20 +66,9 @@ struct GameObjInst
 	AABB				boundingBox;// object bouding box that encapsulates the object
 	AEMtx33				transform;	// object transformation matrix: Each frame, 
 									// calculate the object instance's transformation matrix and save it here
-	int					bulletbounce;
-
-	//Used to hold the current 
-	int					gridCollisionFlag;
 
 	// pointer to custom data specific for each object type
 	void* pUserData;
-
-	//State of the object instance
-	enum			STATE state;
-	enum			INNER_STATE innerState;
-
-	//General purpose counter (This variable will be used for the enemy state machine)
-	double			counter;
 
 	//void				(*pfUpdate)(void);
 	//void				(*pfDraw)(void);
@@ -191,6 +180,52 @@ void GameStateMainMenuUpdate() {
 		pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
 	}
 
+	// ====================
+	// check for collision
+	// ====================
+
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+		pInst = sGameObjInstList + i;
+
+		// skip non-active object
+		if ((pInst->flag & FLAG_ACTIVE) == 0)
+			continue;
+
+		switch (pInst->pObject->type) {
+		
+		}
+	}
+
+
+	// =====================================
+	// calculate the matrix for all objects
+	// =====================================
+
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+		pInst = sGameObjInstList + i;
+		AEMtx33		 trans, rot, scale;
+
+		//UNREFERENCED_PARAMETER(trans);
+		//UNREFERENCED_PARAMETER(rot);
+		//UNREFERENCED_PARAMETER(scale);
+
+		// skip non-active object
+		if ((pInst->flag & FLAG_ACTIVE) == 0)
+			continue;
+
+		// Compute the scaling matrix
+		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
+		// Compute the rotation matrix 	
+		AEMtx33Rot(&rot, pInst->dirCurr);
+		// Compute the translation matrix
+		AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
+		// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
+		AEMtx33Concat(&pInst->transform, &trans, &rot);
+		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
+	}
+
 }
 
 /******************************************************************************/
@@ -199,7 +234,26 @@ void GameStateMainMenuUpdate() {
 */
 /******************************************************************************/
 void GameStateMainMenuDraw() {
+	//char strBuffer[1024];
 
+	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+	AEGfxTextureSet(NULL, 0, 0);
+	
+	
+	// draw all object instances in the list
+	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+		GameObjInst* pInst = sGameObjInstList + i;
+
+		// skip non-active object
+		if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
+			continue;
+
+		// Set the current object instance's transform matrix using "AEGfxSetTransform"
+		AEGfxSetTransform(pInst->transform.m);
+		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
+		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+	}
 }
 
 /******************************************************************************/
@@ -208,7 +262,14 @@ void GameStateMainMenuDraw() {
 */
 /******************************************************************************/
 void GameStateMainMenuFree() {
+	// kill all object instances in the array using "gameObjInstDestroy"
+	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
+		GameObjInst* pInst = sGameObjInstList + i;
 
+		gameObjInstDestroy(pInst);
+	}
+
+	FreeMapData();
 }
 
 /******************************************************************************/
@@ -218,4 +279,58 @@ void GameStateMainMenuFree() {
 /******************************************************************************/
 void GameStateMainMenuUnload() {
 
+}
+
+/******************************************************************************/
+/*!
+
+*/
+/******************************************************************************/
+GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
+	AEVec2* pPos, AEVec2* pVel,
+	float dir)
+{
+	AEVec2 zero;
+	AEVec2Zero(&zero);
+
+	AE_ASSERT_PARM(type < sGameObjNum);
+
+	// loop through the object instance list to find a non-used object instance
+	for (unsigned int i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+		GameObjInst* pInst = sGameObjInstList + i;
+
+		// check if current instance is not used
+		if (pInst->flag == 0)
+		{
+			// it is not used => use it to create the new instance
+			pInst->pObject = sGameObjList + type;
+			pInst->flag = FLAG_ACTIVE | FLAG_VISIBLE;
+			pInst->scale = *scale;
+			pInst->posCurr = pPos ? *pPos : zero;
+			pInst->velCurr = pVel ? *pVel : zero;
+			pInst->dirCurr = dir;
+			pInst->pUserData = 0;
+
+			// return the newly created instance
+			return pInst;
+		}
+	}
+
+	return 0;
+}
+
+/******************************************************************************/
+/*!
+
+*/
+/******************************************************************************/
+void gameObjInstDestroy(GameObjInst* pInst)
+{
+	// if instance is destroyed before, just return
+	if (pInst->flag == 0)
+		return;
+
+	// zero out the flag
+	pInst->flag = 0;
 }
