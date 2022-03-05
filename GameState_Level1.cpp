@@ -83,7 +83,8 @@ enum STATE
 {
 	STATE_NONE,
 	STATE_GOING_LEFT,
-	STATE_GOING_RIGHT
+	STATE_GOING_RIGHT,
+	STATE_ALERT
 };
 
 //State machine inner states
@@ -412,7 +413,7 @@ void GameStateLevel1Init(void)
 				//	break;
 
 			case TYPE_PLATFORM:
-				//gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
 				break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
@@ -710,7 +711,7 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
-				pInst->posCurr.x += 0.5f;
+				//pInst->posCurr.x += 0.5f;
 			}
 		}
 
@@ -728,7 +729,7 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
-				pInst->posCurr.x -= 0.5f;
+				//pInst->posCurr.x -= 0.5f;
 			}
 		}		
 	}
@@ -868,19 +869,19 @@ void GameStateLevel1Draw(void)
 			Use the black instance in case the cell's value is TYPE_OBJECT_EMPTY
 			Use the white instance in case the cell's value is TYPE_OBJECT_COLLISION
 	*********/
-	for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
-		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
-		{
-			//AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
-			AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
-			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
-			AEGfxSetTransform(cellFinalTransformation.m);
+	//for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
+	//	for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
+	//	{
+	//		//AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
+	//		AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
+	//		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
+	//		AEGfxSetTransform(cellFinalTransformation.m);
 
-			if (GetCellValue(i, j) == TYPE_PLATFORM)
-				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-			else
-				AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-		}
+	//		if (GetCellValue(i, j) == TYPE_PLATFORM)
+	//			AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+	//		else
+	//			AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+	//	}
 
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
@@ -902,6 +903,33 @@ void GameStateLevel1Draw(void)
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
+
+	//	Drawing for Font Level 1
+	f32 TextWidth = 1.0f;
+	f32 TextHeight = 1.0f;
+	char strBuffer[100];
+	memset(strBuffer, 0, 100 * sizeof(char));
+	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+
+	sprintf_s(strBuffer, "A key - Move Left");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.15f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "D key - Move Right");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.05f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Spacebar key - Jump Up");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.05f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
+	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.15f, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
+	AEGfxPrint(g_font20, strBuffer, -0.26f, 0.7f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "   to destroy the enemy tanks above   ");
+	AEGfxPrint(g_font20, strBuffer, -0.26f, 0.6f, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Destroy all enemy tanks");
+	AEGfxPrint(g_font20, strBuffer, 0.5f, -0.5f, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "   to clear the level  ");
+	AEGfxPrint(g_font20, strBuffer, 0.5f, -0.6f, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/
@@ -919,6 +947,8 @@ void GameStateLevel1Free(void)
 	}
 
 	FreeMapData();
+	//	Free font for level 1
+	AEGfxDestroyFont(g_font20);
 }
 
 /******************************************************************************/
@@ -1040,10 +1070,18 @@ void EnemyStateMachine(GameObjInst* pInst)
 			break;
 
 		case INNER_STATE_ON_UPDATE:
-			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x - 2, pInst->posCurr.y - 1, 2.f, 1.f);
+			//offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x - 2, pInst->posCurr.y - 1, 2.f, 1.f);
 			//std::cout << "GOING LEFT : INNER_STATE_ON_UPDATE\n";
 			pInst->velCurr.x = -MOVE_VELOCITY_ENEMY;
-			if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || (offsetcheck & COLLISION_RIGHT) != COLLISION_RIGHT)
+			//if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || (offsetcheck & COLLISION_RIGHT) != COLLISION_RIGHT)
+			if ( (CheckInstanceBinaryMapCollision(pInst->posCurr.x - pInst->pObject->meshSize.x * pInst->scale.x, 
+												pInst->posCurr.y, 
+												pInst->pObject->meshSize.x * pInst->scale.x, 
+												pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_LEFT) == COLLISION_LEFT || 
+				(CheckInstanceBinaryMapCollision(pInst->posCurr.x - pInst->pObject->meshSize.x * pInst->scale.x,
+					pInst->posCurr.y - pInst->pObject->meshSize.y * pInst->scale.y,
+					pInst->pObject->meshSize.x * pInst->scale.x,
+					pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_RIGHT) != COLLISION_RIGHT )
 			{
 				pInst->counter = ENEMY_IDLE_TIME;
 				pInst->innerState = INNER_STATE_ON_EXIT;
@@ -1075,9 +1113,16 @@ void EnemyStateMachine(GameObjInst* pInst)
 			break;
 
 		case INNER_STATE_ON_UPDATE:
-			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2, pInst->posCurr.y - 1, 2.f, 1.f);
-
-			if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT || (offsetcheck & COLLISION_LEFT) != COLLISION_LEFT)
+			//offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2, pInst->posCurr.y - 1, 2.f, 1.f);
+			//if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT || (offsetcheck & COLLISION_LEFT) != COLLISION_LEFT)
+			if ((CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
+				pInst->posCurr.y,
+				pInst->pObject->meshSize.x * pInst->scale.x,
+				pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_RIGHT) == COLLISION_RIGHT ||
+				(CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
+					pInst->posCurr.y - pInst->pObject->meshSize.y * pInst->scale.y,
+					pInst->pObject->meshSize.x * pInst->scale.x,
+					pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_LEFT) != COLLISION_LEFT)
 			{
 				pInst->counter = ENEMY_IDLE_TIME;
 				pInst->innerState = INNER_STATE_ON_EXIT;
@@ -1097,7 +1142,23 @@ void EnemyStateMachine(GameObjInst* pInst)
 			}
 			break;
 		}
+		break;
+	case STATE_ALERT:
+		switch (pInst->innerState) {
 
+		case INNER_STATE_ON_ENTER:
+
+
+			break;
+		case INNER_STATE_ON_UPDATE:
+
+			break;
+
+
+		case INNER_STATE_ON_EXIT:
+
+			break;
+		}
 	}
 }
 
