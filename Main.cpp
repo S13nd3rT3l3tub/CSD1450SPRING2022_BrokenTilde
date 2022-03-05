@@ -14,6 +14,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "main.h"
 #include <memory>
+#include <iostream>
 
 // ---------------------------------------------------------------------------
 // Globals
@@ -21,6 +22,8 @@ float	 g_dt;
 double	 g_appTime;
 s8		 g_font12;
 s8		 g_font20;
+int		 g_mouseX;
+int		 g_mouseY;
 
 int winWidth{ 1280 }, winHeight{ 720 };
 
@@ -93,6 +96,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 				gGameStateNext = GS_QUIT;
 
 			g_dt = (f32)AEFrameRateControllerGetFrameTime();
+			AEInputGetCursorPosition(&g_mouseX, &g_mouseY);
 			g_appTime += g_dt;
 		}
 		

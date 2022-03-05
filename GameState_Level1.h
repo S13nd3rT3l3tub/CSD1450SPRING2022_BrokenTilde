@@ -12,8 +12,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  */
 /******************************************************************************/
 
-#ifndef CSD1130_GAME_STATE_PLAY_H_
-#define CSD1130_GAME_STATE_PLAY_H_
+#ifndef GAME_STATE_PLAY_H_
+#define GAME_STATE_PLAY_H_
 
 // ---------------------------------------------------------------------------
 
@@ -26,6 +26,6 @@ void GameStateLevel1Unload(void);
 
 // ---------------------------------------------------------------------------
 
-#endif // CSD1130_GAME_STATE_PLAY_H_
+#endif 
 
 
