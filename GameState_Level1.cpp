@@ -40,8 +40,8 @@ AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 
 //Gameplay related variables and values
 const float			GRAVITY = -9.8f;
-const float			JUMP_VELOCITY = 500.0f;
-const float			HOVER_VELOCITY = 100.0f;
+const float			JUMP_VELOCITY = 800.0f;
+const float			HOVER_VELOCITY = 7.0f;
 const float			MOVE_VELOCITY = 5.0f;
 const float			MOVE_VELOCITY_ENEMY = 7.5f;
 const double		ENEMY_IDLE_TIME = 2.0;
@@ -469,8 +469,8 @@ void GameStateLevel1Update(void)
 		}
 	}
 	//std::cout << PlayerBody->gridCollisionFlag;
-	if (AEInputCheckTriggered(AEVK_W) && ((PlayerBody->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)) // JUMP - right now, can infinitely jump. Need to implement hotspot at bottom of tank to detect
-	{									// whether the tank is touching the ground or not.
+	if (AEInputCheckTriggered(AEVK_W) && ((PlayerBody->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)) // JUMP - 
+	{									
 		AEVec2 added;
 		AEVec2Set(&added, 0.f, 1.f);
 
