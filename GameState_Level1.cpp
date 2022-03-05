@@ -171,7 +171,7 @@ static AEMtx33			MapTransform;
 // ---------------------------------------------------------------------------
 
 // functions to create/destroy a game object instance
-GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
+static GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	AEVec2* pPos, AEVec2* pVel,
 	float dir, enum STATE startState);
 void					gameObjInstDestroy(GameObjInst* pInst);
