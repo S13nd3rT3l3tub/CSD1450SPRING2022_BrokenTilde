@@ -40,11 +40,13 @@ AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 
 //Gameplay related variables and values
 const float			GRAVITY = -9.8f;
-const float			JUMP_VELOCITY = 11.0f;
+const float			JUMP_VELOCITY = 500.0f;
+const float			HOVER_VELOCITY = 100.0f;
 const float			MOVE_VELOCITY = 5.0f;
 const float			MOVE_VELOCITY_ENEMY = 7.5f;
 const double		ENEMY_IDLE_TIME = 2.0;
 const int			HERO_LIVES = 3;
+
 
 // -----------------------------------------------------------------------------
 // object flag definition
@@ -135,7 +137,7 @@ struct GameObjInst
 
 	//General purpose counter (This variable will be used for the enemy state machine)
 	double			counter;
-
+	double			shoot_timer{};
 	//void				(*pfUpdate)(void);
 	//void				(*pfDraw)(void);
 };
@@ -164,7 +166,7 @@ static GameObjInst* PlatformInstance;
 
 // number of player lives available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
-													
+
 // Current mouse position
 //static signed int mouseX{ 0 }, mouseY{ 0 };
 static float localMouseX{ 0 }, localMouseY{ 0 };
@@ -365,8 +367,6 @@ void GameStateLevel1Load(void)
 	***********/
 	AEMtx33 scale, trans;
 
-	//UNREFERENCED_PARAMETER(scale);
-	//UNREFERENCED_PARAMETER(trans);
 	AEMtx33Trans(&trans, static_cast<f32>(-(BINARY_MAP_WIDTH / 2)), static_cast<f32>(-(BINARY_MAP_HEIGHT / 2)));
 	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT));
 	AEMtx33Concat(&MapTransform, &scale, &trans);
@@ -390,7 +390,7 @@ void GameStateLevel1Init(void)
 
 	AEVec2 Pos{}, Scale{};
 
-	PrintRetrievedInformation();
+	//PrintRetrievedInformation();
 
 	// Initialise Binary map
 	for (int row = 0; row < BINARY_MAP_HEIGHT; row++) {
@@ -476,7 +476,7 @@ void GameStateLevel1Update(void)
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 420 * g_dt; // 29000
+		added.y *= JUMP_VELOCITY * g_dt; // 29000
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
@@ -489,7 +489,7 @@ void GameStateLevel1Update(void)
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 7 * g_dt; //500
+		added.y *= HOVER_VELOCITY * g_dt; //500
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
@@ -580,8 +580,23 @@ void GameStateLevel1Update(void)
 
 		if (pInst->pObject->type == TYPE_ENEMY1){
 			EnemyStateMachine(pInst);
+			if (pInst->posCurr.y <= PlayerBody->posCurr.y)
+			{
+				pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
+				AEVec2 EnemytoPlayer{ pInst->posCurr.x - PlayerBody->posCurr.x, pInst->posCurr.y - PlayerBody->posCurr.y };
+				AEVec2Normalize(&EnemytoPlayer, &EnemytoPlayer);
+				EnemytoPlayer.x *= -1.5;
+				EnemytoPlayer.y *= -1.5;
+				AEVec2 shootpos{ pInst->posCurr.x + EnemytoPlayer.x, pInst->posCurr.y + EnemytoPlayer.y};
+				EnemytoPlayer.x *= 4;
+				EnemytoPlayer.y *= 4;
+				if (pInst->shoot_timer < 0)
+				{
+					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_NONE);
+					pInst->shoot_timer = 2;
+				}
+			}
 		}
-
 	}
 
 
@@ -766,6 +781,7 @@ void GameStateLevel1Update(void)
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(PlayerBody);
 						gameObjInstDestroy(PlayerGun);
+						//gGameStateNext = GS_RESTART;
 					}
 					break;
 				case TYPE_ENEMY1:
