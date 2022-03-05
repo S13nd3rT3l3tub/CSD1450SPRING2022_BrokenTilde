@@ -92,19 +92,6 @@ enum INNER_STATE
 	INNER_STATE_ON_EXIT
 };
 
-
-// -----------------------------------------------------------------------------
-// object flag definition
-const unsigned int	FLAG_ACTIVE = 0x00000001;
-const unsigned int	FLAG_VISIBLE = 0x00000002;
-const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
-
-// Collision flags
-const unsigned int	COLLISION_LEFT = 0x00000001;	//0001
-const unsigned int	COLLISION_RIGHT = 0x00000002;	//0010
-const unsigned int	COLLISION_TOP = 0x00000004;	//0100
-const unsigned int	COLLISION_BOTTOM = 0x00000008;	//1000
-
 /******************************************************************************/
 /*!
 	Struct/Class Definitions
@@ -425,7 +412,7 @@ void GameStateLevel1Init(void)
 				//	break;
 
 			case TYPE_PLATFORM:
-				gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+				//gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
 				break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
@@ -584,7 +571,7 @@ void GameStateLevel1Update(void)
 		if (pInst == PlayerGun) // attach turret to body
 			pInst->posCurr = PlayerBody->posCurr;
 
-		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce > 9)
+		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 9)
 			gameObjInstDestroy(pInst);
 		
 		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
