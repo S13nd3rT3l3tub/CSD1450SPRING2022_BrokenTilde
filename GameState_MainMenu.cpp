@@ -279,8 +279,6 @@ void GameStateMainMenuFree() {
 
 		gameObjInstDestroy(pInst);
 	}
-
-	FreeMapData();
 }
 
 /******************************************************************************/

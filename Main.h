@@ -21,12 +21,16 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 //#include <SFML>
 #include "AEEngine.h"
 #include "Math.h"
+#include <string>
+#include <iostream>
+#include <fstream>
+
 
 #include "GameStateMgr.h"
 #include "GameState_MainMenu.h"
 #include "GameState_Level1.h"
 #include "Collision.h"
-#include "BinaryMap.h"
+//#include "BinaryMap.h"
 
 //------------------------------------
 // Globals
