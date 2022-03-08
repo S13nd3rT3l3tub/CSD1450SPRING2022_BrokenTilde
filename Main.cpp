@@ -55,7 +55,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	AESysInit(instanceH, show, winWidth, winHeight, 1, 60, false, NULL);
 
 	// Changing the window title
-	AESysSetWindowTitle("Broken Tilde Prototype");
+	AESysSetWindowTitle("Broken Tilde Prototype - Tutorial Level");
 
 	//set background color
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
