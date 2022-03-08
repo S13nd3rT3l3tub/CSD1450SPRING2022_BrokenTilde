@@ -355,16 +355,15 @@ void GameStateLevel1Load(void)
 	std::string fileName{ "" };
 	switch (g_chosenLevel) {
 	case 1:
-		fileName = "Level1.txt";
+		fileName = ".\\Resources\\Level Data\\Level1.txt";
 		break;
 	default:break;
 	}
-	if (!ImportMapDataFromFile(fileName))
+	if (ImportMapDataFromFile(fileName) == 0)
 		gGameStateNext = GS_QUIT;
 
-	std::cout << g_chosenLevel << std::endl;
-	std::cout << BINARY_MAP_WIDTH << " | " << BINARY_MAP_HEIGHT << std::endl;
-
+	PrintRetrievedInformation();
+	
 	//Computing the matrix which take a point out of the normalized coordinates system
 	//of the binary map
 	/***********

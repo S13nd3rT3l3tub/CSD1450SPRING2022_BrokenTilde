@@ -65,14 +65,14 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\Extern\AlphaEngine_V3.08\include;$(SolutionDir)\Extern\SFML-2.5.1\include</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)\Extern\AlphaEngine_V3.08\lib;$(SolutionDir)\Extern\SFML-2.5.1\lib</LibraryPath>
-    <OutDir>$(SolutionDir)\.tmp\$(Configuration)-$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)\.tmp\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\Extern\AlphaEngine_V3.08\include;$(SolutionDir)\Extern\SFML-2.5.1\include</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)\Extern\AlphaEngine_V3.08\lib;$(SolutionDir)\Extern\SFML-2.5.1\lib</LibraryPath>
-    <OutDir>$(SolutionDir)\.tmp\$(Configuration)-$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)\.tmp\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

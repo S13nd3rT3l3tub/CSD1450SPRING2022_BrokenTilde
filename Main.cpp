@@ -61,8 +61,8 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
 	// Load font
-	g_font12 = AEGfxCreateFont("Roboto-Regular.ttf", 12);
-	g_font20 = AEGfxCreateFont("Roboto-Regular.ttf", 20);
+	g_font12 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 12);
+	g_font20 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 20);
 
 	g_chosenLevel = 0;
 	std::cout << g_chosenLevel << std::endl;
