@@ -966,8 +966,7 @@ void GameStateLevel1Free(void)
 
 		gameObjInstDestroy(pInst);
 	}
-	//	Free font for level 1
-	AEGfxDestroyFont(g_font20);
+	
 }
 
 /******************************************************************************/
