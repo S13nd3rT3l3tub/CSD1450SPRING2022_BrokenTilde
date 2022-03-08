@@ -572,7 +572,7 @@ void GameStateLevel1Update(void)
 		if (pInst == PlayerGun) // attach turret to body
 			pInst->posCurr = PlayerBody->posCurr;
 
-		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 9)
+		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
 			gameObjInstDestroy(pInst);
 		
 		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
@@ -659,6 +659,7 @@ void GameStateLevel1Update(void)
 			Snap to cell on X axis
 			Velocity X = 0
 		*************/
+		int prevbounce = pInst->bulletbounce;
 		pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y);
 		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM) {
 			if (pInst->pObject->type == TYPE_BULLET) {
@@ -670,6 +671,7 @@ void GameStateLevel1Update(void)
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//Limit number of bullet bounces:
 				//std::cout << pInst->bulletbounce;
+				if(prevbounce == pInst->bulletbounce)
 				++(pInst->bulletbounce);
 			}
 			else {
@@ -688,6 +690,7 @@ void GameStateLevel1Update(void)
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//Limit number of bullet bounces:
 				//std::cout << pInst->bulletbounce;
+				if (prevbounce == pInst->bulletbounce)
 				++(pInst->bulletbounce);
 			}
 			else {
@@ -706,6 +709,7 @@ void GameStateLevel1Update(void)
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//Limit number of bullet bounces:
 				//std::cout << pInst->bulletbounce;
+				if (prevbounce == pInst->bulletbounce)
 				++(pInst->bulletbounce);
 			}
 			else {
@@ -724,6 +728,7 @@ void GameStateLevel1Update(void)
 				pInst->velCurr = newBulletVel;
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//std::cout << pInst->bulletbounce;
+				if (prevbounce == pInst->bulletbounce)
 				++(pInst->bulletbounce);
 			}
 			else {
