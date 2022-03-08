@@ -347,8 +347,7 @@ void GameStateLevel1Load(void)
 		break;
 	default:break;
 	}
-	if (!ImportMapDataFromFile(fileName))
-		gGameStateNext = GS_QUIT;
+	ImportMapDataFromFile(fileName);
 
 	std::cout << g_chosenLevel << std::endl;
 	std::cout << BINARY_MAP_WIDTH << " | " << BINARY_MAP_HEIGHT << std::endl;
@@ -523,8 +522,8 @@ void GameStateLevel1Update(void)
 		// Limit your speed over here
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 	}
-	
-	AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
+	else
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.95f);
 		
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -589,8 +588,8 @@ void GameStateLevel1Update(void)
 				EnemytoPlayer.x *= -1.5;
 				EnemytoPlayer.y *= -1.5;
 				AEVec2 shootpos{ pInst->posCurr.x + EnemytoPlayer.x, pInst->posCurr.y + EnemytoPlayer.y};
-				EnemytoPlayer.x *= 4;
-				EnemytoPlayer.y *= 4;
+				EnemytoPlayer.x *= BULLET_SPEED;
+				EnemytoPlayer.y *= BULLET_SPEED;
 				if (pInst->shoot_timer < 0)
 				{
 					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_NONE);
