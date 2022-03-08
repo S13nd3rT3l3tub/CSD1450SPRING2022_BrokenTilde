@@ -587,6 +587,9 @@ void GameStateLevel1Update(void)
 
 		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
 			gameObjInstDestroy(pInst);
+	
+		if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE_ALERT && pInst->bulletbounce >= 1) // enemy bullet
+			gameObjInstDestroy(pInst);
 		
 		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 			pInst->velCurr.y += GRAVITY * g_dt;
@@ -605,7 +608,7 @@ void GameStateLevel1Update(void)
 				EnemytoPlayer.y *= 4;
 				if (pInst->shoot_timer < 0)
 				{
-					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_NONE);
+					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
 					pInst->shoot_timer = 2;
 				}
 			}
