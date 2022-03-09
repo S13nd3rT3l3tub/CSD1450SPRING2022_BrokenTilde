@@ -355,9 +355,10 @@ void GameStateLevel1Load(void)
 	std::string fileName{ "" };
 	switch (g_chosenLevel) {
 	case 1:
-		fileName = "Level1.txt";
+		fileName = ".\\Resources\\Level Data\\Level1.txt";
 		break;
-	default:break;
+	default:
+		break;
 	}
 	if (ImportMapDataFromFile(fileName) == 0)
 		gGameStateNext = GS_QUIT;
@@ -652,7 +653,7 @@ void GameStateLevel1Update(void)
 		if (0 == (pInst->flag & FLAG_ACTIVE))
 			continue;
 
-		if (pInst == PlayerGun || pInst == PlatformInstance || pInst == EmptyInstance)
+		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM || pInst->pObject->type == TYPE_EMPTY)// || pInst->pObject->type == TYPE_ENEMY1GUN)
 			continue;
 
 		/*************
@@ -730,7 +731,7 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
-				//pInst->posCurr.x += 0.5f;
+				pInst->posCurr.x += 0.5f;
 			}
 		}
 
@@ -749,7 +750,7 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
-				//pInst->posCurr.x -= 0.5f;
+				pInst->posCurr.x -= 0.5f;
 			}
 		}		
 	}
@@ -940,26 +941,37 @@ void GameStateLevel1Draw(void)
 	char strBuffer[100];
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 
 	sprintf_s(strBuffer, "A key - Move Left");
-	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.15f, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth/2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	
 	sprintf_s(strBuffer, "D key - Move Right");
-	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.05f, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth/2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
 	sprintf_s(strBuffer, "W key - Jump Up");
-	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.05f, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth/2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
 	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
-	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.15f, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth/2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
 	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
-	AEGfxPrint(g_font20, strBuffer, -0.26f, 0.7f, 1.0f, 1.f, 1.f, 1.f);
-	sprintf_s(strBuffer, "   to destroy the enemy tanks above   ");
-	AEGfxPrint(g_font20, strBuffer, -0.26f, 0.6f, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth/2, 0.75f - TextHeight/2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "to destroy the enemy tanks");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth/2, 0.65f - TextHeight/2, 1.0f, 1.f, 1.f, 1.f);
 
 	sprintf_s(strBuffer, "Destroy all enemy tanks");
-	AEGfxPrint(g_font20, strBuffer, 0.5f, -0.5f, 1.0f, 1.f, 1.f, 1.f);
-	sprintf_s(strBuffer, "   to clear the level  ");
-	AEGfxPrint(g_font20, strBuffer, 0.5f, -0.6f, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "to clear the level");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/
@@ -1100,7 +1112,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 
 		case INNER_STATE_ON_UPDATE:
 			//std::cout << "GOING LEFT : INNER_STATE_ON_UPDATE\n";
-			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x - 2, pInst->posCurr.y - 1, 2.f, 1.f);
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x - 2.0f, pInst->posCurr.y - 1.0f, 2.0f, 1.f);
 			pInst->velCurr.x = -MOVE_VELOCITY_ENEMY;
 			/*if ( (CheckInstanceBinaryMapCollision(pInst->posCurr.x - pInst->pObject->meshSize.x * pInst->scale.x,
 												pInst->posCurr.y,
@@ -1143,7 +1155,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 			break;
 
 		case INNER_STATE_ON_UPDATE:
-			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2, pInst->posCurr.y - 1, 2.f, 1.f);
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2.0f, pInst->posCurr.y - 1.0, 2.0f, 1.0f);
 			/*if ((CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
 				pInst->posCurr.y,
 				pInst->pObject->meshSize.x * pInst->scale.x,
@@ -1377,6 +1389,7 @@ void SnapToCell(float* Coordinate)
 	// Snap by casting it to integer and adding 0.5f
 	// May need to be changed depending on the cell
 	*Coordinate = static_cast<int>(*Coordinate) + 0.5f;
+
 }
 
 int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY)
