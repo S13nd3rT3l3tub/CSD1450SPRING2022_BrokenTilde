@@ -42,8 +42,8 @@ AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 const float			GRAVITY = -9.8f;
 const float			JUMP_VELOCITY = 800.0f;
 const float			HOVER_VELOCITY = 7.0f;
-const float			MOVE_VELOCITY = 5.0f;
-const float			MOVE_VELOCITY_ENEMY = 7.5f;
+const float			MOVE_VELOCITY = 7.0f;
+const float			MOVE_VELOCITY_ENEMY = 2.5f;
 const double		ENEMY_IDLE_TIME = 2.0;
 const int			HERO_LIVES = 3;
 
@@ -355,7 +355,7 @@ void GameStateLevel1Load(void)
 	std::string fileName{ "" };
 	switch (g_chosenLevel) {
 	case 1:
-		fileName = ".\\Resources\\Level Data\\Level1.txt";
+		fileName = "Level1.txt";
 		break;
 	default:break;
 	}
@@ -805,6 +805,16 @@ void GameStateLevel1Update(void)
 					}
 					break;
 				case TYPE_ENEMY1:
+					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
+						gameObjInstDestroy(pInst);
+						gameObjInstDestroy(pOtherInst);
+					}
+					break;
+				case TYPE_BULLET:
+					if (pInst->posCurr.x == pOtherInst->posCurr.x && pInst->posCurr.y == pOtherInst->posCurr.y) // Don't check the same bullet to itself
+					{
+						break;
+					}
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(pOtherInst);
