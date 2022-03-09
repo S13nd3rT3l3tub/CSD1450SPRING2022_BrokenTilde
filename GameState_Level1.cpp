@@ -595,7 +595,7 @@ void GameStateLevel1Update(void)
 
 		if (pInst->pObject->type == TYPE_ENEMY1){
 			EnemyStateMachine(pInst);
-			if (pInst->posCurr.y <= PlayerBody->posCurr.y)
+			if (pInst->posCurr.y  + 1.0f >= PlayerBody->posCurr.y)
 			{
 				pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
 				AEVec2 EnemytoPlayer{ pInst->posCurr.x - PlayerBody->posCurr.x, pInst->posCurr.y - PlayerBody->posCurr.y };
@@ -936,7 +936,7 @@ void GameStateLevel1Draw(void)
 	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.15f, 1.0f, 1.f, 1.f, 1.f);
 	sprintf_s(strBuffer, "D key - Move Right");
 	AEGfxPrint(g_font20, strBuffer, -0.85f, 0.05f, 1.0f, 1.f, 1.f, 1.f);
-	sprintf_s(strBuffer, "Spacebar key - Jump Up");
+	sprintf_s(strBuffer, "W key - Jump Up");
 	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.05f, 1.0f, 1.f, 1.f, 1.f);
 	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
 	AEGfxPrint(g_font20, strBuffer, -0.85f, -0.15f, 1.0f, 1.f, 1.f, 1.f);
@@ -1089,18 +1089,19 @@ void EnemyStateMachine(GameObjInst* pInst)
 			break;
 
 		case INNER_STATE_ON_UPDATE:
-			//offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x - 2, pInst->posCurr.y - 1, 2.f, 1.f);
 			//std::cout << "GOING LEFT : INNER_STATE_ON_UPDATE\n";
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x - 2, pInst->posCurr.y - 1, 2.f, 1.f);
 			pInst->velCurr.x = -MOVE_VELOCITY_ENEMY;
-			//if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || (offsetcheck & COLLISION_RIGHT) != COLLISION_RIGHT)
-			if ( (CheckInstanceBinaryMapCollision(pInst->posCurr.x - pInst->pObject->meshSize.x * pInst->scale.x, 
-												pInst->posCurr.y, 
-												pInst->pObject->meshSize.x * pInst->scale.x, 
-												pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_LEFT) == COLLISION_LEFT || 
+			/*if ( (CheckInstanceBinaryMapCollision(pInst->posCurr.x - pInst->pObject->meshSize.x * pInst->scale.x,
+												pInst->posCurr.y,
+												pInst->pObject->meshSize.x * pInst->scale.x,
+												pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_LEFT) == COLLISION_LEFT ||
 				(CheckInstanceBinaryMapCollision(pInst->posCurr.x - pInst->pObject->meshSize.x * pInst->scale.x,
 					pInst->posCurr.y - pInst->pObject->meshSize.y * pInst->scale.y,
 					pInst->pObject->meshSize.x * pInst->scale.x,
-					pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_RIGHT) != COLLISION_RIGHT )
+					pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_RIGHT) != COLLISION_RIGHT )*/
+
+			if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || (offsetcheck & COLLISION_RIGHT) != COLLISION_RIGHT)
 			{
 				pInst->counter = ENEMY_IDLE_TIME;
 				pInst->innerState = INNER_STATE_ON_EXIT;
@@ -1132,16 +1133,16 @@ void EnemyStateMachine(GameObjInst* pInst)
 			break;
 
 		case INNER_STATE_ON_UPDATE:
-			//offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2, pInst->posCurr.y - 1, 2.f, 1.f);
-			//if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT || (offsetcheck & COLLISION_LEFT) != COLLISION_LEFT)
-			if ((CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2, pInst->posCurr.y - 1, 2.f, 1.f);
+			/*if ((CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
 				pInst->posCurr.y,
 				pInst->pObject->meshSize.x * pInst->scale.x,
 				pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_RIGHT) == COLLISION_RIGHT ||
 				(CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
 					pInst->posCurr.y - pInst->pObject->meshSize.y * pInst->scale.y,
 					pInst->pObject->meshSize.x * pInst->scale.x,
-					pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_LEFT) != COLLISION_LEFT)
+					pInst->pObject->meshSize.y * pInst->scale.y) & COLLISION_LEFT) != COLLISION_LEFT)*/
+			if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT || (offsetcheck & COLLISION_LEFT) != COLLISION_LEFT)
 			{
 				pInst->counter = ENEMY_IDLE_TIME;
 				pInst->innerState = INNER_STATE_ON_EXIT;
