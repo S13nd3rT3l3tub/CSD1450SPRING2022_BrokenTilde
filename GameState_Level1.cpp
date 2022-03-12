@@ -531,14 +531,19 @@ void GameStateLevel1Update(void)
 		
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
-		std::cout << jumpfuel << std::endl;
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
 		jumpfuel -= g_dt;
 		AEVec2 particleVel = { 0, -1.5f };
-		for (double i = PlayerBody->posCurr.x - 0.6f; i < PlayerBody->posCurr.x + 0.6f; i += ((1.f + rand() % 50) / 100.f) )
+		for (double i = PlayerBody->posCurr.x - 0.6f; i < PlayerBody->posCurr.x + 0.6f; i += ((1.f + rand() % 50) / 100.f))
 		{
 			AEVec2 particlespawn = { i, PlayerBody->posCurr.y - 0.5f };
-			gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE);
+			if (rand() % 2) {
+
+				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
+			}
+			else {
+				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orangy red color
+			}
 		}
 	}
 
@@ -687,7 +692,8 @@ void GameStateLevel1Update(void)
 		if (0 == (pInst->flag & FLAG_ACTIVE))
 			continue;
 
-		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM || pInst->pObject->type == TYPE_EMPTY)// || pInst->pObject->type == TYPE_ENEMY1GUN)
+		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM 
+			|| pInst->pObject->type == TYPE_EMPTY) // || pInst->pObject->type == TYPE_ENEMY1GUN)
 			continue;
 
 		/*************
@@ -993,11 +999,16 @@ void GameStateLevel1Draw(void)
 			{
 				gameObjInstDestroy(pInst);
 			}
-			pInst->dirCurr -= g_dt;
 
+			if (pInst->state == STATE_ALERT)
+			{
+				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); //0.5f, 0.1f, 0.f, 1.f alt color
+			}
+			pInst->dirCurr -= g_dt;
 		}
 	
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 		AEGfxSetTransparency(1.f);
 	}
 
