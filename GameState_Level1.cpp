@@ -75,6 +75,7 @@ enum TYPE
 	TYPE_PLAYERGUN,
 	TYPE_BULLET,
 	TYPE_ENEMY1,
+	TYPE_PARTICLE1,
 	TYPE_NUM
 };
 
@@ -349,6 +350,27 @@ void GameStateLevel1Load(void)
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY1 object!!");
 
 	// =====================
+	// create the Particle1 shape
+	// =====================
+
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_PARTICLE1;
+
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+		PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+		-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+		PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+		-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5 };
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_PARTICLE1 object!!");
+
+	// =====================
 	// Load Level 1 Binary Map
 	// =====================
 	//	Import Level data from txt file depending on chosen level
@@ -402,6 +424,8 @@ void GameStateLevel1Init(void)
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
 
 	AEVec2 Pos{}, Scale{};
+
+	srand(time(NULL)); // Seed random generator
 
 	//PrintRetrievedInformation();
 
@@ -509,6 +533,12 @@ void GameStateLevel1Update(void)
 		std::cout << jumpfuel << std::endl;
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
 		jumpfuel -= g_dt;
+		AEVec2 particleVel = { 0, -1.5f };
+		for (double i = PlayerBody->posCurr.x - 0.6f; i < PlayerBody->posCurr.x + 0.6f; i += ((1.f + rand() % 50) / 100.f) )
+		{
+			AEVec2 particlespawn = { i, PlayerBody->posCurr.y - 0.5f };
+			gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE);
+		}
 	}
 
 	if (AEInputCheckCurr(AEVK_A)) // Move left
@@ -840,32 +870,32 @@ void GameStateLevel1Update(void)
 
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
-		pInst = sGameObjInstList + i;
-		AEMtx33		 trans, rot, scale;
+pInst = sGameObjInstList + i;
+AEMtx33		 trans, rot, scale;
 
-		//UNREFERENCED_PARAMETER(trans);
-		//UNREFERENCED_PARAMETER(rot);
-		//UNREFERENCED_PARAMETER(scale);
+//UNREFERENCED_PARAMETER(trans);
+//UNREFERENCED_PARAMETER(rot);
+//UNREFERENCED_PARAMETER(scale);
 
-		// skip non-active object
-		if ((pInst->flag & FLAG_ACTIVE) == 0)
-			continue;
+// skip non-active object
+if ((pInst->flag & FLAG_ACTIVE) == 0)
+continue;
 
-		// Compute the scaling matrix
-		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
-		// Compute the rotation matrix 
-		//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
-		if (pInst->pObject->type == TYPE_BULLET)
-			AEMtx33Rot(&rot, 0);
-		else
-			AEMtx33Rot(&rot, pInst->dirCurr);
-		// Compute the translation matrix
-		AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
-		// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
-		AEMtx33Concat(&pInst->transform, &trans, &rot);
-		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
+// Compute the scaling matrix
+AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
+// Compute the rotation matrix 
+//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
+if (pInst->pObject->type == TYPE_BULLET)
+AEMtx33Rot(&rot, 0);
+else
+AEMtx33Rot(&rot, pInst->dirCurr);
+// Compute the translation matrix
+AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
+// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
+AEMtx33Concat(&pInst->transform, &trans, &rot);
+AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
-	
+
 	// Update Camera position, for Level2
 		// To follow the player's position
 		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
@@ -939,7 +969,19 @@ void GameStateLevel1Draw(void)
 		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &pInst->transform);
 		AEGfxSetTransform(cellFinalTransformation.m);
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
+		if (pInst->pObject->type == TYPE_PARTICLE1) // Particle transparancy handler
+		{
+			AEGfxSetTransparency(pInst->dirCurr);
+			if (pInst->dirCurr <= 0)
+			{
+				gameObjInstDestroy(pInst);
+			}
+			pInst->dirCurr -= g_dt;
+
+		}
+	
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		AEGfxSetTransparency(1.f);
 	}
 
 	//	Drawing for Font Level 1

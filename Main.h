@@ -24,7 +24,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include <string>
 #include <iostream>
 #include <fstream>
-
+#include <time.h>
 
 #include "GameStateMgr.h"
 #include "GameState_MainMenu.h"
