@@ -24,7 +24,7 @@ const unsigned int	GAME_OBJ_INST_NUM_MAX	= 2048;			//The total number of differe
 
 
 const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player lives
-AEVec2		PLAYER_MESHSIZE			= { 1.0f, 1.0f };
+AEVec2		PLAYER_MESHSIZE			= { 0.8f, 1.0f };
 AEVec2		PLAYER_SCALE			= { 2.0f, 1.0f};		// player scaling
 AEVec2		GUN_MESHSIZE			= { 0.5f, 0.5f };
 AEVec2		GUN_SCALE				= { 3.0f, 0.7f };		// gun size
@@ -165,7 +165,7 @@ static GameObjInst* PlatformInstance;
 
 // number of player lives available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
-
+static double				jumpfuel;
 // Current mouse position
 //static signed int mouseX{ 0 }, mouseY{ 0 };
 static float localMouseX{ 0 }, localMouseY{ 0 };
@@ -482,30 +482,33 @@ void GameStateLevel1Update(void)
 		}
 	}
 	//std::cout << PlayerBody->gridCollisionFlag;
-	if (AEInputCheckTriggered(AEVK_W) && ((PlayerBody->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)) // JUMP - 
+	//if (AEInputCheckTriggered(AEVK_W) && ((PlayerBody->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)) // JUMP - 
+	//{									
+	//	AEVec2 added;
+	//	AEVec2Set(&added, 0.f, 1.f);
+
+	//	// Find the velocity according to the acceleration
+	//	added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
+	//	added.y *= JUMP_VELOCITY * g_dt; // 29000
+	//	AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+	//	// Limit your speed over here
+	//	AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+	//}
+
+	if (AEInputCheckCurr(AEVK_W) && jumpfuel > 0) // Hold to hover (experimental) 
 	{									
 		AEVec2 added;
 		AEVec2Set(&added, 0.f, 1.f);
 
 		// Find the velocity according to the acceleration
 		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= JUMP_VELOCITY * g_dt; // 29000
+		added.y *= 20 * g_dt; //500
+		
 		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 		// Limit your speed over here
+		std::cout << jumpfuel << std::endl;
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
-	}
-
-	if (AEInputCheckCurr(AEVK_W)) // Hold to hover (experimental) 
-	{									
-		AEVec2 added;
-		AEVec2Set(&added, 0.f, 1.f);
-
-		// Find the velocity according to the acceleration
-		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= HOVER_VELOCITY * g_dt; //500
-		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+		jumpfuel -= g_dt;
 	}
 
 	if (AEInputCheckCurr(AEVK_A)) // Move left
@@ -693,6 +696,10 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.y = 0;
 				SnapToCell(&pInst->posCurr.y);
+				if (pInst->pObject->type == TYPE_PLAYER) // reset jump fuel
+				{
+					jumpfuel = 1.5f;
+				}
 			}
 		}
 
@@ -731,7 +738,7 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
-				pInst->posCurr.x += 0.5f;
+				pInst->posCurr.x += 0.3f;
 			}
 		}
 
@@ -743,14 +750,14 @@ void GameStateLevel1Update(void)
 				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 				pInst->velCurr = newBulletVel;
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-				//std::cout << pInst->bulletbounce;
+				//std::cout << pInst->bulletbounce;6
 				if (prevbounce == pInst->bulletbounce)
 				++(pInst->bulletbounce);
 			}
 			else {
 				pInst->velCurr.x = 0;
 				SnapToCell(&pInst->posCurr.x);
-				pInst->posCurr.x -= 0.5f;
+				pInst->posCurr.x -= 0.3f;
 			}
 		}		
 	}
