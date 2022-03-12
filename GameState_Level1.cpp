@@ -77,6 +77,7 @@ enum TYPE
 	TYPE_BULLET,
 	TYPE_ENEMY1,
 	TYPE_PARTICLE1,
+	TYPE_DOTTED,
 	TYPE_NUM
 };
 
@@ -372,6 +373,27 @@ void GameStateLevel1Load(void)
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_PARTICLE1 object!!");
 
 	// =====================
+	// create the dotted line shape
+	// =====================
+
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_DOTTED;
+
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y};
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
+
+	// =====================
 	// Load Level 1 Binary Map
 	// =====================
 	//	Import Level data from txt file depending on chosen level
@@ -581,12 +603,12 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	// Change to bullet spawning on mouse click in direction
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
-
+	AEVec2 BarrelEnd;
 	// Shoot a bullet if left mouse button is triggered (Create a new object instance)
 	if (AEInputCheckTriggered(VK_LBUTTON))
 	{
-		// Get the bullet's direction according to the player's direction
 		AEVec2 dirBullet;
+		// Get the bullet's direction according to the player's direction
 		AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
 		// Set the velocity
 		dirBullet.x *= BULLET_SPEED;
@@ -595,11 +617,26 @@ void GameStateLevel1Update(void)
 		// 
 		// 
 		// Create an instance
-		AEVec2 BarrelEnd;
+		
 		//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
 		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.15f;
 		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.15f;
 		gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
+	}
+
+	if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
+	{
+		AEVec2 dirBullet;
+		AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+		AEVec2 offset;
+		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.15f;
+		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.15f;
+		for (int i{1}; i < 25; ++i)
+		{
+			offset.x = BarrelEnd.x + dirBullet.x * i;
+			offset.y = BarrelEnd.y + dirBullet.y * i;
+			gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, PlayerGun->dirCurr, STATE_GOING_LEFT);
+		}
 	}
 
 	int i{};
@@ -694,6 +731,9 @@ void GameStateLevel1Update(void)
 
 		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM 
 			|| pInst->pObject->type == TYPE_EMPTY) // || pInst->pObject->type == TYPE_ENEMY1GUN)
+			continue;
+
+		if(pInst->pObject->type == TYPE_DOTTED)
 			continue;
 
 		/*************
@@ -1005,6 +1045,10 @@ void GameStateLevel1Draw(void)
 				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); //0.5f, 0.1f, 0.f, 1.f alt color
 			}
 			pInst->dirCurr -= g_dt;
+		}
+		if (pInst->pObject->type == TYPE_DOTTED)
+		{
+			gameObjInstDestroy(pInst);
 		}
 	
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
