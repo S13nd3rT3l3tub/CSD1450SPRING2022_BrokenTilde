@@ -913,11 +913,11 @@ void GameStateLevel1Update(void)
 						{
 							if (rand() % 2) // randomize polarity of particleVel.x
 							{
-								particleVel = { rand() % 20 / -10.f, 1.5f };
+								particleVel = { rand() % 20 / -10.f, rand() % 20 / 10.f };
 							}
 							else
 							{
-								particleVel = { rand() % 20 / 10.f, 1.5f };
+								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
 							}
 							
 							AEVec2 particlespawn = { i, pOtherInst->posCurr.y};
