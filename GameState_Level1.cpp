@@ -684,7 +684,7 @@ void GameStateLevel1Update(void)
 				EnemytoPlayer.y *= 4;
 				if (pInst->shoot_timer < 0)
 				{
-					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
+					//gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
 					pInst->shoot_timer = 2;
 				}
 			}
@@ -757,7 +757,48 @@ void GameStateLevel1Update(void)
 		*************/
 		int prevbounce = pInst->bulletbounce;
 		pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y);
-		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM) {
+		
+		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
+			if (pInst->pObject->type == TYPE_BULLET) {
+				AEVec2 normal{ 1, 0 }, newBulletVel{};
+				std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+				pInst->velCurr = newBulletVel;
+				std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+				//Limit number of bullet bounces:
+				//std::cout << pInst->bulletbounce;
+
+				if (prevbounce == pInst->bulletbounce)
+					++(pInst->bulletbounce);
+			}
+			else {
+				pInst->velCurr.x = 0;
+				SnapToCell(&pInst->posCurr.x);
+				pInst->posCurr.x += 0.3f;
+			}
+		}
+
+		else if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT) {
+			if (pInst->pObject->type == TYPE_BULLET) {
+				AEVec2 normal{ -1, 0 }, newBulletVel{};
+				std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+				pInst->velCurr = newBulletVel;
+				std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+				//std::cout << pInst->bulletbounce;6
+				if (prevbounce == pInst->bulletbounce)
+					++(pInst->bulletbounce);
+			}
+			else {
+				pInst->velCurr.x = 0;
+				SnapToCell(&pInst->posCurr.x);
+				pInst->posCurr.x -= 0.3f;
+			}
+		}
+		
+		else if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM) {
 			if (pInst->pObject->type == TYPE_BULLET) {
 				AEVec2 normal{ 0, 1 }, newBulletVel{};
 				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
@@ -773,16 +814,16 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.y = 0;
 				SnapToCell(&pInst->posCurr.y);
-				if (pInst->pObject->type == TYPE_PLAYER) // reset jump fuel
+				if (pInst->pObject->type == TYPE_PLAYER) 
 				{
 					jumpfuel = 1.5f;
 				}
 			}
 		}
 
-		if ((pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP) {
+		else if ((pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP) {
 			if (pInst->pObject->type == TYPE_BULLET) {
-				AEVec2 normal{ 0, 1 }, newBulletVel{};
+				AEVec2 normal{ 0, -1 }, newBulletVel{};
 				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
@@ -790,6 +831,7 @@ void GameStateLevel1Update(void)
 				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 				//Limit number of bullet bounces:
 				//std::cout << pInst->bulletbounce;
+				
 				if (prevbounce == pInst->bulletbounce)
 				++(pInst->bulletbounce);
 			}
@@ -799,44 +841,7 @@ void GameStateLevel1Update(void)
 			}
 		}
 
-		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
-			if (pInst->pObject->type == TYPE_BULLET) {
-				AEVec2 normal{ 1, 0 }, newBulletVel{};
-				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
-				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
-				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-				pInst->velCurr = newBulletVel;
-				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-				//Limit number of bullet bounces:
-				//std::cout << pInst->bulletbounce;
-				if (prevbounce == pInst->bulletbounce)
-				++(pInst->bulletbounce);
-			}
-			else {
-				pInst->velCurr.x = 0;
-				SnapToCell(&pInst->posCurr.x);
-				pInst->posCurr.x += 0.3f;
-			}
-		}
-
-		if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT) {
-			if (pInst->pObject->type == TYPE_BULLET) {
-				AEVec2 normal{ 1, 0 }, newBulletVel{};
-				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
-				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
-				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-				pInst->velCurr = newBulletVel;
-				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-				//std::cout << pInst->bulletbounce;6
-				if (prevbounce == pInst->bulletbounce)
-				++(pInst->bulletbounce);
-			}
-			else {
-				pInst->velCurr.x = 0;
-				SnapToCell(&pInst->posCurr.x);
-				pInst->posCurr.x -= 0.3f;
-			}
-		}		
+		
 	}
 
 	// ====================
