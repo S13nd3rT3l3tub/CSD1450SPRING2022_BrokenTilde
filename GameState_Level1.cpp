@@ -38,6 +38,7 @@ AEVec2		PLATFORM_SCALE			= { 1.0f, 1.0f };
 AEVec2		EMPTY_MESHSIZE =		{ 1.0f, 1.0f };
 AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 
+
 //Gameplay related variables and values
 const float			GRAVITY = -9.8f;
 const float			JUMP_VELOCITY = 800.0f;
@@ -846,6 +847,21 @@ void GameStateLevel1Update(void)
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(pOtherInst);
+						AEVec2 particleVel;
+						for (double i = pOtherInst->posCurr.x - 1.5f; i < pOtherInst->posCurr.x + 1.5f; i += ((1.f + rand() % 50) / 100.f))
+						{
+							if (rand() % 2) // randomize polarity of particleVel.x
+							{
+								particleVel = { rand() % 20 / -10.f, 1.5f };
+							}
+							else
+							{
+								particleVel = { rand() % 20 / 10.f, 1.5f };
+							}
+							
+							AEVec2 particlespawn = { i, pOtherInst->posCurr.y};
+							gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.2f, STATE_NONE);
+						}
 					}
 					break;
 				case TYPE_BULLET:
