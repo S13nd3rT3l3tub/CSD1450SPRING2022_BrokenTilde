@@ -27,7 +27,7 @@ const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player live
 AEVec2		PLAYER_MESHSIZE			= { 0.8f, 1.0f };
 AEVec2		PLAYER_SCALE			= { 2.0f, 1.0f};		// player scaling
 AEVec2		GUN_MESHSIZE			= { 0.5f, 0.5f };
-AEVec2		GUN_SCALE				= { 3.0f, 0.7f };		// gun size
+AEVec2		GUN_SCALE				= { 2.6f, 0.7f };		// gun size
 
 AEVec2		BULLET_MESHSIZE			= { 1.0f, 1.0f };
 AEVec2		BULLET_SCALE			= { 0.25f, 0.25f };
@@ -619,8 +619,8 @@ void GameStateLevel1Update(void)
 		// Create an instance
 		
 		//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
-		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.15f;
-		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.15f;
+		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.11f;
+		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.11f;
 		gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 	}
 
