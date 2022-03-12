@@ -684,7 +684,7 @@ void GameStateLevel1Update(void)
 				EnemytoPlayer.y *= 4;
 				if (pInst->shoot_timer < 0)
 				{
-					//gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
+					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
 					pInst->shoot_timer = 2;
 				}
 			}
