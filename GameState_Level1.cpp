@@ -138,7 +138,7 @@ struct GameObjInst
 
 	//General purpose counter (This variable will be used for the enemy state machine)
 	double			counter;
-	double			shoot_timer{};
+	double			shoot_timer;
 	//void				(*pfUpdate)(void);
 	//void				(*pfDraw)(void);
 };
@@ -916,7 +916,8 @@ void GameStateLevel1Draw(void)
 	AEGfxTextureSet(NULL, 0, 0);
 
 	//Drawing the tile map (the grid)
-	AEMtx33 cellTranslation, cellFinalTransformation;
+	//AEMtx33 cellTranslation, cellFinalTransformation;
+	AEMtx33 cellFinalTransformation;
 
 	//Drawing the tile map
 
