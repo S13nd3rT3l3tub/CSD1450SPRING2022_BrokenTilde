@@ -438,6 +438,7 @@ void GameStateLevel1Load(void)
 /******************************************************************************/
 void GameStateLevel1Init(void)
 {
+	leveltime = 0;
 	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
@@ -513,6 +514,8 @@ void GameStateLevel1Update(void)
 	//std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
 	float dotProduct = atan2(localMouseY - PlayerBody->posCurr.y, localMouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
+
+	leveltime += g_dt;
 
 	if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
 	{

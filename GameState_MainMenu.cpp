@@ -41,8 +41,6 @@ enum class BUTTON_TYPE {
 	EXIT_GAME
 };
 
-
-
 //Game object structure
 struct GameObj
 {
@@ -289,7 +287,6 @@ void GameStateMainMenuFree() {
 void GameStateMainMenuUnload() {
 
 }
-
 /******************************************************************************/
 /*!
 

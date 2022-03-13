@@ -20,6 +20,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 // Globals
 float	 g_dt;
 double	 g_appTime;
+double	 leveltime;
 s8		 g_font12;
 s8		 g_font20;
 int		 g_mouseX;
