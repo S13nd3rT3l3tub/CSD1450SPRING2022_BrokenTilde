@@ -34,7 +34,7 @@ AEVec2		BULLET_SCALE			= { 0.25f, 0.25f };
 const float	BULLET_SPEED			= 10.0f;		// bullet speed (m/s)
 
 AEVec2		PLATFORM_MESHSIZE = { 1.0f, 1.0f };
-AEVec2		PLATFORM_SCALE			= { 10.0f, 10.0f };
+AEVec2		PLATFORM_SCALE			= { 5.0f, 5.0f };
 AEVec2		EMPTY_MESHSIZE =		{ 1.0f, 1.0f };
 AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 
@@ -409,6 +409,10 @@ void GameStateLevel1Load(void)
 	case 1:
 		fileName = ".\\Resources\\Level Data\\Level1.txt";
 		break;
+
+	case 2:
+		fileName = ".\\Resources\\Level Data\\Level2.txt";
+		break;
 	default:
 		break;
 	}
@@ -649,6 +653,10 @@ void GameStateLevel1Update(void)
 			gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, PlayerGun->dirCurr, STATE_GOING_LEFT);
 		}
 	}
+
+	//	if Escape is pressed
+	if (AEInputCheckCurr(AEVK_M))
+		gGameStateNext = GS_MAINMENU;
 
 	int i{};
 	GameObjInst* pInst;
@@ -909,10 +917,10 @@ void GameStateLevel1Update(void)
 				//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst);
+						/*gameObjInstDestroy(pInst);
 						gameObjInstDestroy(PlayerBody);
-						gameObjInstDestroy(PlayerGun);
-						gGameStateNext = GS_RESTART;
+						gameObjInstDestroy(PlayerGun);*/
+						//gGameStateNext = GS_RESTART;
 					}
 					break;
 				case TYPE_ENEMY1:
@@ -1115,43 +1123,59 @@ void GameStateLevel1Draw(void)
 		AEGfxSetTransparency(1.f);
 	}
 
-	//	Drawing for Font Level 1
+	//	Drawing for Font for all states
 	f32 TextWidth = 1.0f;
 	f32 TextHeight = 1.0f;
 	char strBuffer[100];
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
-	sprintf_s(strBuffer, "A key - Move Left");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth/2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	switch (g_chosenLevel)
+	{
+		case 1:
+			sprintf_s(strBuffer, "A key - Move Left");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "D key - Move Right");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "W key - Jump Up");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Left mouse button - Fire bullet");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.75f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			sprintf_s(strBuffer, "to destroy the enemy tanks");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Destroy all enemy tanks");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "to clear the level");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			break;
+
+		case 2:
+			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			break;
+	}
 	
-	sprintf_s(strBuffer, "D key - Move Right");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth/2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "W key - Jump Up");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth/2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth/2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth/2, 0.75f - TextHeight/2, 1.0f, 1.f, 1.f, 1.f);
-	sprintf_s(strBuffer, "to destroy the enemy tanks");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth/2, 0.65f - TextHeight/2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Destroy all enemy tanks");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "to clear the level");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/
@@ -1184,7 +1208,7 @@ void GameStateLevel1Unload(void)
 	}
 
 	FreeMapData();
-	AEGfxTextureUnload(tex_stone);
+	//AEGfxTextureUnload(tex_stone);
 }
 
 /******************************************************************************/
