@@ -43,7 +43,7 @@ AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 const float			GRAVITY = -9.8f;
 const float			JUMP_VELOCITY = 800.0f;
 const float			HOVER_VELOCITY = 7.0f;
-const float			MOVE_VELOCITY = 7.0f;
+const float			MOVE_VELOCITY = 14.0f;
 const float			MOVE_VELOCITY_ENEMY = 2.5f;
 const double		ENEMY_IDLE_TIME = 2.0;
 const int			HERO_LIVES = 3;
@@ -828,7 +828,7 @@ void GameStateLevel1Update(void)
 				SnapToCell(&pInst->posCurr.y);
 				if (pInst->pObject->type == TYPE_PLAYER) 
 				{
-					jumpfuel = 1.5f;
+					jumpfuel = 1.5f; 
 				}
 			}
 		}
