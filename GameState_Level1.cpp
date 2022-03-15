@@ -34,7 +34,7 @@ AEVec2		BULLET_SCALE			= { 0.25f, 0.25f };
 const float	BULLET_SPEED			= 10.0f;		// bullet speed (m/s)
 
 AEVec2		PLATFORM_MESHSIZE = { 1.0f, 1.0f };
-AEVec2		PLATFORM_SCALE			= { 1.0f, 1.0f };
+AEVec2		PLATFORM_SCALE			= { 10.0f, 10.0f };
 AEVec2		EMPTY_MESHSIZE =		{ 1.0f, 1.0f };
 AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 
@@ -199,6 +199,9 @@ void					SnapToCell(float* Coordinate);
 int						ImportMapDataFromFile(std::string FileName);
 void					FreeMapData(void);
 void					PrintRetrievedInformation(void);
+
+// texutres
+AEGfxTexture* tex_stone = nullptr;
 
 /******************************************************************************/
 /*!
@@ -392,6 +395,10 @@ void GameStateLevel1Load(void)
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y};
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
+
+	//Load textures
+	tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
+	AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
 
 	// =====================
 	// Load Level 1 Binary Map
@@ -1046,10 +1053,24 @@ void GameStateLevel1Draw(void)
 			AEGfxSetTransform(cellFinalTransformation.m);
 
 			if (GetCellValue(i, j) == TYPE_PLATFORM)
+			{
+
+				//AEGfxSetTintColor(1.0f, 0.0f, 0.0f, 1.0f);
+				//AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+				//AEGfxTextureSet(tex_stone, 0.0f, 0.0f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
 			else
+			{
+				//AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+				//AEGfxTextureSet(NULL, 0, 0);
+				//AEGfxSetTintColor(0.0f, 0.0f, 1.0f, 1.0f);
+				//AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 				AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
 		}
+
 
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
@@ -1087,9 +1108,10 @@ void GameStateLevel1Draw(void)
 		{
 			gameObjInstDestroy(pInst);
 		}
-	
-		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+		AEGfxTextureSet(NULL, 0.0f, 0.0f);
 		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		AEGfxSetTransparency(1.f);
 	}
 
@@ -1162,6 +1184,7 @@ void GameStateLevel1Unload(void)
 	}
 
 	FreeMapData();
+	AEGfxTextureUnload(tex_stone);
 }
 
 /******************************************************************************/
