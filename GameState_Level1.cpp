@@ -426,7 +426,7 @@ void GameStateLevel1Load(void)
 	AEMtx33 scale, trans;
 
 	AEMtx33Trans(&trans, static_cast<f32>(-(BINARY_MAP_WIDTH / 2)), static_cast<f32>(-(BINARY_MAP_HEIGHT / 2)));
-	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT));
+	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / 40), static_cast<f32>(AEGetWindowHeight() / 20));
 	AEMtx33Concat(&MapTransform, &scale, &trans);
 
 }
@@ -473,9 +473,9 @@ void GameStateLevel1Init(void)
 				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
 				//	break;
 
-			case TYPE_PLATFORM:
-				gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
-				break;
+			//case TYPE_PLATFORM:
+			//	gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+			//	break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
 				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
@@ -488,6 +488,7 @@ void GameStateLevel1Init(void)
 			}
 		}
 	}
+
 
 	// reset the score and the number of lives
 	playerLives = PLAYER_INITIAL_NUM;
@@ -950,37 +951,56 @@ void GameStateLevel1Update(void)
 
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
-pInst = sGameObjInstList + i;
-AEMtx33		 trans, rot, scale;
+		pInst = sGameObjInstList + i;
+		AEMtx33		 trans, rot, scale;
 
-//UNREFERENCED_PARAMETER(trans);
-//UNREFERENCED_PARAMETER(rot);
-//UNREFERENCED_PARAMETER(scale);
+		//UNREFERENCED_PARAMETER(trans);
+		//UNREFERENCED_PARAMETER(rot);
+		//UNREFERENCED_PARAMETER(scale);
 
-// skip non-active object
-if ((pInst->flag & FLAG_ACTIVE) == 0)
-continue;
+		// skip non-active object
+		if ((pInst->flag & FLAG_ACTIVE) == 0)
+		continue;
 
-// Compute the scaling matrix
-AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
-// Compute the rotation matrix 
-//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
-if (pInst->pObject->type == TYPE_BULLET)
-AEMtx33Rot(&rot, 0);
-else
-AEMtx33Rot(&rot, pInst->dirCurr);
-// Compute the translation matrix
-AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
-// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
-AEMtx33Concat(&pInst->transform, &trans, &rot);
-AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
+		// Compute the scaling matrix
+		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
+		// Compute the rotation matrix 
+		//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
+		if (pInst->pObject->type == TYPE_BULLET)
+		AEMtx33Rot(&rot, 0);
+		else
+		AEMtx33Rot(&rot, pInst->dirCurr);
+		// Compute the translation matrix
+		AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
+		// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
+		AEMtx33Concat(&pInst->transform, &trans, &rot);
+		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
 
 	// Update Camera position, for Level2
 		// To follow the player's position
 		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
 			// You may use an alpha engine helper function to clamp the camera position: AEClamp()
-	// Do we need?
+	//f32 clampedx = PlayerBody->posCurr.x * BINARY_MAP_WIDTH - AEGetWindowWidth() - 500;
+	////clampedx = AEClamp(clampedx, -400, 400); // clamp x axis
+	//f32 clampedy = PlayerBody->posCurr.y * static_cast<f32>(BINARY_MAP_HEIGHT) / 2.5f - AEGetWindowHeight();
+	////clampedy = AEClamp(clampedy, -200, 270); // clamp y axis
+	//AEGfxSetCamPosition(clampedx, clampedy); // set camera to pHero clamped to map
+
+	AEMtx33 finalTransform{};
+	AEMtx33Concat(&finalTransform, &MapTransform, &PlayerBody->transform);
+
+	AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+	AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
+
+	float cameraX, cameraY;
+	AEGfxGetCamPosition(&cameraX, &cameraY);
+	std::cout << "Pos: (" << cameraX << ", " << cameraY << ")\n";
+	//std::cout << "Hero Pos: (" << PlayerBody->posCurr.x << ", " << PlayerBody->posCurr.y << ")\n";
+	// 128x54
+	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
+	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
+	AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 }
 
 /******************************************************************************/
@@ -996,8 +1016,7 @@ void GameStateLevel1Draw(void)
 	AEGfxTextureSet(NULL, 0, 0);
 
 	//Drawing the tile map (the grid)
-	//AEMtx33 cellTranslation, cellFinalTransformation;
-	AEMtx33 cellFinalTransformation;
+	AEMtx33 cellTranslation, cellFinalTransformation;
 
 	//Drawing the tile map
 
@@ -1018,19 +1037,19 @@ void GameStateLevel1Draw(void)
 			Use the black instance in case the cell's value is TYPE_OBJECT_EMPTY
 			Use the white instance in case the cell's value is TYPE_OBJECT_COLLISION
 	*********/
-	//for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
-	//	for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
-	//	{
-	//		//AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
-	//		AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
-	//		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
-	//		AEGfxSetTransform(cellFinalTransformation.m);
+	for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
+		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
+		{
+			AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
+			AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
+			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
+			AEGfxSetTransform(cellFinalTransformation.m);
 
-	//		if (GetCellValue(i, j) == TYPE_PLATFORM)
-	//			AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-	//		else
-	//			AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-	//	}
+			if (GetCellValue(i, j) == TYPE_PLATFORM)
+				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			else
+				AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
 
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
