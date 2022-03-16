@@ -20,7 +20,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 */
 /******************************************************************************/
 const unsigned int	GAME_OBJ_NUM_MAX		= 32;			//The total number of different objects (Shapes)
-const unsigned int	GAME_OBJ_INST_NUM_MAX	= 2048;			//The total number of different game object instances
+const unsigned int	GAME_OBJ_INST_NUM_MAX	= 4096;			//The total number of different game object instances
 
 
 const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player lives
@@ -922,17 +922,20 @@ void GameStateLevel1Update(void)
 						AEVec2 particleVel;
 						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
+							AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y };
 							if (rand() % 2) // randomize polarity of particleVel.x
 							{
 								particleVel = { rand() % 20 / -10.f, rand() % 20 / 10.f };
+								gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
 							}
 							else
 							{
 								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+								gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
 							}
 							
-							AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y};
-							gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.2f, STATE_NONE);
+							
+							
 						}
 					}
 					break;
@@ -1117,15 +1120,16 @@ void GameStateLevel1Draw(void)
 			}
 			pInst->dirCurr -= g_dt;
 		}
+		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+		AEGfxTextureSet(NULL, 0.0f, 0.0f);
+		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+		AEGfxSetTransparency(1.f);
 		if (pInst->pObject->type == TYPE_DOTTED)
 		{
 			gameObjInstDestroy(pInst);
 		}
-		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-		AEGfxTextureSet(NULL, 0.0f, 0.0f);
-		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
-		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-		AEGfxSetTransparency(1.f);
 	}
 
 	//	Drawing for Font for all states
@@ -1133,7 +1137,6 @@ void GameStateLevel1Draw(void)
 	f32 TextHeight = 1.0f;
 	char strBuffer[100];
 	memset(strBuffer, 0, 100 * sizeof(char));
-	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
 	switch (g_chosenLevel)
 	{
