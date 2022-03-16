@@ -254,13 +254,13 @@ void GameStateLevel1Load(void)
 	pObj->type = TYPE_PLATFORM;
 	AEGfxMeshStart();
 	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
 		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
 
 	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
 		PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
@@ -1066,25 +1066,24 @@ void GameStateLevel1Draw(void)
 			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
 			AEGfxSetTransform(cellFinalTransformation.m);
 
+			AEGfxSetBlendMode(AE_GFX_BM_NONE);
+			AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 			if (GetCellValue(i, j) == TYPE_PLATFORM)
 			{
-
-				//AEGfxSetTintColor(1.0f, 0.0f, 0.0f, 1.0f);
-				//AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 				//AEGfxTextureSet(tex_stone, 0.0f, 0.0f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			else
 			{
-				//AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-				//AEGfxTextureSet(NULL, 0, 0);
-				//AEGfxSetTintColor(0.0f, 0.0f, 1.0f, 1.0f);
-				//AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+				AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+				AEGfxTextureSet(NULL, 0, 0);
 				AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 		}
-
+	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+	AEGfxTextureSet(NULL, 0, 0);
 
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
