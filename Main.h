@@ -31,7 +31,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "GameState_Level1.h"
 #include "Collision.h"
 #include "GameState_Win.h"
-//#include "BinaryMap.h"
+#include "BinaryMap.h"
 
 //------------------------------------
 // Globals
