@@ -41,8 +41,6 @@ enum class BUTTON_TYPE {
 	EXIT_GAME
 };
 
-
-
 //Game object structure
 struct GameObj
 {
@@ -129,7 +127,7 @@ void GameStateMainMenuLoad() {
 */
 /******************************************************************************/
 void GameStateMainMenuInit() {
-	g_chosenLevel = 1;
+	g_chosenLevel = 0;
 	std::cout << "Main Menu: " << g_chosenLevel << std::endl;
 
 }
@@ -140,7 +138,21 @@ void GameStateMainMenuInit() {
 */
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
-	gGameStateNext = GS_LEVEL1;
+	//	if number key 1 is pressed
+	if (AEInputCheckCurr(AEVK_1))
+	{
+		//	load level 1
+		g_chosenLevel = 1;
+		gGameStateNext = GS_LEVEL1;
+	}
+
+	//	if number key 2 is pressed
+	if (AEInputCheckCurr(AEVK_2))
+	{
+		//	load level 2
+		g_chosenLevel = 2;
+		gGameStateNext = GS_LEVEL1;
+	}
 
 	// =========================
 	// update according to input
@@ -265,6 +277,25 @@ void GameStateMainMenuDraw() {
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
+
+	//	Drawing of letters for menu
+	char strBuf[1000];
+
+	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+	memset(strBuf, 0, 1000 * sizeof(char));
+
+	sprintf_s(strBuf, "Ricochet");
+	AEGfxPrint(g_font20, strBuf, -0.2f, 0.4f, 1.0f, 1.0f, 0.0f, 1.0f);
+
+	sprintf_s(strBuf, "Press 1 for LEVEL 1");
+	AEGfxPrint(g_font20, strBuf, -0.2f, 0.2f, 1.0f, 1.0f, 1.0f, 1.0f);
+
+	sprintf_s(strBuf, "Press 2 for LEVEL 2");
+	AEGfxPrint(g_font20, strBuf, -0.2f, 0.1f, 1.0f, 1.0f, 1.0f, 1.0f);
+
+	sprintf_s(strBuf, "Press Q for EXIT");
+	AEGfxPrint(g_font20, strBuf, -0.2f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 /******************************************************************************/
@@ -289,7 +320,6 @@ void GameStateMainMenuFree() {
 void GameStateMainMenuUnload() {
 
 }
-
 /******************************************************************************/
 /*!
 

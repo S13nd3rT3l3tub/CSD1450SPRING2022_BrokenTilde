@@ -27,14 +27,14 @@ const unsigned int	PLAYER_INITIAL_NUM		= 100;			// initial number of player live
 AEVec2		PLAYER_MESHSIZE			= { 0.8f, 1.0f };
 AEVec2		PLAYER_SCALE			= { 2.0f, 1.0f};		// player scaling
 AEVec2		GUN_MESHSIZE			= { 0.5f, 0.5f };
-AEVec2		GUN_SCALE				= { 3.0f, 0.7f };		// gun size
+AEVec2		GUN_SCALE				= { 2.6f, 0.7f };		// gun size
 
 AEVec2		BULLET_MESHSIZE			= { 1.0f, 1.0f };
 AEVec2		BULLET_SCALE			= { 0.25f, 0.25f };
 const float	BULLET_SPEED			= 10.0f;		// bullet speed (m/s)
 
 AEVec2		PLATFORM_MESHSIZE = { 1.0f, 1.0f };
-AEVec2		PLATFORM_SCALE			= { 1.0f, 1.0f };
+AEVec2		PLATFORM_SCALE			= { 5.0f, 5.0f };
 AEVec2		EMPTY_MESHSIZE =		{ 1.0f, 1.0f };
 AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 
@@ -43,7 +43,7 @@ AEVec2		EMPTY_SCALE				= { 1.0f, 1.0f };
 const float			GRAVITY = -9.8f;
 const float			JUMP_VELOCITY = 800.0f;
 const float			HOVER_VELOCITY = 7.0f;
-const float			MOVE_VELOCITY = 7.0f;
+const float			MOVE_VELOCITY = 14.0f;
 const float			MOVE_VELOCITY_ENEMY = 2.5f;
 const double		ENEMY_IDLE_TIME = 2.0;
 const int			HERO_LIVES = 3;
@@ -171,7 +171,7 @@ static long					playerLives;									// The number of lives left
 static double				jumpfuel;
 // Current mouse position
 //static signed int mouseX{ 0 }, mouseY{ 0 };
-static float localMouseX{ 0 }, localMouseY{ 0 };
+static float worldMouseX{ 0 }, worldMouseY{ 0 };
 
 //Binary map data
 static int** MapData;
@@ -199,6 +199,9 @@ void					SnapToCell(float* Coordinate);
 int						ImportMapDataFromFile(std::string FileName);
 void					FreeMapData(void);
 void					PrintRetrievedInformation(void);
+
+// texutres
+AEGfxTexture* tex_stone = nullptr;
 
 /******************************************************************************/
 /*!
@@ -393,6 +396,10 @@ void GameStateLevel1Load(void)
 	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y};
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
 
+	//Load textures
+	tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
+	AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
+
 	// =====================
 	// Load Level 1 Binary Map
 	// =====================
@@ -401,6 +408,10 @@ void GameStateLevel1Load(void)
 	switch (g_chosenLevel) {
 	case 1:
 		fileName = ".\\Resources\\Level Data\\Level1.txt";
+		break;
+
+	case 2:
+		fileName = ".\\Resources\\Level Data\\Level2.txt";
 		break;
 	default:
 		break;
@@ -426,7 +437,7 @@ void GameStateLevel1Load(void)
 	AEMtx33 scale, trans;
 
 	AEMtx33Trans(&trans, static_cast<f32>(-(BINARY_MAP_WIDTH / 2)), static_cast<f32>(-(BINARY_MAP_HEIGHT / 2)));
-	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT));
+	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / 40), static_cast<f32>(AEGetWindowHeight() / 20));
 	AEMtx33Concat(&MapTransform, &scale, &trans);
 
 }
@@ -438,6 +449,7 @@ void GameStateLevel1Load(void)
 /******************************************************************************/
 void GameStateLevel1Init(void)
 {
+	leveltime = 0;
 	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
@@ -448,7 +460,7 @@ void GameStateLevel1Init(void)
 
 	AEVec2 Pos{}, Scale{};
 
-	srand(time(NULL)); // Seed random generator
+	srand(static_cast<unsigned int>(time(NULL))); // Seed random generator
 
 	//PrintRetrievedInformation();
 
@@ -472,9 +484,9 @@ void GameStateLevel1Init(void)
 				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
 				//	break;
 
-			case TYPE_PLATFORM:
-				gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
-				break;
+			//case TYPE_PLATFORM:
+			//	gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
+			//	break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
 				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
@@ -487,6 +499,7 @@ void GameStateLevel1Init(void)
 			}
 		}
 	}
+
 
 	// reset the score and the number of lives
 	playerLives = PLAYER_INITIAL_NUM;
@@ -506,13 +519,7 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	// Change the following input movement based on our player movement
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	//AEInputGetCursorPosition(&mouseX, &mouseY);
-
-	localMouseX = static_cast<float>(g_mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(BINARY_MAP_WIDTH));
-	localMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(g_mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT));
-	//std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
-	float dotProduct = atan2(localMouseY - PlayerBody->posCurr.y, localMouseX - PlayerBody->posCurr.x);
-	PlayerGun->dirCurr = dotProduct;
+	leveltime += g_dt;
 
 	if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
 	{
@@ -556,9 +563,9 @@ void GameStateLevel1Update(void)
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
 		jumpfuel -= g_dt;
 		AEVec2 particleVel = { 0, -1.5f };
-		for (double i = PlayerBody->posCurr.x - 0.6f; i < PlayerBody->posCurr.x + 0.6f; i += ((1.f + rand() % 50) / 100.f))
+		for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
 		{
-			AEVec2 particlespawn = { i, PlayerBody->posCurr.y - 0.5f };
+			AEVec2 particlespawn = { static_cast<float>(i), PlayerBody->posCurr.y - 0.5f };
 			if (rand() % 2) {
 
 				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
@@ -619,8 +626,8 @@ void GameStateLevel1Update(void)
 		// Create an instance
 		
 		//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
-		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.15f;
-		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.15f;
+		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.11f;
+		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.11f;
 		gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 	}
 
@@ -638,6 +645,10 @@ void GameStateLevel1Update(void)
 			gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, PlayerGun->dirCurr, STATE_GOING_LEFT);
 		}
 	}
+
+	//	if Escape is pressed
+	if (AEInputCheckCurr(AEVK_M))
+		gGameStateNext = GS_MAINMENU;
 
 	int i{};
 	GameObjInst* pInst;
@@ -824,7 +835,7 @@ void GameStateLevel1Update(void)
 				SnapToCell(&pInst->posCurr.y);
 				if (pInst->pObject->type == TYPE_PLAYER) 
 				{
-					jumpfuel = 1.5f;
+					jumpfuel = 1.5f; 
 				}
 			}
 		}
@@ -836,11 +847,11 @@ void GameStateLevel1Update(void)
 					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-					pInst->velCurr = newBulletVel;
 					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+					pInst->velCurr = newBulletVel;
+					
 					//Limit number of bullet bounces:
 					//std::cout << pInst->bulletbounce;
-					reflectedFlag = true;
 					if (prevbounce == pInst->bulletbounce)
 						++(pInst->bulletbounce);
 				}
@@ -898,10 +909,10 @@ void GameStateLevel1Update(void)
 				//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst);
+						/*gameObjInstDestroy(pInst);
 						gameObjInstDestroy(PlayerBody);
-						gameObjInstDestroy(PlayerGun);
-						gGameStateNext = GS_RESTART;
+						gameObjInstDestroy(PlayerGun);*/
+						//gGameStateNext = GS_RESTART;
 					}
 					break;
 				case TYPE_ENEMY1:
@@ -909,18 +920,18 @@ void GameStateLevel1Update(void)
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(pOtherInst);
 						AEVec2 particleVel;
-						for (double i = pOtherInst->posCurr.x - 1.5f; i < pOtherInst->posCurr.x + 1.5f; i += ((1.f + rand() % 50) / 100.f))
+						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
 							if (rand() % 2) // randomize polarity of particleVel.x
 							{
-								particleVel = { rand() % 20 / -10.f, 1.5f };
+								particleVel = { rand() % 20 / -10.f, rand() % 20 / 10.f };
 							}
 							else
 							{
-								particleVel = { rand() % 20 / 10.f, 1.5f };
+								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
 							}
 							
-							AEVec2 particlespawn = { i, pOtherInst->posCurr.y};
+							AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y};
 							gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.2f, STATE_NONE);
 						}
 					}
@@ -947,37 +958,70 @@ void GameStateLevel1Update(void)
 
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
-pInst = sGameObjInstList + i;
-AEMtx33		 trans, rot, scale;
+		pInst = sGameObjInstList + i;
+		AEMtx33		 trans, rot, scale;
 
-//UNREFERENCED_PARAMETER(trans);
-//UNREFERENCED_PARAMETER(rot);
-//UNREFERENCED_PARAMETER(scale);
+		//UNREFERENCED_PARAMETER(trans);
+		//UNREFERENCED_PARAMETER(rot);
+		//UNREFERENCED_PARAMETER(scale);
 
-// skip non-active object
-if ((pInst->flag & FLAG_ACTIVE) == 0)
-continue;
+		// skip non-active object
+		if ((pInst->flag & FLAG_ACTIVE) == 0)
+		continue;
 
-// Compute the scaling matrix
-AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
-// Compute the rotation matrix 
-//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
-if (pInst->pObject->type == TYPE_BULLET)
-AEMtx33Rot(&rot, 0);
-else
-AEMtx33Rot(&rot, pInst->dirCurr);
-// Compute the translation matrix
-AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
-// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
-AEMtx33Concat(&pInst->transform, &trans, &rot);
-AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
+		// Compute the scaling matrix
+		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
+		// Compute the rotation matrix 
+		//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
+		if (pInst->pObject->type == TYPE_BULLET)
+		AEMtx33Rot(&rot, 0);
+		else
+		AEMtx33Rot(&rot, pInst->dirCurr);
+		// Compute the translation matrix
+		AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
+		// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
+		AEMtx33Concat(&pInst->transform, &trans, &rot);
+		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
 
 	// Update Camera position, for Level2
 		// To follow the player's position
 		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
 			// You may use an alpha engine helper function to clamp the camera position: AEClamp()
-	// Do we need?
+	//f32 clampedx = PlayerBody->posCurr.x * BINARY_MAP_WIDTH - AEGetWindowWidth() - 500;
+	////clampedx = AEClamp(clampedx, -400, 400); // clamp x axis
+	//f32 clampedy = PlayerBody->posCurr.y * static_cast<f32>(BINARY_MAP_HEIGHT) / 2.5f - AEGetWindowHeight();
+	////clampedy = AEClamp(clampedy, -200, 270); // clamp y axis
+	//AEGfxSetCamPosition(clampedx, clampedy); // set camera to pHero clamped to map
+	
+	float cameraX, cameraY;
+	AEGfxGetCamPosition(&cameraX, &cameraY);
+	std::cout << "Camera Pos: (" << cameraX << ", " << cameraY << ")\n";
+	
+	AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+	AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
+
+	// 128x54
+	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
+	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
+	AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
+
+
+	//std::cout << "Mouse Window Pos: (" << g_mouseX << ", " << g_mouseY << ")\n";
+	//worldMouseX = static_cast<float>(g_mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(40));
+	//worldMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(g_mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(20));
+	// Mouse in world coordinates
+	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
+	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
+	std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
+
+	AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+	AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
+	std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
+
+	float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
+	PlayerGun->dirCurr = dotProduct;
+
 }
 
 /******************************************************************************/
@@ -993,8 +1037,7 @@ void GameStateLevel1Draw(void)
 	AEGfxTextureSet(NULL, 0, 0);
 
 	//Drawing the tile map (the grid)
-	//AEMtx33 cellTranslation, cellFinalTransformation;
-	AEMtx33 cellFinalTransformation;
+	AEMtx33 cellTranslation, cellFinalTransformation;
 
 	//Drawing the tile map
 
@@ -1015,19 +1058,33 @@ void GameStateLevel1Draw(void)
 			Use the black instance in case the cell's value is TYPE_OBJECT_EMPTY
 			Use the white instance in case the cell's value is TYPE_OBJECT_COLLISION
 	*********/
-	//for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
-	//	for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
-	//	{
-	//		//AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
-	//		AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
-	//		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
-	//		AEGfxSetTransform(cellFinalTransformation.m);
+	for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
+		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
+		{
+			AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
+			AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
+			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
+			AEGfxSetTransform(cellFinalTransformation.m);
 
-	//		if (GetCellValue(i, j) == TYPE_PLATFORM)
-	//			AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-	//		else
-	//			AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-	//	}
+			if (GetCellValue(i, j) == TYPE_PLATFORM)
+			{
+
+				//AEGfxSetTintColor(1.0f, 0.0f, 0.0f, 1.0f);
+				//AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+				//AEGfxTextureSet(tex_stone, 0.0f, 0.0f);
+				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
+			else
+			{
+				//AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+				//AEGfxTextureSet(NULL, 0, 0);
+				//AEGfxSetTintColor(0.0f, 0.0f, 1.0f, 1.0f);
+				//AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+				AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
+		}
+
 
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
@@ -1065,49 +1122,66 @@ void GameStateLevel1Draw(void)
 		{
 			gameObjInstDestroy(pInst);
 		}
-	
-		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+		AEGfxTextureSet(NULL, 0.0f, 0.0f);
 		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		AEGfxSetTransparency(1.f);
 	}
 
-	//	Drawing for Font Level 1
+	//	Drawing for Font for all states
 	f32 TextWidth = 1.0f;
 	f32 TextHeight = 1.0f;
 	char strBuffer[100];
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
-	sprintf_s(strBuffer, "A key - Move Left");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth/2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	switch (g_chosenLevel)
+	{
+		case 1:
+			sprintf_s(strBuffer, "A key - Move Left");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "D key - Move Right");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "W key - Jump Up");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Left mouse button - Fire bullet");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.75f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			sprintf_s(strBuffer, "to destroy the enemy tanks");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Destroy all enemy tanks");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "to clear the level");
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			break;
+
+		case 2:
+			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
+			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			break;
+	}
 	
-	sprintf_s(strBuffer, "D key - Move Right");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth/2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "W key - Jump Up");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth/2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth/2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth/2, 0.75f - TextHeight/2, 1.0f, 1.f, 1.f, 1.f);
-	sprintf_s(strBuffer, "to destroy the enemy tanks");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth/2, 0.65f - TextHeight/2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Destroy all enemy tanks");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "to clear the level");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/
@@ -1140,6 +1214,7 @@ void GameStateLevel1Unload(void)
 	}
 
 	FreeMapData();
+	//AEGfxTextureUnload(tex_stone);
 }
 
 /******************************************************************************/
@@ -1291,7 +1366,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 			break;
 
 		case INNER_STATE_ON_UPDATE:
-			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2.0f, pInst->posCurr.y - 1.0, 2.0f, 1.0f);
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2.0f, pInst->posCurr.y - 1.0f, 2.0f, 1.0f);
 			/*if ((CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
 				pInst->posCurr.y,
 				pInst->pObject->meshSize.x * pInst->scale.x,
@@ -1548,13 +1623,12 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	x1 = PosX + scaleX / 2;
 	y1 = PosY + scaleY / 4;
 	// - hotspot 2 (below center line)
-	x2 = PosX + scaleX / 2;
 	y2 = PosY - scaleY / 4;
 
 	// Check if any of the hotspot is colliding
 	//if (BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
-	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y2)) == 1)
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x1), static_cast<int>(y2)) == 1)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
 	// Top side hotspots
@@ -1563,12 +1637,15 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	y1 = PosY + scaleY / 2;
 	// - hotspot 2 (right of center line)
 	x2 = PosX + scaleX / 4;
-	y2 = PosY + scaleY / 2;
+	x3 = PosX + scaleX / 32 * 15;
+	x4 = PosX - scaleX / 32 * 15;
+
 
 	// Check if any of the hotspot is colliding
 	//if (BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
-	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y2)) == 1)
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y1)) == 1
+		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x4), static_cast<int>(y1)) == 1)
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
 
@@ -1577,7 +1654,6 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	x1 = PosX - scaleX / 2;
 	y1 = PosY + scaleY / 4;
 	// - hotspot 2 (below center line)
-	x2 = PosX - scaleX / 2;
 	y2 = PosY - scaleY / 4;
 
 	// Check if any of the hotspot is colliding
@@ -1586,7 +1662,7 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	//std::cout << "hs2 : (" << x2 << ", " << y2 << ") = " << BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)];
 	//if (BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
-	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x2), static_cast<int>(y2)) == 1)
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1)) == 1 || GetCellValue(static_cast<int>(x1), static_cast<int>(y2)) == 1)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
 

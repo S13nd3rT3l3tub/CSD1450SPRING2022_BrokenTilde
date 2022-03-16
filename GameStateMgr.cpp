@@ -70,6 +70,14 @@ void GameStateMgrUpdate()
 		GameStateFree = GameStateMainMenuFree;
 		GameStateUnload = GameStateMainMenuUnload;
 		break;
+	case GS_WINSCREEN:
+		GameStateLoad = GameStateWinLoad;
+		GameStateInit = GameStateWinInit;
+		GameStateUpdate = GameStateWinUpdate;
+		GameStateDraw = GameStateWinDraw;
+		GameStateFree = GameStateWinFree;
+		GameStateUnload = GameStateWinUnload;
+		break;
 	case GS_LEVEL1:
 		GameStateLoad = GameStateLevel1Load;
 		GameStateInit = GameStateLevel1Init;

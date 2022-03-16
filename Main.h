@@ -30,6 +30,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "GameState_MainMenu.h"
 #include "GameState_Level1.h"
 #include "Collision.h"
+#include "GameState_Win.h"
 //#include "BinaryMap.h"
 
 //------------------------------------
@@ -37,6 +38,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 extern float	g_dt;
 extern double	g_appTime;
+extern double	leveltime;
 extern s8		g_font12;
 extern s8		g_font20;
 extern int		g_mouseX;
