@@ -460,7 +460,7 @@ void GameStateLevel1Init(void)
 
 	AEVec2 Pos{}, Scale{};
 
-	srand(time(NULL)); // Seed random generator
+	srand(static_cast<unsigned int>(time(NULL))); // Seed random generator
 
 	//PrintRetrievedInformation();
 
@@ -521,9 +521,9 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	//AEInputGetCursorPosition(&mouseX, &mouseY);
 
-	localMouseX = static_cast<float>(g_mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(BINARY_MAP_WIDTH));
-	localMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(g_mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT));
-	//std::cout << "Mouse Pos: (" << windowMouse.x << ", " << windowMouse.y << ")\n";
+	localMouseX = static_cast<float>(g_mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(40));
+	localMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(g_mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(20));
+	//std::cout << "Local Pos: (" << g_mouseX << ", " << g_mouseY << ")\n";
 	float dotProduct = atan2(localMouseY - PlayerBody->posCurr.y, localMouseX - PlayerBody->posCurr.x);
 	PlayerGun->dirCurr = dotProduct;
 
@@ -571,9 +571,9 @@ void GameStateLevel1Update(void)
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
 		jumpfuel -= g_dt;
 		AEVec2 particleVel = { 0, -1.5f };
-		for (double i = PlayerBody->posCurr.x - 0.6f; i < PlayerBody->posCurr.x + 0.6f; i += ((1.f + rand() % 50) / 100.f))
+		for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
 		{
-			AEVec2 particlespawn = { i, PlayerBody->posCurr.y - 0.5f };
+			AEVec2 particlespawn = { static_cast<float>(i), PlayerBody->posCurr.y - 0.5f };
 			if (rand() % 2) {
 
 				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
@@ -928,7 +928,7 @@ void GameStateLevel1Update(void)
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(pOtherInst);
 						AEVec2 particleVel;
-						for (double i = pOtherInst->posCurr.x - 1.5f; i < pOtherInst->posCurr.x + 1.5f; i += ((1.f + rand() % 50) / 100.f))
+						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
 							if (rand() % 2) // randomize polarity of particleVel.x
 							{
@@ -939,7 +939,7 @@ void GameStateLevel1Update(void)
 								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
 							}
 							
-							AEVec2 particlespawn = { i, pOtherInst->posCurr.y};
+							AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y};
 							gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.2f, STATE_NONE);
 						}
 					}
@@ -1010,7 +1010,7 @@ void GameStateLevel1Update(void)
 
 	float cameraX, cameraY;
 	AEGfxGetCamPosition(&cameraX, &cameraY);
-	std::cout << "Pos: (" << cameraX << ", " << cameraY << ")\n";
+	//std::cout << "Pos: (" << cameraX << ", " << cameraY << ")\n";
 	//std::cout << "Hero Pos: (" << PlayerBody->posCurr.x << ", " << PlayerBody->posCurr.y << ")\n";
 	// 128x54
 	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
@@ -1360,7 +1360,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 			break;
 
 		case INNER_STATE_ON_UPDATE:
-			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2.0f, pInst->posCurr.y - 1.0, 2.0f, 1.0f);
+			offsetcheck = CheckInstanceBinaryMapCollision(pInst->posCurr.x + 2.0f, pInst->posCurr.y - 1.0f, 2.0f, 1.0f);
 			/*if ((CheckInstanceBinaryMapCollision(pInst->posCurr.x + pInst->pObject->meshSize.x * pInst->scale.x,
 				pInst->posCurr.y,
 				pInst->pObject->meshSize.x * pInst->scale.x,

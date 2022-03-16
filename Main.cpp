@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	g_font20 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 20);
 
 	g_chosenLevel = 0;
-	std::cout << g_chosenLevel << std::endl;
+	//std::cout << g_chosenLevel << std::endl;
 
 
 	GameStateMgrInit(GS_MAINMENU);
