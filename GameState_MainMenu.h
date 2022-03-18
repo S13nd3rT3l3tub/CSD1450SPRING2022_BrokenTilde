@@ -24,6 +24,11 @@ void GameStateMainMenuDraw(void);
 void GameStateMainMenuFree(void);
 void GameStateMainMenuUnload(void);
 
+enum overlay
+{
+	main = 0
+};
+
 // ---------------------------------------------------------------------------
 
 #endif 

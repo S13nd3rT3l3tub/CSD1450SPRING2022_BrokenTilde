@@ -14,6 +14,9 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "main.h"
 
+#define WINDOW_W 1400
+#define WINDOW_H 750
+
 /******************************************************************************/
 /*!
 	Defines
@@ -21,8 +24,11 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 /******************************************************************************/
 const unsigned int	GAME_OBJ_NUM_MAX = 16;			//The total number of different objects (Shapes)
 const unsigned int	GAME_OBJ_INST_NUM_MAX = 1028;			//The total number of different game object instances
-
-
+AEGfxVertexList* bgMesh;
+AEGfxTexture* backgroundTexture;
+int overlay;
+//AEGfxTexture* Texture1;
+//AEGfxTexture* Texture2;
 // -----------------------------------------------------------------------------
 // object flag definition
 const unsigned int	FLAG_ACTIVE = 0x00000001;
@@ -106,6 +112,10 @@ void					gameObjInstDestroy(GameObjInst* pInst);
 */
 /******************************************************************************/
 void GameStateMainMenuLoad() {
+	std::cout << "Menu:load\n";
+	backgroundTexture = AEGfxTextureLoad("../bin/Resources/Assets/background.png");
+	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+
 	// zero the game object array
 	memset(sGameObjList, 0, sizeof(GameObj) * GAME_OBJ_NUM_MAX);
 	// No game objects (shapes) at this point
@@ -119,6 +129,8 @@ void GameStateMainMenuLoad() {
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
 
+
+
 }
 
 /******************************************************************************/
@@ -127,8 +139,27 @@ void GameStateMainMenuLoad() {
 */
 /******************************************************************************/
 void GameStateMainMenuInit() {
+
+	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
+
+	//Load mesh 
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-WINDOW_W / 2, -WINDOW_H / 2, 0x00FFFFFF, 0.0f, 1.0f,
+		WINDOW_W / 2, -WINDOW_H / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		-WINDOW_W / 2, WINDOW_H / 2, 0x00FFFFFF, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		WINDOW_W / 2, -WINDOW_H / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		WINDOW_W / 2, WINDOW_H / 2, 0x00FFFFFF, 1.0f, 0.0f,
+		-WINDOW_W / 2, WINDOW_H / 2, 0x00FFFFFF, 0.0f, 0.0f);
+	bgMesh = AEGfxMeshEnd();
+	AE_ASSERT_MESG(bgMesh, "Failed to create beltMesh!!");
+
 	g_chosenLevel = 0;
 	std::cout << "Main Menu: " << g_chosenLevel << std::endl;
+	
+	overlay = main; 
 
 }
 
@@ -138,6 +169,7 @@ void GameStateMainMenuInit() {
 */
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
+
 	//	if number key 1 is pressed
 	if (AEInputCheckCurr(AEVK_1))
 	{
@@ -259,13 +291,11 @@ void GameStateMainMenuUpdate() {
 void GameStateMainMenuDraw() {
 	//char strBuffer[1024];
 
-	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-	AEGfxTextureSet(NULL, 0, 0);
-	
 	
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
+		
 		GameObjInst* pInst = sGameObjInstList + i;
 
 		// skip non-active object
@@ -281,10 +311,23 @@ void GameStateMainMenuDraw() {
 	//	Drawing of letters for menu
 	char strBuf[1000];
 
-	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
-	memset(strBuf, 0, 1000 * sizeof(char));
+	AEGfxSetBlendMode(AE_GFX_BM_NONE);
+	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+	AEGfxSetPosition(0.0f, 0.0f); 
+	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
+	//AEGfxTextureSet(NULL, 0, 0);
+	switch (overlay)
+	{
+	case main:
+		AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+		break;
+	default:
+		break;
+	}
 
+	AEGfxMeshDraw(bgMesh, AE_GFX_MDM_TRIANGLES);
+	/*
+	memset(strBuf, 0, 1000 * sizeof(char));
 	sprintf_s(strBuf, "Ricochet");
 	AEGfxPrint(g_font20, strBuf, -0.2f, 0.4f, 1.0f, 1.0f, 0.0f, 1.0f);
 
@@ -296,6 +339,7 @@ void GameStateMainMenuDraw() {
 
 	sprintf_s(strBuf, "Press Q for EXIT");
 	AEGfxPrint(g_font20, strBuf, -0.2f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	*/
 }
 
 /******************************************************************************/
@@ -304,12 +348,17 @@ void GameStateMainMenuDraw() {
 */
 /******************************************************************************/
 void GameStateMainMenuFree() {
+		
+	AEGfxTextureUnload(backgroundTexture);
+
 	// kill all object instances in the array using "gameObjInstDestroy"
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
 		GameObjInst* pInst = sGameObjInstList + i;
 
 		gameObjInstDestroy(pInst);
 	}
+
+	AEGfxMeshFree(bgMesh);
 }
 
 /******************************************************************************/
