@@ -1131,6 +1131,10 @@ void GameStateLevel1Draw(void)
 			}
 			pInst->dirCurr -= g_dt;
 		}
+		//if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
+		//{
+		//	AEGfxSetTransparency(0.f);
+		//}
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 		AEGfxTextureSet(NULL, 0.0f, 0.0f);
