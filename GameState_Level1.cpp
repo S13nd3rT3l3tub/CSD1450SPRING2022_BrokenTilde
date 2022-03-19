@@ -162,6 +162,7 @@ static unsigned long		sGameObjInstNum;							// The number of used game object i
 // pointer to the PlayerBody and gun object
 static GameObjInst* PlayerBody;										
 static GameObjInst* PlayerGun;
+static GameObjInst* Enemydetection;
 
 static GameObjInst* EmptyInstance;
 static GameObjInst* PlatformInstance;
@@ -681,22 +682,34 @@ void GameStateLevel1Update(void)
 		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 			pInst->velCurr.y += GRAVITY * g_dt;
 
-		if (pInst->pObject->type == TYPE_ENEMY1){
+		if (pInst->pObject->type == TYPE_ENEMY1) {
 			EnemyStateMachine(pInst);
-			if (pInst->posCurr.y  + 1.0f >= PlayerBody->posCurr.y)
+
+			AEVec2 dist = { PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
+			AEVec2 offset{};
+			AEVec2Normalize(&dist, &dist);
+
+			AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
+			AEVec2 bulletvelocity = { dist.x * 4 , dist.y * 4 };
+			pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
+			for (int multiply{ 1 }; multiply < 30; ++multiply) // set range of sight here (multiply)
 			{
-				pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
-				AEVec2 EnemytoPlayer{ pInst->posCurr.x - PlayerBody->posCurr.x, pInst->posCurr.y - PlayerBody->posCurr.y };
-				AEVec2Normalize(&EnemytoPlayer, &EnemytoPlayer);
-				EnemytoPlayer.x *= -1.5;
-				EnemytoPlayer.y *= -1.5;
-				AEVec2 shootpos{ pInst->posCurr.x + EnemytoPlayer.x, pInst->posCurr.y + EnemytoPlayer.y};
-				EnemytoPlayer.x *= 4;
-				EnemytoPlayer.y *= 4;
-				if (pInst->shoot_timer < 0)
+				offset.x = pInst->posCurr.x + dist.x * multiply * 0.7f;
+				offset.y = pInst->posCurr.y + dist.y * multiply * 0.7f;
+				Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+				Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+				if (Enemydetection->gridCollisionFlag > 0)
 				{
-					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &EnemytoPlayer, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
-					pInst->shoot_timer = 2;
+					break;
+				}
+				else if (CollisionIntersection_RectRect(Enemydetection->boundingBox, Enemydetection->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr))
+				{
+					if (pInst->shoot_timer < 0)
+					{
+						gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
+						pInst->shoot_timer = 2;
+					}
+					break;
 				}
 			}
 		}
