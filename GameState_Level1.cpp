@@ -689,7 +689,7 @@ void GameStateLevel1Update(void)
 			AEVec2Normalize(&dist, &dist);
 
 			AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
-			AEVec2 bulletvelocity = { dist.x * 4 , dist.y * 4 };
+			AEVec2 bulletvelocity = { dist.x * 7 , dist.y * 7 };
 			pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
 			for (int multiply{ 1 }; multiply < 30; ++multiply) // set range of sight here (multiply)
 			{
@@ -1131,10 +1131,10 @@ void GameStateLevel1Draw(void)
 			}
 			pInst->dirCurr -= g_dt;
 		}
-		//if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
-		//{
-		//	AEGfxSetTransparency(0.f);
-		//}
+		if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
+		{
+			AEGfxSetTransparency(0.f);
+		}
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 		AEGfxTextureSet(NULL, 0.0f, 0.0f);
