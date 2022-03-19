@@ -385,16 +385,15 @@ void GameStateLevel1Load(void)
 
 	AEGfxMeshStart();
 	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
-
+		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
+		-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 1.0f,
+		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
 	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
+		BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 0.0f,
+		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
 	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y};
+	pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y};
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
 
 	//Load textures
@@ -709,7 +708,6 @@ void GameStateLevel1Update(void)
 						gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
 						pInst->shoot_timer = 2;
 					}
-					break;
 				}
 			}
 		}
