@@ -141,6 +141,7 @@ struct GameObjInst
 	//General purpose counter (This variable will be used for the enemy state machine)
 	double			counter;
 	double			shoot_timer;
+	double			shoot_timer2;
 	//void				(*pfUpdate)(void);
 	//void				(*pfDraw)(void);
 };
@@ -690,7 +691,7 @@ void GameStateLevel1Update(void)
 
 			AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
 			AEVec2 bulletvelocity = { dist.x * 7 , dist.y * 7 };
-			
+			pInst->shoot_timer2 -= AEFrameRateControllerGetFrameTime();
 			for (int multiply{ 1 }; multiply < 30; ++multiply) // set range of sight here (multiply)
 			{
 				offset.x = pInst->posCurr.x + dist.x * multiply * 0.7f;
@@ -703,11 +704,18 @@ void GameStateLevel1Update(void)
 				}
 				else if (CollisionIntersection_RectRect(Enemydetection->boundingBox, Enemydetection->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr))
 				{
-					pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
-					if (pInst->shoot_timer < 0)
+					if (pInst->shoot_timer2 > 0.5)
 					{
-						gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
-						pInst->shoot_timer = 0.5;
+						pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
+						if (pInst->shoot_timer < 0)
+						{
+							gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
+							pInst->shoot_timer = 0.5;
+						}
+					}
+					if (pInst->shoot_timer2 < 0)
+					{
+						pInst->shoot_timer2 = 1.1;
 					}
 				}
 			}
