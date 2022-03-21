@@ -113,7 +113,7 @@ void					gameObjInstDestroy(GameObjInst* pInst);
 /******************************************************************************/
 void GameStateMainMenuLoad() {
 	std::cout << "Menu:load\n";
-	backgroundTexture = AEGfxTextureLoad("../bin/Resources/Assets/background.png");
+	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
 	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
 
 	// zero the game object array
