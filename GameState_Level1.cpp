@@ -969,10 +969,12 @@ void GameStateLevel1Update(void)
 				//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						/*gameObjInstDestroy(pInst);
+						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(PlayerBody);
-						gameObjInstDestroy(PlayerGun);*/
-						//gGameStateNext = GS_RESTART;
+						gameObjInstDestroy(PlayerGun);
+						GameStateLevel1Load();
+						GameStateLevel1Init();
+						gGameStateNext = GS_RESTART;
 					}
 					break;
 				case TYPE_ENEMY1:
