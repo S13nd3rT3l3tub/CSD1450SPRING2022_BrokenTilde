@@ -60,6 +60,7 @@ const unsigned int	COLLISION_LEFT = 0x00000001;	//0001
 const unsigned int	COLLISION_RIGHT = 0x00000002;	//0010
 const unsigned int	COLLISION_TOP = 0x00000004;	//0100
 const unsigned int	COLLISION_BOTTOM = 0x00000008;	//1000
+const unsigned int	COLLISION_Destructable = 0x00000016;	//10000
 
 /******************************************************************************/
 /*!
@@ -78,6 +79,7 @@ enum TYPE
 	TYPE_ENEMY1,
 	TYPE_PARTICLE1,
 	TYPE_DOTTED,
+	TYPE_DIRT,
 	TYPE_NUM
 };
 
@@ -167,6 +169,7 @@ static GameObjInst* Enemydetection;
 
 static GameObjInst* EmptyInstance;
 static GameObjInst* PlatformInstance;
+static GameObjInst* DirtInstance;
 
 // number of player lives available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
@@ -226,6 +229,7 @@ void GameStateLevel1Load(void)
 	PlayerGun = nullptr;
 	EmptyInstance = nullptr;
 	PlatformInstance = nullptr;
+	DirtInstance = nullptr;
 
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
@@ -401,6 +405,25 @@ void GameStateLevel1Load(void)
 	tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
 	AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
 
+	// =========================
+	// create the dirt block shape
+	// =========================
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_DIRT;
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
+		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
+		PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
+
 	// =====================
 	// Load Level 1 Binary Map
 	// =====================
@@ -420,7 +443,7 @@ void GameStateLevel1Load(void)
 	if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 		gGameStateNext = GS_QUIT;
 
-	PrintRetrievedInformation(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+	//PrintRetrievedInformation(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 	
 	//Computing the matrix which take a point out of the normalized coordinates system
 	//of the binary map
@@ -454,10 +477,14 @@ void GameStateLevel1Init(void)
 	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
-
+	
 	PlatformInstance = gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
+
+	DirtInstance = gameObjInstCreate(TYPE_DIRT, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
+	DirtInstance->flag ^= FLAG_VISIBLE;
+	DirtInstance->flag |= FLAG_NON_COLLIDABLE;
 
 	AEVec2 Pos{}, Scale{};
 
@@ -760,8 +787,8 @@ void GameStateLevel1Update(void)
 		if (0 == (pInst->flag & FLAG_ACTIVE))
 			continue;
 
-		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM 
-			|| pInst->pObject->type == TYPE_EMPTY) // || pInst->pObject->type == TYPE_ENEMY1GUN)
+		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM
+			|| pInst->pObject->type == TYPE_EMPTY || pInst->pObject->type == TYPE_DIRT)
 			continue;
 
 		if(pInst->pObject->type == TYPE_DOTTED)
@@ -789,12 +816,18 @@ void GameStateLevel1Update(void)
 		int prevbounce = pInst->bulletbounce;
 		if (pInst->pObject->type == TYPE_BULLET)
 		{
-			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
 		}
 		else
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 		}
+
+		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
+		{
+			gameObjInstDestroy(pInst);
+		}
+
 		bool reflectedFlag = false;
 		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
 			if (pInst->pObject->type == TYPE_BULLET) {
@@ -1104,6 +1137,10 @@ void GameStateLevel1Draw(void)
 				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 				//AEGfxTextureSet(tex_stone, 0.0f, 0.0f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
+			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
+			{
+				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			else
 			{
