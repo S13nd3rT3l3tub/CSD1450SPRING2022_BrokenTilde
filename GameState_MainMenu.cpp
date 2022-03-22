@@ -130,7 +130,8 @@ void GameStateMainMenuLoad() {
 	GameObj* pObj;
 
 
-
+	// Move camera to 0,0 in event menu is loaded after game
+	AEGfxSetCamPosition(0.0f, 0.0f);
 }
 
 /******************************************************************************/
@@ -184,6 +185,12 @@ void GameStateMainMenuUpdate() {
 		//	load level 2
 		g_chosenLevel = 2;
 		gGameStateNext = GS_LEVEL1;
+	}
+
+	//	if number key 2 is pressed
+	if (AEInputCheckCurr(AEVK_Q))
+	{
+		gGameStateNext = GS_QUIT;
 	}
 
 	// =========================
@@ -348,9 +355,6 @@ void GameStateMainMenuDraw() {
 */
 /******************************************************************************/
 void GameStateMainMenuFree() {
-		
-	AEGfxTextureUnload(backgroundTexture);
-
 	// kill all object instances in the array using "gameObjInstDestroy"
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
 		GameObjInst* pInst = sGameObjInstList + i;
@@ -367,7 +371,7 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
-
+	AEGfxTextureUnload(backgroundTexture);
 }
 /******************************************************************************/
 /*!
