@@ -2,10 +2,10 @@
 #include "BinaryMap.h"
 
 ////Binary map data
-static int** MapData;
-static int** BinaryCollisionArray;
-static int	BINARY_MAP_WIDTH;
-static int	BINARY_MAP_HEIGHT;
+//static int** MapData;
+//static int** BinaryCollisionArray;
+//static int	BINARY_MAP_WIDTH;
+//static int	BINARY_MAP_HEIGHT;
 
 int ImportMapDataFromFile(std::string FileName, int*** MapData, int*** BinaryCollisionArray, int& BINARY_MAP_WIDTH, int& BINARY_MAP_HEIGHT)
 {
@@ -206,7 +206,7 @@ int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float
 	return Flag;
 }
 
-void	FreeMapData(int*** MapData, int*** BinaryCollisionArray, int& BINARY_MAP_WIDTH, int& BINARY_MAP_HEIGHT)
+void	FreeMapData(int*** MapData, int*** BinaryCollisionArray, int &BINARY_MAP_WIDTH, int& BINARY_MAP_HEIGHT)
 {
 	for (int i = 0; i < BINARY_MAP_HEIGHT; i++)
 	{
