@@ -21,5 +21,6 @@ void	SnapToCell(float* Coordinate);
 void	PrintRetrievedInformation(int*** MapData, int*** BinaryCollisionArray, int& BINARY_MAP_WIDTH, int& BINARY_MAP_HEIGHT);
 int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, int*** MapData, int& BINARY_MAP_WIDTH, int& BINARY_MAP_HEIGHT);
 void	FreeMapData(int*** MapData, int*** BinaryCollisionArray, int& BINARY_MAP_WIDTH, int& BINARY_MAP_HEIGHT);
+int		CheckInstanceBinaryMapCollision_bullet(float PosX, float PosY, float scaleX, float scaleY, int*** MapData, int& BINARY_MAP_WIDTH, int& BINARY_MAP_HEIGHT);
 
 #endif // BINARY_MAP_H_
