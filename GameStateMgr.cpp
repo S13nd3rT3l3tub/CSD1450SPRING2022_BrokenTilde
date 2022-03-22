@@ -86,6 +86,14 @@ void GameStateMgrUpdate()
 		GameStateFree = GameStateLevel1Free;
 		GameStateUnload = GameStateLevel1Unload;
 		break;
+	case GS_LEVELS:
+		GameStateLoad = GameStateLevelsLoad;
+		GameStateInit = GameStateLevelsInit;
+		GameStateUpdate = GameStateLevelsUpdate;
+		GameStateDraw = GameStateLevelsDraw;
+		GameStateFree = GameStateLevelsFree;
+		GameStateUnload = GameStateLevelsUnload;
+		break;
 	default:
 		AE_FATAL_ERROR("invalid state!!");
 	}

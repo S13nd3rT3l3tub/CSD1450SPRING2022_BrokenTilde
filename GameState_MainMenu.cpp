@@ -183,8 +183,12 @@ void GameStateMainMenuUpdate() {
 	{
 		//	load level 2
 		g_chosenLevel = 2;
-		gGameStateNext = GS_LEVEL1;
+		gGameStateNext = GS_LEVELS;
 	}
+
+	//	if number key Q is pressed
+	if (AEInputCheckCurr(AEVK_Q))
+		gGameStateNext = GS_QUIT;
 
 	// =========================
 	// update according to input
@@ -291,7 +295,6 @@ void GameStateMainMenuUpdate() {
 void GameStateMainMenuDraw() {
 	//char strBuffer[1024];
 
-	
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
@@ -348,8 +351,12 @@ void GameStateMainMenuDraw() {
 */
 /******************************************************************************/
 void GameStateMainMenuFree() {
-		
-	AEGfxTextureUnload(backgroundTexture);
+	
+	if (gGameStateNext == GS_QUIT)
+	{
+		AEGfxTextureUnload(backgroundTexture);
+		AEGfxMeshFree(bgMesh);
+	}
 
 	// kill all object instances in the array using "gameObjInstDestroy"
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
@@ -358,7 +365,7 @@ void GameStateMainMenuFree() {
 		gameObjInstDestroy(pInst);
 	}
 
-	AEGfxMeshFree(bgMesh);
+	//AEGfxMeshFree(bgMesh);
 }
 
 /******************************************************************************/

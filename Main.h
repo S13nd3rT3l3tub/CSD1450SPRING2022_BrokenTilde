@@ -28,7 +28,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "GameStateMgr.h"
 #include "GameState_MainMenu.h"
-#include "GameState_Level1.h"
+//#include "GameState_Level1.h"
+#include "GameState_Levels.h"
 #include "Collision.h"
 #include "GameState_Win.h"
 #include "BinaryMap.h"
