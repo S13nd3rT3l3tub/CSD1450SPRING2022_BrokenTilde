@@ -787,7 +787,14 @@ void GameStateLevel1Update(void)
 			Velocity X = 0
 		*************/
 		int prevbounce = pInst->bulletbounce;
-		pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+		if (pInst->pObject->type == TYPE_BULLET)
+		{
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+		}
+		else
+		{
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+		}
 		bool reflectedFlag = false;
 		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
 			if (pInst->pObject->type == TYPE_BULLET) {
