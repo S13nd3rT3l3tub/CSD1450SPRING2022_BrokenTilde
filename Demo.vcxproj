@@ -15,6 +15,7 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="GameStateMgr.cpp" />
     <ClCompile Include="GameState_Level1.cpp" />
+    <ClCompile Include="GameState_Levels.cpp" />
     <ClCompile Include="GameState_Win.cpp" />
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -22,9 +23,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryMap.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="GameStateList.h" />
     <ClInclude Include="GameStateMgr.h" />
     <ClInclude Include="GameState_Level1.h" />
+    <ClInclude Include="GameState_Levels.h" />
     <ClInclude Include="GameState_MainMenu.h" />
     <ClInclude Include="GameState_Win.h" />
     <ClInclude Include="Globals.h" />

@@ -39,6 +39,9 @@
     <ClCompile Include="GameState_Win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameState_Levels.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameState_Level1.h">
@@ -63,6 +66,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameState_Win.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState_Levels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
