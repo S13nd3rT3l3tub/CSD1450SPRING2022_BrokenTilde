@@ -309,7 +309,7 @@ void GameStateMainMenuDraw() {
 	}
 
 	//	Drawing of letters for menu
-	char strBuf[1000];
+	//char strBuf[1000];
 
 	AEGfxSetBlendMode(AE_GFX_BM_NONE);
 	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
