@@ -23,6 +23,7 @@ enum
 	// list of all game states 
 	GS_MAINMENU = 0,
 	GS_LEVEL1, 
+	GS_LEVELS,
 	GS_WINSCREEN,
 	// special game state. Do not change
 	GS_RESTART,
