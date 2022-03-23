@@ -813,13 +813,27 @@ void GameStateLevel1Update(void)
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
 		}
-		else
+		else //if(pInst->pObject->type != TYPE_PARTICLE1 && pInst->state != STATE_ALERT)
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 		}
 
 		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
 		{
+			AEVec2 particlevel = {0, -1 };
+			AEVec2 hold;
+			AEVec2Normalize(&hold, &pInst->velCurr);
+			AEVec2 particlepos = {pInst->posCurr.x,  pInst->posCurr.y};
+			for (int i{}; i < 6; ++i)
+			{
+				particlevel.y = (rand() % 7 + 3)/-2.5f;
+				if (rand() % 2) { particlevel.x += (rand() % 10) / 9; }		
+				else { particlevel.x -= (rand() % 10) / 8; }
+					
+				particlepos.x += hold.x / 5;
+				particlepos.y += hold.y / 5;
+				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlepos, &particlevel, 1.5f, STATE_ALERT);
+			}
 			gameObjInstDestroy(pInst);
 		}
 
@@ -888,6 +902,10 @@ void GameStateLevel1Update(void)
 			else {
 				pInst->velCurr.y = 0;
 				SnapToCell(&pInst->posCurr.y);
+				if (pInst->pObject->type == TYPE_PARTICLE1)
+				{
+					pInst->posCurr.y -= 0.25f;
+				}
 				if (pInst->pObject->type == TYPE_PLAYER) 
 				{
 					jumpfuel = 1.5f; 
@@ -963,13 +981,13 @@ void GameStateLevel1Update(void)
 				//	}
 				//	break;
 				case TYPE_PLAYER:
-					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst);
-						gameObjInstDestroy(PlayerBody);
-						gameObjInstDestroy(PlayerGun);
-						GameStateLevel1Load();
-						GameStateLevel1Init();
-						gGameStateNext = GS_RESTART;
+					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player death
+						//gameObjInstDestroy(pInst);
+						//gameObjInstDestroy(PlayerBody);
+						//gameObjInstDestroy(PlayerGun);
+						//GameStateLevel1Load();
+						//GameStateLevel1Init();
+						//gGameStateNext = GS_RESTART;
 					}
 					break;
 				case TYPE_ENEMY1:
@@ -1167,6 +1185,16 @@ void GameStateLevel1Draw(void)
 		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &pInst->transform);
 		AEGfxSetTransform(cellFinalTransformation.m);
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
+		//if (pInst->pObject->type == TYPE_DIRT && pInst->state == STATE_ALERT) // particles for dirt destroy
+		//{
+		//	std::cout << "HERE";
+		//	AEGfxSetTransparency(pInst->dirCurr);
+		//	if (pInst->dirCurr <= 0)
+		//	{
+		//		gameObjInstDestroy(pInst);
+		//	}
+		//	pInst->dirCurr -= g_dt;
+		//}
 		if (pInst->pObject->type == TYPE_PARTICLE1) // Particle transparancy handler
 		{
 			AEGfxSetTransparency(pInst->dirCurr);
@@ -1181,7 +1209,7 @@ void GameStateLevel1Draw(void)
 			}
 			pInst->dirCurr -= g_dt;
 		}
-		if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
+		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
 		{
 			AEGfxSetTransparency(0.f);
 		}
