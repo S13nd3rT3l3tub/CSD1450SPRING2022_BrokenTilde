@@ -130,7 +130,8 @@ void GameStateMainMenuLoad() {
 	GameObj* pObj;
 
 
-
+	// Move camera to 0,0 in event menu is loaded after game
+	AEGfxSetCamPosition(0.0f, 0.0f);
 }
 
 /******************************************************************************/
@@ -186,9 +187,11 @@ void GameStateMainMenuUpdate() {
 		gGameStateNext = GS_LEVELS;
 	}
 
-	//	if number key Q is pressed
+	//	if number key 2 is pressed
 	if (AEInputCheckCurr(AEVK_Q))
+	{
 		gGameStateNext = GS_QUIT;
+	}
 
 	// =========================
 	// update according to input
@@ -374,7 +377,7 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
-
+	AEGfxTextureUnload(backgroundTexture);
 }
 /******************************************************************************/
 /*!
