@@ -1605,21 +1605,22 @@ void EnemyStateMachine(GameObjInst* pInst)
 			}
 
 			pInst->shoot_timer2 -= g_dt;
-			if (pInst->shoot_timer2 > 0.5) {
+			if (pInst->shoot_timer2 > 0.39f) {
 				pInst->shoot_timer -= g_dt;
-				if (pInst->shoot_timer < 1)
+				if (pInst->shoot_timer < 0)
 				{
 					AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
 					AEVec2Normalize(&dist, &dist);
 					AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
 					AEVec2 bulletvelocity{ dist.x * 7 , dist.y * 7 };
 					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE_ALERT);
-					pInst->shoot_timer = 2;
+					pInst->shoot_timer = 0.2f;
 				}
 			}
+
 			if (pInst->shoot_timer2 < 0)
 			{
-				pInst->shoot_timer2 = 1.1;
+				pInst->shoot_timer2 = 1.f;
 			}
 
 			break;
