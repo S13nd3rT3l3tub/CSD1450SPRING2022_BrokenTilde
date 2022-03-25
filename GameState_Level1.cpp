@@ -661,7 +661,7 @@ void GameStateLevel1Update(void)
 
 	if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
 	{
-		AEVec2 dirBullet;
+		/*AEVec2 dirBullet;
 		AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
 		AEVec2 offset;
 		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.15f;
@@ -671,7 +671,67 @@ void GameStateLevel1Update(void)
 			offset.x = BarrelEnd.x + dirBullet.x * i;
 			offset.y = BarrelEnd.y + dirBullet.y * i;
 			gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, PlayerGun->dirCurr, STATE_GOING_LEFT);
+		}*/
+
+
+		AEVec2 bulletDir{};
+		AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+		BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * 0.15f;
+		BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * 0.15f;
+
+		AEVec2 currPos{ BarrelEnd };
+
+		int bounceCount{ 0 };
+
+		for (int i{ 1 }; i < 1000; ++i) {
+			currPos.x += bulletDir.x * g_dt;
+			currPos.y += bulletDir.y * g_dt;
+			
+			int collisionFlag = CheckInstanceBinaryMapCollision_bullet(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
+			bool reflectedFlag{ false };
+			AEVec2 normal{};
+			if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {
+				normal = { 0, -1 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+			if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {
+				normal = { 0, 1 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+			if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {
+				normal = { 1, 0 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+			if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {
+				normal = { -1, 0 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+			
+
+			if (reflectedFlag) {
+				AEVec2 newVel{ bulletDir.x - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.x,  bulletDir.y - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.y };
+				AEVec2Normalize(&newVel, &newVel);
+				bulletDir = newVel;
+				currPos.x += bulletDir.x * g_dt;
+				currPos.y += bulletDir.y * g_dt;
+			}
+
+			if (i % 30 == 0)
+				gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &currPos, 0, 0, STATE_GOING_LEFT);
 		}
+
 	}
 
 	//	if Escape is pressed
