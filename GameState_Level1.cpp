@@ -687,7 +687,7 @@ void GameStateLevel1Update(void)
 			currPos.x += bulletDir.x * g_dt;
 			currPos.y += bulletDir.y * g_dt;
 			
-			int collisionFlag = CheckInstanceBinaryMapCollision_bullet(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
+			int collisionFlag = CheckInstanceBinaryMapCollision_dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 			bool reflectedFlag{ false };
 			AEVec2 normal{};
 			if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {
