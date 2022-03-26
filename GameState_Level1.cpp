@@ -179,6 +179,7 @@ static GameObjInst* DirtInstance;
 // number of player lives available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
 static double				jumpfuel;
+static int					totalenemies;
 // Current mouse position
 //static signed int mouseX{ 0 }, mouseY{ 0 };
 static float worldMouseX{ 0 }, worldMouseY{ 0 };
@@ -470,6 +471,7 @@ void GameStateLevel1Load(void)
 void GameStateLevel1Init(void)
 {
 	leveltime = 0;
+	totalenemies = 0;
 	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
@@ -517,6 +519,7 @@ void GameStateLevel1Init(void)
 				break;
 			case TYPE_ENEMY1:
 				gameObjInstCreate(TYPE_ENEMY1, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_GOING_LEFT);
+				++totalenemies;
 				break;
 			default:
 				break;
@@ -1047,18 +1050,19 @@ void GameStateLevel1Update(void)
 				//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player death
-						//gameObjInstDestroy(pInst);
-						//gameObjInstDestroy(PlayerBody);
-						//gameObjInstDestroy(PlayerGun);
-						//GameStateLevel1Load();
-						//GameStateLevel1Init();
-						//gGameStateNext = GS_RESTART;
+						gameObjInstDestroy(pInst);
+						gameObjInstDestroy(PlayerBody);
+						gameObjInstDestroy(PlayerGun);
+						GameStateLevel1Load();
+						GameStateLevel1Init();
+						gGameStateNext = GS_RESTART;
 					}
 					break;
 				case TYPE_ENEMY1:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(pOtherInst);
+						--totalenemies;
 						AEVec2 particleVel;
 						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
@@ -1073,9 +1077,10 @@ void GameStateLevel1Update(void)
 								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
 								gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
 							}
-							
-							
-							
+						}
+						if (totalenemies <= 0 && gGameStateNext != GS_RESTART) // WIN CONDITION, KILL ALL ENEMIES TO WIN LEVEL
+						{
+							gGameStateNext = GS_MAINMENU; // temporary - go to main menu after level completion.
 						}
 					}
 					break;
