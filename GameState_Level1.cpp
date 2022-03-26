@@ -542,7 +542,7 @@ void GameStateLevel1Update(void)
 	// =========================
 	// update according to input
 	// =========================
-
+	//std::cout << PlayerBody->posCurr.x << std::endl;
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	// Change the following input movement based on our player movement
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -883,21 +883,25 @@ void GameStateLevel1Update(void)
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 		}
 
-		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
+		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable) // dirt destroy particles
 		{
-			AEVec2 particlevel = {0, -1 };
+			AEVec2 particlevel{0,0};
 			AEVec2 hold;
+			AEVec2 particlescale{ 0.85f, 0.85f };
 			AEVec2Normalize(&hold, &pInst->velCurr);
-			AEVec2 particlepos = {pInst->posCurr.x,  pInst->posCurr.y};
-			for (int i{}; i < 6; ++i)
+			hold.x = hold.x / 6;
+			hold.y = hold.y / 6;
+			AEVec2 particlepos = { static_cast<int>(pInst->posCurr.x + hold.x),  static_cast<int>(pInst->posCurr.y + hold.y) + 0.65f};
+			//std::cout << particlepos.x << " " << particlepos.y << std::endl;
+			for (int i{}; i < 7; ++i)
 			{
-				particlevel.y = (rand() % 7 + 3)/-2.5f;
-				if (rand() % 2) { particlevel.x += (rand() % 10) / 9; }		
-				else { particlevel.x -= (rand() % 10) / 8; }
+				particlevel.y = (rand() % 7 + 2)/-3.5f;
+				if (rand() % 2) { particlevel.x = (rand() % 10) / 9; }		
+				else { particlevel.x = (rand() % 10) / 9; }
 					
-				particlepos.x += hold.x / 5;
-				particlepos.y += hold.y / 5;
-				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlepos, &particlevel, 1.5f, STATE_ALERT);
+				particlepos.x += 0.13f;
+				particlepos.y -= 0.08f;
+				gameObjInstCreate(TYPE_PARTICLE1, &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
 			}
 			gameObjInstDestroy(pInst);
 		}
@@ -1220,7 +1224,7 @@ void GameStateLevel1Draw(void)
 			if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 			{
 				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-				//AEGfxTextureSet(tex_stone, 0.0f, 0.0f);
+				//AEGfxTextureSet(tex_stone, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
