@@ -900,7 +900,6 @@ void GameStateLevel1Update(void)
 				else { particlevel.x = (rand() % 10) / 9; }
 					
 				particlepos.x += 0.13f;
-				particlepos.y -= 0.08f;
 				gameObjInstCreate(TYPE_PARTICLE1, &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
 			}
 			gameObjInstDestroy(pInst);
