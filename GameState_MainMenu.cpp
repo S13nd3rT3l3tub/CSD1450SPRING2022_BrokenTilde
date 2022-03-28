@@ -22,13 +22,23 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 	Defines
 */
 /******************************************************************************/
-const unsigned int	GAME_OBJ_NUM_MAX = 16;			//The total number of different objects (Shapes)
+const unsigned int	GAME_OBJ_NUM_MAX = 16;					//The total number of different objects (Shapes)
 const unsigned int	GAME_OBJ_INST_NUM_MAX = 1028;			//The total number of different game object instances
 AEGfxVertexList* bgMesh;
 AEGfxTexture* backgroundTexture;
+
+AEGfxTexture* buttonTexture_START;
+AEGfxTexture* buttonTexture_QUIT;
+
 int overlay;
 //AEGfxTexture* Texture1;
 //AEGfxTexture* Texture2;
+
+AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
+AEVec2		BUTTON_SCALE = { 1.0f, 1.0f };
+
+static float worldMouseX{ 0 }, worldMouseY{ 0 };
+
 // -----------------------------------------------------------------------------
 // object flag definition
 const unsigned int	FLAG_ACTIVE = 0x00000001;
@@ -40,8 +50,13 @@ const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
 	Enums/Struct/Class Definitions
 */
 /******************************************************************************/
-enum class BUTTON_TYPE {
-	START_GAME = 0,
+enum TYPE
+{
+	TYPE_BUTTON = 0
+};
+
+enum BUTTON_TYPE {
+	START_GAME = 1,
 
 
 	EXIT_GAME
@@ -69,6 +84,7 @@ struct GameObjInst
 	AABB				boundingBox;// object bouding box that encapsulates the object
 	AEMtx33				transform;	// object transformation matrix: Each frame, 
 									// calculate the object instance's transformation matrix and save it here
+	unsigned long		sub_type;	// to differentiate between button objects
 
 	// pointer to custom data specific for each object type
 	void* pUserData;
@@ -90,6 +106,10 @@ static unsigned long		sGameObjNum;								// The number of defined game objects
 static GameObjInst			sGameObjInstList[GAME_OBJ_INST_NUM_MAX];	// Each element in this array represents a unique game object instance (sprite)
 static unsigned long		sGameObjInstNum;							// The number of used game object instances
 
+static GameObjInst* ButtonInstance_START;
+static GameObjInst* ButtonInstance_QUIT;
+
+
 
 /******************************************************************************/
 /*!
@@ -101,9 +121,13 @@ static unsigned long		sGameObjInstNum;							// The number of used game object i
 
 // functions to create/destroy a game object instance
 GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
-	AEVec2* pPos, AEVec2* pVel,
-	float dir);
+							   AEVec2* pPos, AEVec2* pVel,
+							   float dir, unsigned int sub_type);
+
 void					gameObjInstDestroy(GameObjInst* pInst);
+
+//	function to check if mouse clicking button
+int Collision_Mouse_Button(const AABB& aabb, float MouseX, float MouseY);
 
 
 /******************************************************************************/
@@ -128,6 +152,34 @@ void GameStateMainMenuLoad() {
 
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
+
+	// =========================
+	// create the Button Shape
+	// =========================
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_BUTTON;
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+		BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+		-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+		BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+		-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ BUTTON_MESHSIZE.x, BUTTON_MESHSIZE.y };
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create BUTTON object!!");
+
+	// =========================
+	// load the Button texture
+	// =========================
+	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
+	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
+
+	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
+	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
 
 
 	// Move camera to 0,0 in event menu is loaded after game
@@ -162,6 +214,12 @@ void GameStateMainMenuInit() {
 	
 	overlay = main; 
 
+	//	Create Button
+	AEVec2 Start_Button = { 0,0 };
+	ButtonInstance_START = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Start_Button, 0, 0.0f, START_GAME);
+
+	AEVec2 Quit_Button = { 0,-200 };
+	ButtonInstance_QUIT = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Quit_Button, 0, 0.0f, EXIT_GAME);
 }
 
 /******************************************************************************/
@@ -193,6 +251,24 @@ void GameStateMainMenuUpdate() {
 		gGameStateNext = GS_QUIT;
 	}
 
+	//	if left mouse click
+	if (AEInputCheckReleased(VK_LBUTTON))
+	{
+		if (Collision_Mouse_Button(ButtonInstance_START->boundingBox, worldMouseX, worldMouseY))
+		{
+			//	load level 1
+			g_chosenLevel = 1;
+			gGameStateNext = GS_LEVEL1;
+		}
+
+		if (Collision_Mouse_Button(ButtonInstance_QUIT->boundingBox, worldMouseX, worldMouseY))
+			gGameStateNext = GS_QUIT;
+	}
+
+
+
+
+
 	// =========================
 	// update according to input
 	// =========================
@@ -209,7 +285,6 @@ void GameStateMainMenuUpdate() {
 		// skip non-active object
 		if (0 == (pInst->flag & FLAG_ACTIVE))
 			continue;
-
 		
 	}
 
@@ -288,6 +363,14 @@ void GameStateMainMenuUpdate() {
 		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
 
+	// =====================================
+	// Mouse Input
+	// =====================================
+	float cameraX, cameraY;
+	AEGfxGetCamPosition(&cameraX, &cameraY);
+	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
+	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
+	//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
 }
 
 /******************************************************************************/
@@ -297,6 +380,24 @@ void GameStateMainMenuUpdate() {
 /******************************************************************************/
 void GameStateMainMenuDraw() {
 	//char strBuffer[1024];
+
+	// =====================================
+	//		DRAW BACKGROUND
+	// =====================================
+	AEGfxSetBlendMode(AE_GFX_BM_NONE);
+	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+	AEGfxSetPosition(0.0f, 0.0f);
+	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
+	//AEGfxTextureSet(NULL, 0, 0);
+	switch (overlay)
+	{
+	case main:
+		AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+		break;
+	default:
+		break;
+	}
+	AEGfxMeshDraw(bgMesh, AE_GFX_MDM_TRIANGLES);
 
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
@@ -311,27 +412,35 @@ void GameStateMainMenuDraw() {
 		// Set the current object instance's transform matrix using "AEGfxSetTransform"
 		AEGfxSetTransform(pInst->transform.m);
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
-		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		// =====================================
+		//		DRAW BUTTON
+		// =====================================
+		AEGfxSetBlendMode(AE_GFX_BM_NONE);
+		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
+
+		if (pInst->sub_type == START_GAME)
+		{
+			AEGfxTextureSet(buttonTexture_START, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		if (pInst->sub_type == EXIT_GAME)
+		{
+			AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
 	}
 
-	//	Drawing of letters for menu
-	//char strBuf[1000];
-
-	AEGfxSetBlendMode(AE_GFX_BM_NONE);
+	/*AEGfxSetBlendMode(AE_GFX_BM_NONE);
 	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-	AEGfxSetPosition(0.0f, 0.0f); 
+	AEGfxSetPosition(0.0f, 0.0f);
 	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
-	//AEGfxTextureSet(NULL, 0, 0);
-	switch (overlay)
-	{
-	case main:
-		AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
-		break;
-	default:
-		break;
-	}
-
-	AEGfxMeshDraw(bgMesh, AE_GFX_MDM_TRIANGLES);
+	AEGfxTextureSet(buttonTexture, 0.0f, 0.0f);
+	AEGfxMeshDraw(ButtonInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);*/
+	
 	/*
 	memset(strBuf, 0, 1000 * sizeof(char));
 	sprintf_s(strBuf, "Ricochet");
@@ -358,6 +467,8 @@ void GameStateMainMenuFree() {
 	if (gGameStateNext == GS_QUIT)
 	{
 		AEGfxTextureUnload(backgroundTexture);
+		AEGfxTextureUnload(buttonTexture_START);
+		AEGfxTextureUnload(buttonTexture_QUIT);
 		AEGfxMeshFree(bgMesh);
 	}
 
@@ -377,8 +488,11 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
-
-	//AEGfxTextureUnload(backgroundTexture);
+	// free all mesh data (shapes) of each object using "AEGfxTriFree"
+	for (unsigned long i = 0; i < sGameObjNum; i++) {
+		GameObj* pObj = sGameObjList + i;
+		AEGfxMeshFree(pObj->pMesh);
+	}
 }
 /******************************************************************************/
 /*!
@@ -386,8 +500,8 @@ void GameStateMainMenuUnload() {
 */
 /******************************************************************************/
 GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
-	AEVec2* pPos, AEVec2* pVel,
-	float dir)
+							   AEVec2* pPos, AEVec2* pVel,
+							   float dir, unsigned int sub_type)
 {
 	AEVec2 zero;
 	AEVec2Zero(&zero);
@@ -410,6 +524,8 @@ GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 			pInst->velCurr = pVel ? *pVel : zero;
 			pInst->dirCurr = dir;
 			pInst->pUserData = 0;
+			pInst->sub_type = sub_type;
+
 
 			// return the newly created instance
 			return pInst;
@@ -419,3 +535,21 @@ GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	return 0;
 }
 
+
+/******************************************************************************/
+/*!
+	This function returns true if the mouse is within boundary of button
+*/
+/******************************************************************************/
+int Collision_Mouse_Button(const AABB& aabb, float MouseX, float MouseY)
+{
+	//if (worldMouseX - ButtonInstance->boundingBox.min.x >= 0 )	//	mouse touch from left
+	//if (worldMouseX - ButtonInstance->boundingBox.max.x >= 0 )	//	mouse touch from right
+	//if (worldMouseY - ButtonInstance->boundingBox.max.y <= 0)		// mouse touch from top
+	//if (worldMouseY - ButtonInstance->boundingBox.min.y >= 0)		// mouse touch from bottom
+	if ((worldMouseX - aabb.min.x >= 0 && worldMouseX - aabb.max.x <= 0) &&
+		(worldMouseY - aabb.max.y <= 0 && worldMouseY - aabb.min.y >= 0))
+		return 1;
+	else
+		return 0;
+}
