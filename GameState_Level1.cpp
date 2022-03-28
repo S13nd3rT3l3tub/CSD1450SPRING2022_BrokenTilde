@@ -202,17 +202,9 @@ static GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	float dir, enum STATE startState);
 void					gameObjInstDestroy(GameObjInst* pInst);
 void EnemyStateMachine(GameObjInst* pInst);
-//// functions to process map data and binary collision data
-//int						GetCellValue(int X, int Y);
-//int						CheckInstanceBinaryMapCollision(float PosX, float PosY,
-//	float scaleX, float scaleY);
-//void					SnapToCell(float* Coordinate);
-//int						ImportMapDataFromFile(std::string FileName);
-//void					FreeMapData(void);
-//void					PrintRetrievedInformation(void);
 
 // texutres
-AEGfxTexture* tex_stone = nullptr;
+extern AEGfxTexture* tex_stone = nullptr;
 
 /******************************************************************************/
 /*!
@@ -736,10 +728,6 @@ void GameStateLevel1Update(void)
 		}
 
 	}
-
-	//	if Escape is pressed
-	if (AEInputCheckCurr(AEVK_M))
-		gGameStateNext = GS_MAINMENU;
 
 	int i{};
 	GameObjInst* pInst;
@@ -1383,7 +1371,7 @@ void GameStateLevel1Unload(void)
 	}
 
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-	//AEGfxTextureUnload(tex_stone);
+	AEGfxTextureUnload(tex_stone);
 }
 
 /******************************************************************************/

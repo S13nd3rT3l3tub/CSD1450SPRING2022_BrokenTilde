@@ -42,11 +42,13 @@ extern AEVec2		EMPTY_SCALE;
 const float			GRAVITY = -9.8f;
 const float			JUMP_VELOCITY = 800.0f;
 const float			HOVER_VELOCITY = 7.0f;
+const int			HERO_LIVES = 3;
+
 const float			MOVE_VELOCITY = 14.0f;
 const float			MOVE_VELOCITY_ENEMY = 2.5f;
 const double		ENEMY_IDLE_TIME = 2.0;
-const int			HERO_LIVES = 3;
-
+const float			ENEMY_DETECTION_RANGE = 150.0f;
+const float			ENEMY_SHOOT_DELAY = 2.0f;
 
 // -----------------------------------------------------------------------------
 // object flag definition
@@ -76,6 +78,7 @@ enum TYPE
 	TYPE_ENEMY1,
 	TYPE_PARTICLE1,
 	TYPE_DOTTED,
+	TYPE_DIRT,
 	TYPE_NUM
 };
 
@@ -139,6 +142,7 @@ struct GameObjInst
 	//General purpose counter (This variable will be used for the enemy state machine)
 	double			counter;
 	double			shoot_timer;
+	float			shoot_timer2;
 	//void				(*pfUpdate)(void);
 	//void				(*pfDraw)(void);
 };
@@ -164,10 +168,12 @@ static GameObjInst* Enemydetection;
 
 static GameObjInst* EmptyInstance;
 static GameObjInst* PlatformInstance;
+static GameObjInst* DirtInstance;
 
 // number of player lives available (lives 0 = game over)
 static long					playerLives;									// The number of lives left
 static double				jumpfuel;
+static int					totalenemies;
 // Current mouse position
 //static signed int mouseX{ 0 }, mouseY{ 0 };
 static float worldMouseX{ 0 }, worldMouseY{ 0 };
@@ -215,6 +221,7 @@ void GameStateLevelsLoad(void)
 	PlayerGun = nullptr;
 	EmptyInstance = nullptr;
 	PlatformInstance = nullptr;
+	DirtInstance = nullptr;
 
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
@@ -391,6 +398,25 @@ void GameStateLevelsLoad(void)
 	tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
 	AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
 
+	// =========================
+	// create the dirt block shape
+	// =========================
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_DIRT;
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
+		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
+		PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
+
 	// =====================
 	// Load Level 1 Binary Map
 	// =====================
@@ -406,7 +432,7 @@ void GameStateLevelsLoad(void)
 	if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 		gGameStateNext = GS_QUIT;
 
-	PrintRetrievedInformation(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+	//PrintRetrievedInformation(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 
 	//Computing the matrix which take a point out of the normalized coordinates system
 	//of the binary map
@@ -437,6 +463,7 @@ void GameStateLevelsLoad(void)
 void GameStateLevelsInit(void)
 {
 	leveltime = 0;
+	totalenemies = 0;
 	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
@@ -444,6 +471,10 @@ void GameStateLevelsInit(void)
 	PlatformInstance = gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
+
+	DirtInstance = gameObjInstCreate(TYPE_DIRT, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
+	DirtInstance->flag ^= FLAG_VISIBLE;
+	DirtInstance->flag |= FLAG_NON_COLLIDABLE;
 
 	AEVec2 Pos{}, Scale{};
 
@@ -480,6 +511,7 @@ void GameStateLevelsInit(void)
 				break;
 			case TYPE_ENEMY1:
 				gameObjInstCreate(TYPE_ENEMY1, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_GOING_LEFT);
+				++totalenemies;
 				break;
 			default:
 				break;
@@ -593,6 +625,10 @@ void GameStateLevelsUpdate(void)
 
 	AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 
+	//	if M key is pressed
+	if (AEInputCheckCurr(AEVK_M))
+		gGameStateNext = GS_MAINMENU;
+
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	// Change to bullet spawning on mouse click in direction
@@ -620,7 +656,7 @@ void GameStateLevelsUpdate(void)
 
 	if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
 	{
-		AEVec2 dirBullet;
+		/*AEVec2 dirBullet;
 		AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
 		AEVec2 offset;
 		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.15f;
@@ -630,12 +666,66 @@ void GameStateLevelsUpdate(void)
 			offset.x = BarrelEnd.x + dirBullet.x * i;
 			offset.y = BarrelEnd.y + dirBullet.y * i;
 			gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, PlayerGun->dirCurr, STATE_GOING_LEFT);
+		}*/
+		AEVec2 bulletDir{};
+		AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+		BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * 0.15f;
+		BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * 0.15f;
+
+		AEVec2 currPos{ BarrelEnd };
+
+		int bounceCount{ 0 };
+
+		for (int i{ 1 }; i < 1000; ++i) {
+			currPos.x += bulletDir.x * g_dt;
+			currPos.y += bulletDir.y * g_dt;
+
+			int collisionFlag = CheckInstanceBinaryMapCollision_dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+			bool reflectedFlag{ false };
+			AEVec2 normal{};
+			if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {
+				normal = { 0, -1 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+			if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {
+				normal = { 0, 1 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+			if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {
+				normal = { 1, 0 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+			if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {
+				normal = { -1, 0 };
+				if (++bounceCount < 3)
+					reflectedFlag = true;
+				else
+					break;
+			}
+
+
+			if (reflectedFlag) {
+				AEVec2 newVel{ bulletDir.x - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.x,  bulletDir.y - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.y };
+				AEVec2Normalize(&newVel, &newVel);
+				bulletDir = newVel;
+				currPos.x += bulletDir.x * g_dt;
+				currPos.y += bulletDir.y * g_dt;
+			}
+
+			if (i % 30 == 0)
+				gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &currPos, 0, 0, STATE_GOING_LEFT);
 		}
 	}
 
-	//	if M key is pressed
-	if (AEInputCheckCurr(AEVK_M))
-		gGameStateNext = GS_MAINMENU;
 
 	int i{};
 	GameObjInst* pInst;
@@ -765,8 +855,136 @@ void GameStateLevelsUpdate(void)
 			Snap to cell on X axis
 			Velocity X = 0
 		*************/
+	//	int prevbounce = pInst->bulletbounce;
+	//	pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+	//	bool reflectedFlag = false;
+	//	if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
+	//		if (pInst->pObject->type == TYPE_BULLET) {
+	//			if (reflectedFlag == false) {
+	//				AEVec2 normal{ 1, 0 }, newBulletVel{};
+	//				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+	//				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+	//				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+	//				pInst->velCurr = newBulletVel;
+	//				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+	//				//Limit number of bullet bounces:
+	//				//std::cout << pInst->bulletbounce;
+	//				reflectedFlag = true;
+	//				if (prevbounce == pInst->bulletbounce)
+	//					++(pInst->bulletbounce);
+	//			}
+	//		}
+	//		else {
+	//			pInst->velCurr.x = 0;
+	//			SnapToCell(&pInst->posCurr.x);
+	//			pInst->posCurr.x += 0.3f;
+	//		}
+	//	}
+
+	//	if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT) {
+	//		if (pInst->pObject->type == TYPE_BULLET) {
+	//			if (reflectedFlag == false) {
+	//				AEVec2 normal{ -1, 0 }, newBulletVel{};
+	//				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+	//				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+	//				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+	//				pInst->velCurr = newBulletVel;
+	//				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+	//				//std::cout << pInst->bulletbounce;6
+	//				reflectedFlag = true;
+	//				if (prevbounce == pInst->bulletbounce)
+	//					++(pInst->bulletbounce);
+	//			}
+	//		}
+	//		else {
+	//			pInst->velCurr.x = 0;
+	//			SnapToCell(&pInst->posCurr.x);
+	//			pInst->posCurr.x -= 0.3f;
+	//		}
+	//	}
+
+	//	if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM) {
+	//		if (pInst->pObject->type == TYPE_BULLET) {
+	//			if (reflectedFlag == false) {
+	//				AEVec2 normal{ 0, 1 }, newBulletVel{};
+	//				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+	//				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+	//				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+	//				pInst->velCurr = newBulletVel;
+	//				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+	//				//Limit number of bullet bounces:
+	//				//std::cout << pInst->bulletbounce;
+	//				reflectedFlag = true;
+	//				if (prevbounce == pInst->bulletbounce)
+	//					++(pInst->bulletbounce);
+	//			}
+	//		}
+	//		else {
+	//			pInst->velCurr.y = 0;
+	//			SnapToCell(&pInst->posCurr.y);
+	//			if (pInst->pObject->type == TYPE_PLAYER)
+	//			{
+	//				jumpfuel = 1.5f;
+	//			}
+	//		}
+	//	}
+
+	//	if ((pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP) {
+	//		if (pInst->pObject->type == TYPE_BULLET) {
+	//			if (reflectedFlag == false) {
+	//				AEVec2 normal{ 0, -1 }, newBulletVel{};
+	//				//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+	//				newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
+	//				newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+	//				//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
+	//				pInst->velCurr = newBulletVel;
+
+	//				//Limit number of bullet bounces:
+	//				//std::cout << pInst->bulletbounce;
+	//				if (prevbounce == pInst->bulletbounce)
+	//					++(pInst->bulletbounce);
+	//			}
+	//		}
+	//		else {
+	//			pInst->velCurr.y = 0;
+	//			SnapToCell(&pInst->posCurr.y);
+	//		}
+	//	}
+
+
+	//}
 		int prevbounce = pInst->bulletbounce;
-		pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+		if (pInst->pObject->type == TYPE_BULLET)
+		{
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
+		}
+		else //if(pInst->pObject->type != TYPE_PARTICLE1 && pInst->state != STATE_ALERT)
+		{
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+		}
+
+		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable) // dirt destroy particles
+		{
+			AEVec2 particlevel{ 0,0 };
+			AEVec2 hold;
+			AEVec2 particlescale{ 0.85f, 0.85f };
+			AEVec2Normalize(&hold, &pInst->velCurr);
+			hold.x = hold.x / 6;
+			hold.y = hold.y / 6;
+			AEVec2 particlepos = { static_cast<int>(pInst->posCurr.x + hold.x),  static_cast<int>(pInst->posCurr.y + hold.y) + 0.65f };
+			//std::cout << particlepos.x << " " << particlepos.y << std::endl;
+			for (int i{}; i < 7; ++i)
+			{
+				particlevel.y = (rand() % 7 + 2) / -3.5f;
+				if (rand() % 2) { particlevel.x = (rand() % 10) / 9; }
+				else { particlevel.x = (rand() % 10) / 9; }
+
+				particlepos.x += 0.13f;
+				gameObjInstCreate(TYPE_PARTICLE1, &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
+			}
+			gameObjInstDestroy_levels(pInst);
+		}
+
 		bool reflectedFlag = false;
 		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
 			if (pInst->pObject->type == TYPE_BULLET) {
@@ -832,6 +1050,10 @@ void GameStateLevelsUpdate(void)
 			else {
 				pInst->velCurr.y = 0;
 				SnapToCell(&pInst->posCurr.y);
+				if (pInst->pObject->type == TYPE_PARTICLE1)
+				{
+					pInst->posCurr.y -= 0.25f;
+				}
 				if (pInst->pObject->type == TYPE_PLAYER)
 				{
 					jumpfuel = 1.5f;
@@ -863,6 +1085,9 @@ void GameStateLevelsUpdate(void)
 
 
 	}
+
+	// Attach gun to player after grid collision checks
+	PlayerGun->posCurr = PlayerBody->posCurr;
 
 	// ====================
 	// check for collision
@@ -908,16 +1133,19 @@ void GameStateLevelsUpdate(void)
 					//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						/*gameObjInstDestroy(pInst);
-						gameObjInstDestroy(PlayerBody);
-						gameObjInstDestroy(PlayerGun);*/
-						//gGameStateNext = GS_RESTART;
+						gameObjInstDestroy_levels(pInst);
+						gameObjInstDestroy_levels(PlayerBody);
+						gameObjInstDestroy_levels(PlayerGun);
+						GameStateLevelsLoad();
+						GameStateLevelsInit();
+						gGameStateNext = GS_RESTART;
 					}
 					break;
 				case TYPE_ENEMY1:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 						gameObjInstDestroy_levels(pInst);
 						gameObjInstDestroy_levels(pOtherInst);
+						--totalenemies;
 						AEVec2 particleVel;
 						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
@@ -932,10 +1160,12 @@ void GameStateLevelsUpdate(void)
 								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
 								gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
 							}
-
-
-
 						}
+						if (totalenemies <= 0 && gGameStateNext != GS_RESTART) // WIN CONDITION, KILL ALL ENEMIES TO WIN LEVEL
+						{
+							gGameStateNext = GS_MAINMENU; // temporary - go to main menu after level completion.
+						}
+
 					}
 					break;
 				case TYPE_BULLET:
@@ -1015,11 +1245,11 @@ void GameStateLevelsUpdate(void)
 	// Mouse in world coordinates
 	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
 	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
-	std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
+	//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
 
 	AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 	AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-	std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
+	//std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
 
 	float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
 	PlayerGun->dirCurr = dotProduct;
@@ -1076,6 +1306,10 @@ void GameStateLevelsDraw(void)
 				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 				//AEGfxTextureSet(tex_stone, 0.0f, 0.0f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
+			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
+			{
+				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			else
 			{
@@ -1214,7 +1448,7 @@ void GameStateLevelsUnload(void)
 	}
 
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-	//AEGfxTextureUnload(tex_stone);
+	AEGfxTextureUnload(tex_stone);
 }
 
 /******************************************************************************/
@@ -1341,16 +1575,52 @@ void EnemyStateMachine_levels(GameObjInst* pInst)
 				pInst->velCurr.x = 0;
 			}
 
+			if (AEVec2SquareDistance(&(PlayerBody->posCurr), &(pInst->posCurr)) <= ENEMY_DETECTION_RANGE) {
+				AEVec2 offset{};
+				AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
+				AEVec2Normalize(&dist, &dist);
+				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
+					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
+					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
+					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
+						break;
+					else if (CollisionIntersection_RectRect(Enemydetection->boundingBox, Enemydetection->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
+						pInst->state = STATE_ALERT;
+						pInst->innerState = INNER_STATE_ON_ENTER;
+					}
+				}
+			}
+
 			break;
 
 
 		case INNER_STATE_ON_EXIT:
 			//std::cout << "GOING LEFT : INNER_STATE_ON_EXIT\n";
-			pInst->counter -= AEFrameRateControllerGetFrameTime();
+			pInst->counter -= g_dt;
 			if (pInst->counter < 0)
 			{
 				pInst->state = STATE_GOING_RIGHT;
 				pInst->innerState = INNER_STATE_ON_ENTER;
+			}
+
+			if (AEVec2SquareDistance(&(PlayerBody->posCurr), &(pInst->posCurr)) <= ENEMY_DETECTION_RANGE) {
+				AEVec2 offset{};
+				AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
+				AEVec2Normalize(&dist, &dist);
+				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
+					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
+					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
+					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
+						break;
+					else if (CollisionIntersection_RectRect(Enemydetection->boundingBox, Enemydetection->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
+						pInst->state = STATE_ALERT;
+						pInst->innerState = INNER_STATE_ON_ENTER;
+					}
+				}
 			}
 			break;
 		}
@@ -1383,6 +1653,24 @@ void EnemyStateMachine_levels(GameObjInst* pInst)
 				//std::cout << "GOING RIGHT : INNER_STATE_ON_UPDATE\n";
 			}
 
+			if (AEVec2SquareDistance(&(PlayerBody->posCurr), &(pInst->posCurr)) <= ENEMY_DETECTION_RANGE) {
+				AEVec2 offset{};
+				AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
+				AEVec2Normalize(&dist, &dist);
+				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
+					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
+					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
+					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
+						break;
+					else if (CollisionIntersection_RectRect(Enemydetection->boundingBox, Enemydetection->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
+						pInst->state = STATE_ALERT;
+						pInst->innerState = INNER_STATE_ON_ENTER;
+					}
+				}
+			}
+
 			break;
 
 		case INNER_STATE_ON_EXIT:
@@ -1393,6 +1681,24 @@ void EnemyStateMachine_levels(GameObjInst* pInst)
 				pInst->state = STATE_GOING_LEFT;
 				pInst->innerState = INNER_STATE_ON_ENTER;
 			}
+
+			if (AEVec2SquareDistance(&(PlayerBody->posCurr), &(pInst->posCurr)) <= ENEMY_DETECTION_RANGE) {
+				AEVec2 offset{};
+				AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
+				AEVec2Normalize(&dist, &dist);
+				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
+					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
+					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
+					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
+						break;
+					else if (CollisionIntersection_RectRect(Enemydetection->boundingBox, Enemydetection->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
+						pInst->state = STATE_ALERT;
+						pInst->innerState = INNER_STATE_ON_ENTER;
+					}
+				}
+			}
 			break;
 		}
 		break;
@@ -1400,16 +1706,56 @@ void EnemyStateMachine_levels(GameObjInst* pInst)
 		switch (pInst->innerState) {
 
 		case INNER_STATE_ON_ENTER:
-
-
+			//std::cout << "ALERT: INNER_STATE_ON_ENTER\n";
+			pInst->velCurr.x = 0;
+			pInst->innerState = INNER_STATE_ON_UPDATE;
 			break;
 		case INNER_STATE_ON_UPDATE:
+			if (AEVec2SquareDistance(&(PlayerBody->posCurr), &(pInst->posCurr)) <= ENEMY_DETECTION_RANGE) {
+				AEVec2 offset{};
+				AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
+				AEVec2Normalize(&dist, &dist);
+				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
+					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
+					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
+					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+					if (Enemydetection->gridCollisionFlag > 0) {// Environment collision
+						pInst->innerState = INNER_STATE_ON_EXIT;
+						break;
+					}
+				}
+			}
+			if (AEVec2SquareDistance(&(PlayerBody->posCurr), &(pInst->posCurr)) > ENEMY_DETECTION_RANGE) {
+				pInst->innerState = INNER_STATE_ON_EXIT;
+				break;
+			}
 
+			pInst->shoot_timer2 -= g_dt;
+			if (pInst->shoot_timer2 > 0.39f) {
+				pInst->shoot_timer -= g_dt;
+				if (pInst->shoot_timer < 0)
+				{
+					AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
+					AEVec2Normalize(&dist, &dist);
+					AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
+					AEVec2 bulletvelocity{ dist.x * 7 , dist.y * 7 };
+					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE_ALERT);
+					pInst->shoot_timer = 0.2f;
+				}
+			}
+
+			if (pInst->shoot_timer2 < 0)
+			{
+				pInst->shoot_timer2 = 1.f;
+			}
 			break;
 
 
 		case INNER_STATE_ON_EXIT:
-
+			//std::cout << "ALERT: INNER_STATE_ON_EXIT\n";
+			pInst->state = STATE_GOING_RIGHT;
+			pInst->innerState = INNER_STATE_ON_ENTER;
 			break;
 		}
 	}

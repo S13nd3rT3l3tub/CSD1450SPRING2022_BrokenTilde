@@ -377,7 +377,8 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
-	AEGfxTextureUnload(backgroundTexture);
+
+	//AEGfxTextureUnload(backgroundTexture);
 }
 /******************************************************************************/
 /*!
