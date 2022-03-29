@@ -396,18 +396,20 @@ void GameStateMainMenuDraw() {
 
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-		if (pInst->sub_type == START_GAME)
+		if (splashscreentimer < 0)
 		{
-			AEGfxTextureSet(buttonTexture_START, 0.0f, 0.0f);
-			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-		}
+			if (pInst->sub_type == START_GAME)
+			{
+				AEGfxTextureSet(buttonTexture_START, 0.0f, 0.0f);
+				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
 
-		if (pInst->sub_type == EXIT_GAME)
-		{
-			AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
-			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			if (pInst->sub_type == EXIT_GAME)
+			{
+				AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
+				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
 		}
-
 		if (pInst->pObject->type == TYPE_SPLASH)
 		{
 			AEGfxSetPosition(0.0f, 0.0f);
