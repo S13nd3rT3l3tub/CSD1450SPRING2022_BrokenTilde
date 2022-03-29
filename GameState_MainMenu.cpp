@@ -37,7 +37,7 @@ int overlay;
 
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE = { 1.0f, 1.0f };
-AEVec2		SPLASH_MESHSIZE = { 1525, 445 };
+AEVec2		SPLASH_MESHSIZE = {2125, 800};//{ 1525, 445 };
 
 static float worldMouseX{ 0 }, worldMouseY{ 0 };
 
@@ -248,8 +248,8 @@ void GameStateMainMenuInit() {
 	AEVec2 Quit_Button = { 0,-200 };
 	ButtonInstance_QUIT = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Quit_Button, 0, 0.0f, EXIT_GAME);
 
-	AEVec2 logoscale = { 1,1 };
-	AEVec2 logopos = { 0, 0 };
+	AEVec2 logoscale = {0.6f,0.5f};
+	AEVec2 logopos = { 0, -10.f };
 	splashcreen = gameObjInstCreate(TYPE_SPLASH, &logoscale, &logopos, 0, 0.0f, EXIT_GAME);
 }
 
@@ -432,7 +432,15 @@ void GameStateMainMenuDraw() {
 	switch (overlay)
 	{
 	case main:
-		AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+		if (splashscreentimer < 0)
+		{
+			AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+		}
+		else
+		{
+			AEGfxTextureSet(NULL, 0.0f, 0.0f);
+		}
+		
 		break;
 	default:
 		break;
@@ -474,6 +482,7 @@ void GameStateMainMenuDraw() {
 
 		if (pInst->pObject->type == TYPE_SPLASH)
 		{
+			AEGfxSetBackgroundColor(1, 1, 1);
 			AEGfxTextureSet(digipenlogo, 0.0f, 0.0f);
 			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
