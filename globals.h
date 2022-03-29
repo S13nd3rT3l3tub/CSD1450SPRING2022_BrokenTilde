@@ -91,6 +91,7 @@ enum TYPE
 	TYPE_DIRT,			// 9
 	TYPE_HEALTHBAR,		// 10
 	TYPE_BUTTON,
+	TYPE_SPLASH,
 	TYPE_BG,
 	TYPE_NUM
 };
@@ -110,6 +111,13 @@ enum INNER_STATE
 	INNER_STATE_ON_ENTER,
 	INNER_STATE_ON_UPDATE,
 	INNER_STATE_ON_EXIT
+};
+
+enum INNER_GAME_STATE {
+	GAME_PAUSE,
+	GAME_PLAY,
+	GAME_WIN,
+	GAME_LOSE
 };
 
 /******************************************************************************/

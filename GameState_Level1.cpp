@@ -14,6 +14,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "Main.h"
 
+int currGameState;
+
 // texutres limited to this state
 extern AEGfxTexture* tex_stone = nullptr;
 
@@ -313,6 +315,7 @@ void GameStateLevel1Load(void)
 /******************************************************************************/
 void GameStateLevel1Init(void)
 {
+	currGameState = GAME_PLAY;
 	levelTime = 0;
 	totalEnemyCount = 0;
 	// Set player's initial health
@@ -380,6 +383,7 @@ void GameStateLevel1Init(void)
 /******************************************************************************/
 void GameStateLevel1Update(void)
 {
+	
 	// Update level time
 	levelTime += g_dt;
 
@@ -387,6 +391,7 @@ void GameStateLevel1Update(void)
 	if (totalEnemyCount <= 0) {
 		std::cout << "Win state\n";
 		// Go to win state
+
 	}
 	
 	// Check lose state

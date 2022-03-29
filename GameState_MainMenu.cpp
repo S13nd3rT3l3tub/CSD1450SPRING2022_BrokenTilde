@@ -40,12 +40,6 @@ AEVec2		SPLASH_MESHSIZE = {2125, 800};//{ 1525, 445 };
 	Enums/Struct/Class Definitions
 */
 /******************************************************************************/
-enum TYPE
-{
-	TYPE_BUTTON = 0,
-	TYPE_SPLASH
-};
-
 enum BUTTON_TYPE {
 	START_GAME = 1,
 
@@ -191,7 +185,7 @@ void GameStateMainMenuInit() {
 
 	AEVec2 logoscale = {0.6f,0.5f};
 	AEVec2 logopos = { 0, -10.f };
-	splashcreen = gameObjInstCreate(TYPE_SPLASH, &logoscale, &logopos, 0, 0.0f, EXIT_GAME);
+	splashcreen = gameObjInstCreate(TYPE_SPLASH, &logoscale, &logopos, 0, 0.0f, STATE_NONE);
 }
 
 /******************************************************************************/
@@ -473,6 +467,7 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
+	AEGfxTextureUnload(digipenlogo);
 	AEGfxTextureUnload(backgroundTexture);
 	AEGfxTextureUnload(buttonTexture_START);
 	AEGfxTextureUnload(buttonTexture_QUIT);
