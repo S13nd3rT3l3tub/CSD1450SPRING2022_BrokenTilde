@@ -19,27 +19,29 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 // ---------------------------------------------------------------------------
 // includes
 //#include <SFML>
-#include "AEEngine.h"
-#include "Math.h"
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <time.h>
+#include "AEEngine.h"
+#include "Math.h"
 
 #include "GameStateMgr.h"
-#include "GameState_MainMenu.h"
-//#include "GameState_Level1.h"
-#include "GameState_Levels.h"
 #include "Collision.h"
-#include "GameState_Win.h"
+#include "Globals.h"
 #include "BinaryMap.h"
+#include "GameState_MainMenu.h"
+#include "GameState_Level1.h"
+#include "GameState_Levels.h"
+#include "GameState_Win.h"
+
 
 //------------------------------------
 // Globals
 
 extern float	g_dt;
 extern double	g_appTime;
-extern double	leveltime;
+extern double	levelTime;
 extern s8		g_font12;
 extern s8		g_font20;
 extern int		g_mouseX;

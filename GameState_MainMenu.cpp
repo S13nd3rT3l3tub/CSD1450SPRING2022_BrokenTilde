@@ -12,18 +12,13 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  */
  /******************************************************************************/
 
-#include "main.h"
-
-#define WINDOW_W 1400
-#define WINDOW_H 750
+#include "Main.h"
 
 /******************************************************************************/
 /*!
 	Defines
 */
 /******************************************************************************/
-const unsigned int	GAME_OBJ_NUM_MAX = 16;					//The total number of different objects (Shapes)
-const unsigned int	GAME_OBJ_INST_NUM_MAX = 1028;			//The total number of different game object instances
 AEGfxVertexList* bgMesh;
 AEGfxTexture* backgroundTexture;
 
@@ -37,24 +32,12 @@ int overlay;
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE = { 1.0f, 1.0f };
 
-static float worldMouseX{ 0 }, worldMouseY{ 0 };
-
-// -----------------------------------------------------------------------------
-// object flag definition
-const unsigned int	FLAG_ACTIVE = 0x00000001;
-const unsigned int	FLAG_VISIBLE = 0x00000002;
-const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
 
 /******************************************************************************/
 /*!
 	Enums/Struct/Class Definitions
 */
 /******************************************************************************/
-enum TYPE
-{
-	TYPE_BUTTON = 0
-};
-
 enum BUTTON_TYPE {
 	START_GAME = 1,
 
@@ -62,50 +45,12 @@ enum BUTTON_TYPE {
 	EXIT_GAME
 };
 
-//Game object structure
-struct GameObj
-{
-	unsigned long		type;		// object type
-	AEGfxVertexList* pMesh;		// This will hold the triangles which will form the shape of the object
-	AEVec2 meshSize;
-};
-
-// ---------------------------------------------------------------------------
-
-//Game object instance structure
-struct GameObjInst
-{
-	GameObj* pObject;	// pointer to the 'original' shape
-	unsigned long		flag;		// bit flag or-ed together
-	AEVec2				scale;		// scaling value of the object instance
-	AEVec2				posCurr;	// object current position
-	AEVec2				velCurr;	// object current velocity
-	float				dirCurr;	// object current direction
-	AABB				boundingBox;// object bouding box that encapsulates the object
-	AEMtx33				transform;	// object transformation matrix: Each frame, 
-									// calculate the object instance's transformation matrix and save it here
-	unsigned long		sub_type;	// to differentiate between button objects
-
-	// pointer to custom data specific for each object type
-	void* pUserData;
-
-	//void				(*pfUpdate)(void);
-	//void				(*pfDraw)(void);
-};
 
 /******************************************************************************/
 /*!
 	Static Variables
 */
 /******************************************************************************/
-// list of original object
-static GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)
-static unsigned long		sGameObjNum;								// The number of defined game objects
-
-// list of object instances
-static GameObjInst			sGameObjInstList[GAME_OBJ_INST_NUM_MAX];	// Each element in this array represents a unique game object instance (sprite)
-static unsigned long		sGameObjInstNum;							// The number of used game object instances
-
 static GameObjInst* ButtonInstance_START;
 static GameObjInst* ButtonInstance_QUIT;
 
@@ -116,18 +61,6 @@ static GameObjInst* ButtonInstance_QUIT;
 	Helper Functions
 */
 /******************************************************************************/
-
-// ---------------------------------------------------------------------------
-
-// functions to create/destroy a game object instance
-GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
-							   AEVec2* pPos, AEVec2* pVel,
-							   float dir, unsigned int sub_type);
-
-void					gameObjInstDestroy(GameObjInst* pInst);
-
-//	function to check if mouse clicking button
-int Collision_Mouse_Button(const AABB& aabb, float MouseX, float MouseY);
 
 
 /******************************************************************************/
@@ -152,6 +85,9 @@ void GameStateMainMenuLoad() {
 
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
+
+	// Skip all other object types and go to button
+	sGameObjNum = TYPE_BUTTON;
 
 	// =========================
 	// create the Button Shape
@@ -192,34 +128,34 @@ void GameStateMainMenuLoad() {
 */
 /******************************************************************************/
 void GameStateMainMenuInit() {
+	g_chosenLevel = 0;
 
 	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
 
 	//Load mesh 
 	AEGfxMeshStart();
 	AEGfxTriAdd(
-		-WINDOW_W / 2, -WINDOW_H / 2, 0x00FFFFFF, 0.0f, 1.0f,
-		WINDOW_W / 2, -WINDOW_H / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		-WINDOW_W / 2, WINDOW_H / 2, 0x00FFFFFF, 0.0f, 0.0f);
+		-winWidth / 2, -winHeight / 2, 0x00FFFFFF, 0.0f, 1.0f,
+		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
 
 	AEGfxTriAdd(
-		WINDOW_W / 2, -WINDOW_H / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		WINDOW_W / 2, WINDOW_H / 2, 0x00FFFFFF, 1.0f, 0.0f,
-		-WINDOW_W / 2, WINDOW_H / 2, 0x00FFFFFF, 0.0f, 0.0f);
+		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		winWidth / 2, winHeight / 2, 0x00FFFFFF, 1.0f, 0.0f,
+		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
 	bgMesh = AEGfxMeshEnd();
-	AE_ASSERT_MESG(bgMesh, "Failed to create beltMesh!!");
+	AE_ASSERT_MESG(bgMesh, "Failed to create bgMesh!!");
 
-	g_chosenLevel = 0;
-	std::cout << "Main Menu: " << g_chosenLevel << std::endl;
-	
 	overlay = main; 
 
 	//	Create Button
 	AEVec2 Start_Button = { 0,0 };
-	ButtonInstance_START = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Start_Button, 0, 0.0f, START_GAME);
+	ButtonInstance_START = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Start_Button, 0, 0.0f, STATE_NONE);
+	ButtonInstance_START->sub_type = START_GAME;
 
 	AEVec2 Quit_Button = { 0,-200 };
-	ButtonInstance_QUIT = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Quit_Button, 0, 0.0f, EXIT_GAME);
+	ButtonInstance_QUIT = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Quit_Button, 0, 0.0f, STATE_NONE);
+	ButtonInstance_QUIT->sub_type = EXIT_GAME;
 }
 
 /******************************************************************************/
@@ -254,14 +190,14 @@ void GameStateMainMenuUpdate() {
 	//	if left mouse click
 	if (AEInputCheckReleased(VK_LBUTTON))
 	{
-		if (Collision_Mouse_Button(ButtonInstance_START->boundingBox, worldMouseX, worldMouseY))
+		if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
 		{
 			//	load level 1
 			g_chosenLevel = 1;
 			gGameStateNext = GS_LEVEL1;
 		}
 
-		if (Collision_Mouse_Button(ButtonInstance_QUIT->boundingBox, worldMouseX, worldMouseY))
+		if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
 			gGameStateNext = GS_QUIT;
 	}
 
@@ -463,23 +399,12 @@ void GameStateMainMenuDraw() {
 */
 /******************************************************************************/
 void GameStateMainMenuFree() {
-	
-	if (gGameStateNext == GS_QUIT)
-	{
-		AEGfxTextureUnload(backgroundTexture);
-		AEGfxTextureUnload(buttonTexture_START);
-		AEGfxTextureUnload(buttonTexture_QUIT);
-		AEGfxMeshFree(bgMesh);
-	}
-
 	// kill all object instances in the array using "gameObjInstDestroy"
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
 		GameObjInst* pInst = sGameObjInstList + i;
 
 		gameObjInstDestroy(pInst);
 	}
-
-	//AEGfxMeshFree(bgMesh);
 }
 
 /******************************************************************************/
@@ -488,68 +413,15 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
+	AEGfxTextureUnload(backgroundTexture);
+	AEGfxTextureUnload(buttonTexture_START);
+	AEGfxTextureUnload(buttonTexture_QUIT);
+	AEGfxMeshFree(bgMesh);
+	
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {
 		GameObj* pObj = sGameObjList + i;
-		AEGfxMeshFree(pObj->pMesh);
+		if (pObj->pMesh != nullptr)
+			AEGfxMeshFree(pObj->pMesh);
 	}
-}
-/******************************************************************************/
-/*!
-
-*/
-/******************************************************************************/
-GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
-							   AEVec2* pPos, AEVec2* pVel,
-							   float dir, unsigned int sub_type)
-{
-	AEVec2 zero;
-	AEVec2Zero(&zero);
-
-	AE_ASSERT_PARM(type < sGameObjNum);
-
-	// loop through the object instance list to find a non-used object instance
-	for (unsigned int i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
-	{
-		GameObjInst* pInst = sGameObjInstList + i;
-
-		// check if current instance is not used
-		if (pInst->flag == 0)
-		{
-			// it is not used => use it to create the new instance
-			pInst->pObject = sGameObjList + type;
-			pInst->flag = FLAG_ACTIVE | FLAG_VISIBLE;
-			pInst->scale = *scale;
-			pInst->posCurr = pPos ? *pPos : zero;
-			pInst->velCurr = pVel ? *pVel : zero;
-			pInst->dirCurr = dir;
-			pInst->pUserData = 0;
-			pInst->sub_type = sub_type;
-
-
-			// return the newly created instance
-			return pInst;
-		}
-	}
-
-	return 0;
-}
-
-
-/******************************************************************************/
-/*!
-	This function returns true if the mouse is within boundary of button
-*/
-/******************************************************************************/
-int Collision_Mouse_Button(const AABB& aabb, float MouseX, float MouseY)
-{
-	//if (worldMouseX - ButtonInstance->boundingBox.min.x >= 0 )	//	mouse touch from left
-	//if (worldMouseX - ButtonInstance->boundingBox.max.x >= 0 )	//	mouse touch from right
-	//if (worldMouseY - ButtonInstance->boundingBox.max.y <= 0)		// mouse touch from top
-	//if (worldMouseY - ButtonInstance->boundingBox.min.y >= 0)		// mouse touch from bottom
-	if ((worldMouseX - aabb.min.x >= 0 && worldMouseX - aabb.max.x <= 0) &&
-		(worldMouseY - aabb.max.y <= 0 && worldMouseY - aabb.min.y >= 0))
-		return 1;
-	else
-		return 0;
 }

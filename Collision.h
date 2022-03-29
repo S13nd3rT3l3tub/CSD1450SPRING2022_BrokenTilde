@@ -12,8 +12,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  */
 /******************************************************************************/
 
-#ifndef CSD1130_COLLISION_H_
-#define CSD1130_COLLISION_H_
+#ifndef COLLISION_H_
+#define COLLISION_H_
 
 #include "AEEngine.h"
 
@@ -33,6 +33,8 @@ struct AABB
 
 bool CollisionIntersection_RectRect(const AABB & aabb1, const AEVec2 & vel1, 
 									const AABB & aabb2, const AEVec2 & vel2);
+
+bool CollisionIntersection_PointRect(float PointX, float PointY, const AABB& aabb);
 
 
 #endif // CSD1130_COLLISION_H_

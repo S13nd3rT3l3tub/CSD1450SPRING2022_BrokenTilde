@@ -12,25 +12,11 @@ prior written consent of DigiPen Institute of Technology is prohibited.
  */
 /******************************************************************************/
 
-#include "main.h"
+#include "Main.h"
 #include <memory>
 #include <iostream>
 
-// ---------------------------------------------------------------------------
-// Globals
-float	 g_dt;
-double	 g_appTime;
-double	 leveltime;
-s8		 g_font12;
-s8		 g_font20;
-int		 g_mouseX;
-int		 g_mouseY;
-int		 g_chosenLevel;
 
-
-
-
-int winWidth{ 1280 }, winHeight{ 720 };
 
 /******************************************************************************/
 /*!
@@ -43,9 +29,9 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	UNREFERENCED_PARAMETER(command_line);
 
 	//// Enable run-time memory check for debug builds.
-	//#if defined(DEBUG) | defined(_DEBUG)
-	//	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	//#endif
+	#if defined(DEBUG) | defined(_DEBUG)
+		_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	#endif
 
 	//int * pi = new int;
 	////delete pi;
