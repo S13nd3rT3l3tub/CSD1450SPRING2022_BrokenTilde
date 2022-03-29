@@ -14,10 +14,36 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "Main.h"
 
-int currGameState;
+/******************************************************************************/
+/*!
+	Defines
+*/
+/******************************************************************************/
 
-// texutres limited to this state
-extern AEGfxTexture* tex_stone = nullptr;
+
+
+/******************************************************************************/
+/*!
+	Enums/Struct/Class Definitions
+*/
+/******************************************************************************/
+
+/******************************************************************************/
+/*!
+	(Static) Variables
+*/
+/******************************************************************************/
+
+// Textures
+AEGfxTexture* tex_stone = nullptr;
+
+
+/******************************************************************************/
+/*!
+	Helper Functions
+*/
+/******************************************************************************/
+
 
 /******************************************************************************/
 /*!
@@ -48,6 +74,7 @@ void GameStateLevel1Load(void)
 	// =========================
 	// create the non collision shape
 	// =========================
+	emptyObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_EMPTY;
 	AEGfxMeshStart();
@@ -67,6 +94,7 @@ void GameStateLevel1Load(void)
 	// =========================
 	// create the platform shape
 	// =========================
+	platformObjIndex = sGameObjNum; 
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PLATFORM;
 	AEGfxMeshStart();
@@ -86,7 +114,7 @@ void GameStateLevel1Load(void)
 	// =====================
 	// create the player shape
 	// =====================
-
+	playerObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PLAYER;
 
@@ -109,6 +137,7 @@ void GameStateLevel1Load(void)
 	// =====================
 	// create the player gun shape
 	// =====================
+	playerGunObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PLAYERGUN;
 	AEGfxMeshStart();
@@ -120,14 +149,6 @@ void GameStateLevel1Load(void)
 		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
 		GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
 		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
-	/*AEGfxTriAdd(
-		-GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		-GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
-	AEGfxTriAdd(
-		-GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		GUN_MESHSIZE.x / 2, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		GUN_MESHSIZE.x / 2, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);*/
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ GUN_MESHSIZE.x, GUN_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
@@ -135,6 +156,7 @@ void GameStateLevel1Load(void)
 	// =======================
 	// create the bullet shape
 	// =======================
+	bulletObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_BULLET;
 	AEGfxMeshStart();
@@ -153,7 +175,7 @@ void GameStateLevel1Load(void)
 	// =====================
 	// create the Enemy1 shape
 	// =====================
-
+	enemy1ObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_ENEMY1;
 
@@ -174,7 +196,7 @@ void GameStateLevel1Load(void)
 	// =====================
 	// create the Enemy2 shape
 	// =====================
-
+	enemy2ObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_ENEMY1;
 
@@ -195,7 +217,7 @@ void GameStateLevel1Load(void)
 	// =====================
 	// create the Particle1 shape
 	// =====================
-
+	particleObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_PARTICLE1;
 
@@ -216,7 +238,7 @@ void GameStateLevel1Load(void)
 	// =====================
 	// create the dotted line shape
 	// =====================
-
+	dottedObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_DOTTED;
 
@@ -240,6 +262,7 @@ void GameStateLevel1Load(void)
 	// =========================
 	// create the dirt block shape
 	// =========================
+	dirtObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_DIRT;
 	AEGfxMeshStart();
@@ -259,7 +282,7 @@ void GameStateLevel1Load(void)
 	// =====================
 	// create the health bar shape
 	// =====================
-
+	hpObjIndex = sGameObjNum;
 	PlayerHealthBar = pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_HEALTHBAR;
 	AEGfxTriAdd(
@@ -315,20 +338,19 @@ void GameStateLevel1Load(void)
 /******************************************************************************/
 void GameStateLevel1Init(void)
 {
-	currGameState = GAME_PLAY;
 	levelTime = 0;
 	totalEnemyCount = 0;
 	// Set player's initial health
 	playerHealth = PLAYER_INITIAL_HEALTH;
-	EmptyInstance = gameObjInstCreate(TYPE_EMPTY, &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
+	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
 	
-	PlatformInstance = gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
+	PlatformInstance = gameObjInstCreate(&sGameObjList[platformObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
 
-	DirtInstance = gameObjInstCreate(TYPE_DIRT, &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
+	DirtInstance = gameObjInstCreate(&sGameObjList[dirtObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	DirtInstance->flag ^= FLAG_VISIBLE;
 	DirtInstance->flag |= FLAG_NON_COLLIDABLE;
 
@@ -362,11 +384,15 @@ void GameStateLevel1Init(void)
 			//	gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
 			//	break;
 			case TYPE_PLAYER:
-				PlayerBody = gameObjInstCreate(TYPE_PLAYER, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
-				PlayerGun = gameObjInstCreate(TYPE_PLAYERGUN, &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
+				PlayerBody = gameObjInstCreate(&sGameObjList[playerObjIndex], &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
+				PlayerGun = gameObjInstCreate(&sGameObjList[playerGunObjIndex], &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
 				break;
 			case TYPE_ENEMY1:
-				gameObjInstCreate(TYPE_ENEMY1, &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_GOING_LEFT);
+				gameObjInstCreate(&sGameObjList[enemy1ObjIndex], &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_GOING_LEFT);
+				++totalEnemyCount;
+				break;
+			case TYPE_ENEMY2:
+				gameObjInstCreate(&sGameObjList[enemy2ObjIndex], &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_GOING_LEFT);
 				++totalEnemyCount;
 				break;
 			default:
@@ -441,10 +467,10 @@ void GameStateLevel1Update(void)
 			AEVec2 particlespawn = { static_cast<float>(i), PlayerBody->posCurr.y - 0.5f };
 			if (rand() % 2) {
 
-				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
+				gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
 			}
 			else {
-				gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orangy red color
+				gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orangy red color
 			}
 		}
 	}
@@ -502,7 +528,7 @@ void GameStateLevel1Update(void)
 		//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
 		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.11f;
 		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.11f;
-		gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
+		gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 	}
 
 	if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
@@ -575,7 +601,7 @@ void GameStateLevel1Update(void)
 			}
 
 			if (i % 30 == 0)
-				gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &currPos, 0, 0, STATE_GOING_LEFT);
+				gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_GOING_LEFT);
 		}
 
 	}
@@ -739,7 +765,7 @@ void GameStateLevel1Update(void)
 				else { particlevel.x = static_cast<float>(rand() % 10) / 9.0f; }
 					
 				particlepos.x += 0.13f;
-				gameObjInstCreate(TYPE_PARTICLE1, &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
+				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
 			}
 			gameObjInstDestroy(pInst);
 		}
@@ -914,13 +940,13 @@ void GameStateLevel1Update(void)
 							AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y };
 							if (rand() % 2) // randomize polarity of particleVel.x
 							{
-								particleVel = { rand() % 20 / -10.f, rand() % 20 / 10.f };
-								gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+								particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
 							}
 							else
 							{
 								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-								gameObjInstCreate(TYPE_PARTICLE1, &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
 							}
 						}
 						if (totalEnemyCount <= 0 && gGameStateNext != GS_RESTART) // WIN CONDITION, KILL ALL ENEMIES TO WIN LEVEL

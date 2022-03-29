@@ -22,6 +22,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <time.h>
 #include "AEEngine.h"
 #include "Math.h"

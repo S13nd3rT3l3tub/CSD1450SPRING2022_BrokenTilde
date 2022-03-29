@@ -38,6 +38,8 @@ int winHeight{ 720 };
 	Static Variables
 */
 /******************************************************************************/
+ bool toFullScreen{ false };
+ unsigned long currInnerState{GAME_PAUSE};
 
 // list of original object
   GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)
@@ -61,8 +63,23 @@ int winHeight{ 720 };
   float				playerHealth;									// The amount of health left
   double				jumpFuel;
   int					totalEnemyCount;
+
+unsigned long emptyObjIndex;
+unsigned long platformObjIndex;
+unsigned long playerObjIndex;
+unsigned long playerGunObjIndex;
+unsigned long bulletObjIndex;
+unsigned long enemy1ObjIndex;
+unsigned long enemy2ObjIndex;
+unsigned long particleObjIndex;
+unsigned long dottedObjIndex;
+unsigned long dirtObjIndex;
+unsigned long hpObjIndex;
+unsigned long splashObjIndex;
+unsigned long bgObjIndex;
+unsigned long buttonObjIndex;
+
  // Current mouse position
- // signed int mouseX{ 0 }, mouseY{ 0 };
   float worldMouseX{ 0 }, worldMouseY{ 0 };
 
  //Binary map data
@@ -80,7 +97,7 @@ int winHeight{ 720 };
 
 */
 /******************************************************************************/
-GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
+/*GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 	AEVec2* pPos, AEVec2* pVel,
 	float dir, enum STATE startState)
 {
@@ -99,6 +116,49 @@ GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
 		{
 			// it is not used => use it to create the new instance
 			pInst->pObject = sGameObjList + type;
+			pInst->flag = FLAG_ACTIVE | FLAG_VISIBLE;
+			pInst->scale = *scale;
+			pInst->posCurr = pPos ? *pPos : zero;
+			pInst->velCurr = pVel ? *pVel : zero;
+			pInst->dirCurr = dir;
+
+			pInst->gridCollisionFlag = 0;
+			pInst->pUserData = 0;
+
+			pInst->state = startState;
+			pInst->innerState = INNER_STATE::INNER_STATE_ON_ENTER;
+
+			pInst->bulletbounce = 0;
+
+			pInst->counter = 0;
+			pInst->shoot_timer = -1.0f;
+			pInst->shoot_timer2 = -1.0f;
+
+			// return the newly created instance
+			return pInst;
+		}
+	}
+
+	return 0;
+}*/
+
+ GameObjInst* gameObjInstCreate(GameObj* objType, AEVec2* scale,
+	  AEVec2* pPos, AEVec2* pVel,
+	  float dir, enum STATE startState)
+{
+	AEVec2 zero;
+	AEVec2Zero(&zero);
+
+	// loop through the object instance list to find a non-used object instance
+	for (unsigned int i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+		GameObjInst* pInst = sGameObjInstList + i;
+
+		// check if current instance is not used
+		if (pInst->flag == 0)
+		{
+			// it is not used => use it to create the new instance
+			pInst->pObject = objType;
 			pInst->flag = FLAG_ACTIVE | FLAG_VISIBLE;
 			pInst->scale = *scale;
 			pInst->posCurr = pPos ? *pPos : zero;
@@ -184,7 +244,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
 					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
 					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
-					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection = gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
 					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
 						break;
@@ -211,7 +271,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
 					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
 					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
-					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection = gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
 					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
 						break;
@@ -260,7 +320,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
 					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
 					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
-					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection = gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
 					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
 						break;
@@ -289,7 +349,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
 					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
 					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
-					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection = gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
 					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 					if (Enemydetection->gridCollisionFlag > 0)	// Environment collision
 						break;
@@ -320,7 +380,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
 					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
 					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
-					Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
+					Enemydetection = gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
 					Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 					if (Enemydetection->gridCollisionFlag > 0) {// Environment collision
 						pInst->innerState = INNER_STATE_ON_EXIT;
@@ -342,7 +402,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 					AEVec2Normalize(&dist, &dist);
 					AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
 					AEVec2 bulletvelocity{ dist.x * 7 , dist.y * 7 };
-					gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE::STATE_NONE);
+					gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE::STATE_NONE);
 					pInst->shoot_timer = 0.2f;
 				}
 			}

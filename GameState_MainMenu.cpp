@@ -19,20 +19,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 	Defines
 */
 /******************************************************************************/
-AEGfxVertexList* bgMesh;
-AEGfxTexture* backgroundTexture;
 
-AEGfxTexture* buttonTexture_START;
-AEGfxTexture* buttonTexture_QUIT;
-AEGfxTexture* digipenlogo;
-
-int overlay;
-//AEGfxTexture* Texture1;
-//AEGfxTexture* Texture2;
-
-AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
-AEVec2		BUTTON_SCALE = { 1.0f, 1.0f };
-AEVec2		SPLASH_MESHSIZE = {2125, 800};//{ 1525, 445 };
 
 
 /******************************************************************************/
@@ -42,21 +29,34 @@ AEVec2		SPLASH_MESHSIZE = {2125, 800};//{ 1525, 445 };
 /******************************************************************************/
 enum BUTTON_TYPE {
 	START_GAME = 1,
-
-
+	OPTIONS,
+	CREDITS,
 	EXIT_GAME
 };
 
 
 /******************************************************************************/
 /*!
-	Static Variables
+	(Static) Variables
 */
 /******************************************************************************/
+float splashscreentimer{ 3.0f };
+
+AEGfxTexture* backgroundTexture;
+
+AEGfxTexture* buttonTexture_START;
+AEGfxTexture* buttonTexture_QUIT;
+AEGfxTexture* digipenLogo;
+
+int overlay;
+
+AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
+AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
+
 static GameObjInst* ButtonInstance_START;
 static GameObjInst* ButtonInstance_QUIT;
-static GameObjInst* splashcreen;
-static float splashscreentimer = 4.f;
+static GameObjInst* splashscreen;
+
 
 
 /******************************************************************************/
@@ -72,10 +72,7 @@ static float splashscreentimer = 4.f;
 */
 /******************************************************************************/
 void GameStateMainMenuLoad() {
-	std::cout << "Menu:load\n";
-	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
-	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
-
+	
 	// zero the game object array
 	memset(sGameObjList, 0, sizeof(GameObj) * GAME_OBJ_NUM_MAX);
 	// No game objects (shapes) at this point
@@ -89,12 +86,30 @@ void GameStateMainMenuLoad() {
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
 
-	// Skip all other object types and go to button
-	sGameObjNum = TYPE_BUTTON;
+	// =========================
+	// create the Splashscreen mesh
+	// =========================
+	splashObjIndex = sGameObjNum;
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_SPLASH;
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-winWidth / 2, -winHeight / 2, 0x00FFFFFF, 0.0f, 1.0f,
+		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		winWidth / 2, winHeight / 2, 0x00FFFFFF, 1.0f, 0.0f,
+		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ 1.0f, 1.0f };
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create SPLASH object!!");
 
 	// =========================
 	// create the Button Shape
 	// =========================
+	buttonObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
 	pObj->type = TYPE_BUTTON;
 	AEGfxMeshStart();
@@ -111,53 +126,12 @@ void GameStateMainMenuLoad() {
 	pObj->meshSize = AEVec2{ BUTTON_MESHSIZE.x, BUTTON_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create BUTTON object!!");
 
-// =========================
-// create the Splashscreen Shape
-// =========================
+	// =========================
+	// create the background mesh
+	// =========================
+	bgObjIndex = sGameObjNum;
 	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_SPLASH;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
-		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
-
-	AEGfxTriAdd(
-		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
-		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ SPLASH_MESHSIZE.x, SPLASH_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create SPLASH object!!");
-
-	// =========================
-	// load the Button texture
-	// =========================
-	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
-	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
-
-	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
-	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
-
-	digipenlogo = AEGfxTextureLoad(".\\Resources\\Assets\\DigiPen.png");
-	AE_ASSERT_MESG(digipenlogo, "failed to create quit button texture");
-
-
-	// Move camera to 0,0 in event menu is loaded after game
-	AEGfxSetCamPosition(0.0f, 0.0f);
-}
-
-/******************************************************************************/
-/*!
-	"InIt" function of this state
-*/
-/******************************************************************************/
-void GameStateMainMenuInit() {
-	g_chosenLevel = 0;
-
-	AEToogleFullScreen(true);
-	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
-
+	pObj->type = TYPE_BG;
 	//Load mesh 
 	AEGfxMeshStart();
 	AEGfxTriAdd(
@@ -169,23 +143,58 @@ void GameStateMainMenuInit() {
 		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
 		winWidth / 2, winHeight / 2, 0x00FFFFFF, 1.0f, 0.0f,
 		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
-	bgMesh = AEGfxMeshEnd();
-	AE_ASSERT_MESG(bgMesh, "Failed to create bgMesh!!");
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ 1.0f, 1.0f };
+	AE_ASSERT_MESG(pObj->pMesh, "Failed to create bgMesh!!");
+
+	// =========================
+	// Load textures
+	// =========================
+	digipenLogo = AEGfxTextureLoad(".\\Resources\\Assets\\DigiPen.png");
+	AE_ASSERT_MESG(digipenLogo, "failed to create quit button texture");
+
+	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
+	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
+
+	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
+	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
+
+	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
+	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+
+	// Move camera to 0,0 in event menu is loaded after game
+	AEGfxSetCamPosition(0.0f, 0.0f);
+
+	// Set fullscreen to true
+	AEToogleFullScreen(toFullScreen);
+}
+
+/******************************************************************************/
+/*!
+	"InIt" function of this state
+*/
+/******************************************************************************/
+void GameStateMainMenuInit() {
+	g_chosenLevel = 0;
+
+	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
 
 	overlay = main; 
 
+
+	AEVec2 scale{ 1.0f, 1.0f }, pos{0.0f, 0.0f};
+	gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos,0, 0.0f, STATE_NONE);
+
 	//	Create Button
-	AEVec2 Start_Button = { 0,0 };
-	ButtonInstance_START = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Start_Button, 0, 0.0f, STATE_NONE);
+	ButtonInstance_START = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_START->sub_type = START_GAME;
 
-	AEVec2 Quit_Button = { 0,-200 };
-	ButtonInstance_QUIT = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Quit_Button, 0, 0.0f, STATE_NONE);
+	pos = { 0,-200 };
+	ButtonInstance_QUIT = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_QUIT->sub_type = EXIT_GAME;
 
-	AEVec2 logoscale = {0.6f,0.5f};
-	AEVec2 logopos = { 0, -10.f };
-	splashcreen = gameObjInstCreate(TYPE_SPLASH, &logoscale, &logopos, 0, 0.0f, STATE_NONE);
+	scale = { 1.0f, 1.0f };
+	splashscreen = gameObjInstCreate(&sGameObjList[splashObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
 }
 
 /******************************************************************************/
@@ -194,158 +203,161 @@ void GameStateMainMenuInit() {
 */
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
-
-	if (splashscreentimer > 0)
-	{
+	switch (currInnerState) {
+	case GAME_PAUSE:
 		splashscreentimer -= g_dt;
-	}
-	else
-	{
-		gameObjInstDestroy(splashcreen);
-	}
-
-	//	if number key 1 is pressed
-	if (AEInputCheckCurr(AEVK_1))
-	{
-		//	load level 1
-		g_chosenLevel = 1;
-		gGameStateNext = GS_LEVEL1;
-	}
-
-	//	if number key 2 is pressed
-	if (AEInputCheckCurr(AEVK_2))
-	{
-		//	load level 2
-		g_chosenLevel = 2;
-		gGameStateNext = GS_LEVELS;
-	}
-
-	//	if number key 2 is pressed
-	if (AEInputCheckCurr(AEVK_Q))
-	{
-		gGameStateNext = GS_QUIT;
-	}
-
-	//	if left mouse click
-	if (AEInputCheckReleased(VK_LBUTTON))
-	{
-		if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
-		{
-			//	load level 1
-			g_chosenLevel = 1;
-			gGameStateNext = GS_LEVEL1;
-		}
-
-		if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
-			gGameStateNext = GS_QUIT;
-	}
-
-
-
-
-
-	// =========================
-	// update according to input
-	// =========================
-
-
-	int i{};
-	GameObjInst* pInst;
-
-	//Update object instances physics and behavior
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if (0 == (pInst->flag & FLAG_ACTIVE))
-			continue;
 		
-	}
+		if (AEInputCheckReleased(VK_LBUTTON) && AEInputCheckReleased(VK_RBUTTON))
+			splashscreentimer = -1.0f;
 
-	//Update object instances positions
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if (0 == (pInst->flag & FLAG_ACTIVE))
-			continue;
-
-		/**********
-		update the position using: P1 = V1*dt + P0
-		Get the bouding rectangle of every active instance:
-			boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-		**********/
-
-		// ----- Update Position -----
-		pInst->posCurr.x += pInst->velCurr.x * g_dt;
-		pInst->posCurr.y += pInst->velCurr.y * g_dt;
-
-		// ----- Update Bounding Box -----
-		pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-		pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-
-		pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-		pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-	}
-
-	// ====================
-	// check for collision
-	// ====================
-
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if ((pInst->flag & FLAG_ACTIVE) == 0)
-			continue;
-
-		switch (pInst->pObject->type) {
-		default:
-			break;
+		if (splashscreentimer < 0.0f) {
+			gameObjInstDestroy(splashscreen);
+			currInnerState = GAME_PLAY;
 		}
+		break;
+	case GAME_PLAY:
+		//	if number key 1 is pressed
+		//if (AEInputCheckCurr(AEVK_1))
+		//{
+		//	//	load level 1
+		//	g_chosenLevel = 1;
+		//	gGameStateNext = GS_LEVEL1;
+		//}
+
+		////	if number key 2 is pressed
+		//if (AEInputCheckCurr(AEVK_2))
+		//{
+		//	//	load level 2
+		//	g_chosenLevel = 2;
+		//	gGameStateNext = GS_LEVELS;
+		//}
+
+		////	if number key 2 is pressed
+		//if (AEInputCheckCurr(AEVK_Q))
+		//{
+		//	gGameStateNext = GS_QUIT;
+		//}
+
+		//	if left mouse click
+		if (AEInputCheckReleased(VK_LBUTTON))
+		{
+			if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
+			{
+				//	load level 1
+				g_chosenLevel = 1;
+				gGameStateNext = GS_LEVEL1;
+			}
+
+			if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
+				gGameStateNext = GS_QUIT;
+		}
+
+
+		// =========================
+		// update according to input
+		// =========================
+
+
+		int i{};
+		GameObjInst* pInst;
+
+		//Update object instances physics and behavior
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+		}
+
+		//Update object instances positions
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+			/**********
+			update the position using: P1 = V1*dt + P0
+			Get the bouding rectangle of every active instance:
+				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
+				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
+			**********/
+
+			// ----- Update Position -----
+			pInst->posCurr.x += pInst->velCurr.x * g_dt;
+			pInst->posCurr.y += pInst->velCurr.y * g_dt;
+
+			// ----- Update Bounding Box -----
+			pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+
+			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+		}
+
+		// ====================
+		// check for collision
+		// ====================
+
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if ((pInst->flag & FLAG_ACTIVE) == 0)
+				continue;
+
+			switch (pInst->pObject->type) {
+			default:
+				break;
+			}
+		}
+
+
+		// =====================================
+		// calculate the matrix for all objects
+		// =====================================
+
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+		{
+			pInst = sGameObjInstList + i;
+			AEMtx33		 trans, rot, scale;
+
+			//UNREFERENCED_PARAMETER(trans);
+			//UNREFERENCED_PARAMETER(rot);
+			//UNREFERENCED_PARAMETER(scale);
+
+			// skip non-active object
+			if ((pInst->flag & FLAG_ACTIVE) == 0)
+				continue;
+
+			// Compute the scaling matrix
+			AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
+			// Compute the rotation matrix 	
+			AEMtx33Rot(&rot, pInst->dirCurr);
+			// Compute the translation matrix
+			AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
+			// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
+			AEMtx33Concat(&pInst->transform, &rot, &scale);
+			AEMtx33Concat(&pInst->transform, &trans, &pInst->transform);
+		}
+
+		// =====================================
+		// Mouse Input
+		// =====================================
+		float cameraX, cameraY;
+		AEGfxGetCamPosition(&cameraX, &cameraY);
+		worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
+		worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
+		//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
+
+		break;
 	}
-
-
-	// =====================================
-	// calculate the matrix for all objects
-	// =====================================
-
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
-	{
-		pInst = sGameObjInstList + i;
-		AEMtx33		 trans, rot, scale;
-
-		//UNREFERENCED_PARAMETER(trans);
-		//UNREFERENCED_PARAMETER(rot);
-		//UNREFERENCED_PARAMETER(scale);
-
-		// skip non-active object
-		if ((pInst->flag & FLAG_ACTIVE) == 0)
-			continue;
-
-		// Compute the scaling matrix
-		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
-		// Compute the rotation matrix 	
-		AEMtx33Rot(&rot, pInst->dirCurr);
-		// Compute the translation matrix
-		AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
-		// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
-		AEMtx33Concat(&pInst->transform, &trans, &rot);
-		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
-	}
-
-	// =====================================
-	// Mouse Input
-	// =====================================
-	float cameraX, cameraY;
-	AEGfxGetCamPosition(&cameraX, &cameraY);
-	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
-	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
-	//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
 }
 
 /******************************************************************************/
@@ -361,31 +373,12 @@ void GameStateMainMenuDraw() {
 	// =====================================
 	AEGfxSetBlendMode(AE_GFX_BM_NONE);
 	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-	AEGfxSetPosition(0.0f, 0.0f);
 	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
-	//AEGfxTextureSet(NULL, 0, 0);
-	switch (overlay)
-	{
-	case main:
-		if (splashscreentimer < 0)
-		{
-			AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
-		}
-		else
-		{
-			AEGfxTextureSet(NULL, 0.0f, 0.0f);
-		}
-		
-		break;
-	default:
-		break;
-	}
-	AEGfxMeshDraw(bgMesh, AE_GFX_MDM_TRIANGLES);
 
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
-		
+
 		GameObjInst* pInst = sGameObjInstList + i;
 
 		// skip non-active object
@@ -417,11 +410,15 @@ void GameStateMainMenuDraw() {
 
 		if (pInst->pObject->type == TYPE_SPLASH)
 		{
-			AEGfxSetBackgroundColor(1, 1, 1);
-			AEGfxTextureSet(digipenlogo, 0.0f, 0.0f);
+			AEGfxSetPosition(0.0f, 0.0f);
+			AEGfxTextureSet(digipenLogo, 0.0f, 0.0f);
 			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
 
+		if (pInst->pObject->type == TYPE_BG) {
+			AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
 	}
 
 	/*AEGfxSetBlendMode(AE_GFX_BM_NONE);
@@ -430,7 +427,7 @@ void GameStateMainMenuDraw() {
 	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
 	AEGfxTextureSet(buttonTexture, 0.0f, 0.0f);
 	AEGfxMeshDraw(ButtonInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);*/
-	
+
 	/*
 	memset(strBuf, 0, 1000 * sizeof(char));
 	sprintf_s(strBuf, "Ricochet");
@@ -467,11 +464,10 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
-	AEGfxTextureUnload(digipenlogo);
+	AEGfxTextureUnload(digipenLogo);
 	AEGfxTextureUnload(backgroundTexture);
 	AEGfxTextureUnload(buttonTexture_START);
 	AEGfxTextureUnload(buttonTexture_QUIT);
-	AEGfxMeshFree(bgMesh);
 	
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {

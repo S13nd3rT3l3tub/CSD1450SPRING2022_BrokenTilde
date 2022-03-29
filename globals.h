@@ -90,7 +90,7 @@ enum TYPE
 	TYPE_DOTTED,		// 8
 	TYPE_DIRT,			// 9
 	TYPE_HEALTHBAR,		// 10
-	TYPE_BUTTON,
+	TYPE_BUTTON,		// 11
 	TYPE_SPLASH,
 	TYPE_BG,
 	TYPE_NUM
@@ -125,7 +125,6 @@ enum INNER_GAME_STATE {
 	Struct/Class Definitions
 */
 /******************************************************************************/
-
 //Game object structure
 struct GameObj
 {
@@ -178,6 +177,9 @@ struct GameObjInst
 	Static Variables
 */
 /******************************************************************************/
+extern bool toFullScreen;
+
+extern unsigned long currInnerState;
 
 // list of original object
 extern GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)
@@ -197,12 +199,27 @@ extern GameObjInst* EmptyInstance;
 extern GameObjInst* PlatformInstance;
 extern GameObjInst* DirtInstance;
 
-// number of player lives available (lives 0 = game over)
-extern float				playerHealth;									// The amount of health left
+// Game specific variables
+extern float				playerHealth;				// The amount of health left
 extern double				jumpFuel;
 extern int					totalEnemyCount;
+
+extern unsigned long emptyObjIndex;
+extern unsigned long platformObjIndex;
+extern unsigned long playerObjIndex;
+extern unsigned long playerGunObjIndex;
+extern unsigned long bulletObjIndex;
+extern unsigned long enemy1ObjIndex;
+extern unsigned long enemy2ObjIndex;
+extern unsigned long particleObjIndex;
+extern unsigned long dottedObjIndex;
+extern unsigned long dirtObjIndex;
+extern unsigned long hpObjIndex;
+extern unsigned long splashObjIndex;
+extern unsigned long bgObjIndex;
+extern unsigned long buttonObjIndex;
+
 // Current mouse position
-//extern signed int mouseX{ 0 }, mouseY{ 0 };
 extern float worldMouseX;
 extern float worldMouseY;
 
@@ -218,9 +235,12 @@ extern AEMtx33			MapTransform;
 
 // ---------------------------------------------------------------------------
 // functions to create/destroy a game object instance
-GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
-	AEVec2* pPos, AEVec2* pVel,
-	float dir, enum STATE startState);
+//GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,
+//	AEVec2* pPos, AEVec2* pVel,
+//	float dir, enum STATE startState);
+GameObjInst* gameObjInstCreate(GameObj* objType, AEVec2* scale,
+								AEVec2* pPos, AEVec2* pVel,
+								float dir, enum STATE startState);
 void					gameObjInstDestroy(GameObjInst* pInst);
 void EnemyStateMachine(GameObjInst* pInst);
 
