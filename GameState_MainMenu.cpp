@@ -29,6 +29,7 @@ AEGfxTexture* backgroundTexture;
 
 AEGfxTexture* buttonTexture_START;
 AEGfxTexture* buttonTexture_QUIT;
+AEGfxTexture* digipenlogo;
 
 int overlay;
 //AEGfxTexture* Texture1;
@@ -36,6 +37,7 @@ int overlay;
 
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE = { 1.0f, 1.0f };
+AEVec2		SPLASH_MESHSIZE = { 1525, 445 };
 
 static float worldMouseX{ 0 }, worldMouseY{ 0 };
 
@@ -52,7 +54,8 @@ const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
 /******************************************************************************/
 enum TYPE
 {
-	TYPE_BUTTON = 0
+	TYPE_BUTTON = 0,
+	TYPE_SPLASH
 };
 
 enum BUTTON_TYPE {
@@ -108,7 +111,8 @@ static unsigned long		sGameObjInstNum;							// The number of used game object i
 
 static GameObjInst* ButtonInstance_START;
 static GameObjInst* ButtonInstance_QUIT;
-
+static GameObjInst* splashcreen;
+static float splashscreentimer = 4.f;
 
 
 /******************************************************************************/
@@ -172,6 +176,25 @@ void GameStateMainMenuLoad() {
 	pObj->meshSize = AEVec2{ BUTTON_MESHSIZE.x, BUTTON_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create BUTTON object!!");
 
+// =========================
+// create the Splashscreen Shape
+// =========================
+	pObj = sGameObjList + sGameObjNum++;
+	pObj->type = TYPE_SPLASH;
+	AEGfxMeshStart();
+	AEGfxTriAdd(
+		-SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+
+	AEGfxTriAdd(
+		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+		SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+	pObj->pMesh = AEGfxMeshEnd();
+	pObj->meshSize = AEVec2{ SPLASH_MESHSIZE.x, SPLASH_MESHSIZE.y };
+	AE_ASSERT_MESG(pObj->pMesh, "fail to create SPLASH object!!");
+
 	// =========================
 	// load the Button texture
 	// =========================
@@ -180,6 +203,9 @@ void GameStateMainMenuLoad() {
 
 	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
 	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
+
+	digipenlogo = AEGfxTextureLoad(".\\Resources\\Assets\\DigiPen.png");
+	AE_ASSERT_MESG(digipenlogo, "failed to create quit button texture");
 
 
 	// Move camera to 0,0 in event menu is loaded after game
@@ -193,6 +219,7 @@ void GameStateMainMenuLoad() {
 /******************************************************************************/
 void GameStateMainMenuInit() {
 
+	AEToogleFullScreen(true);
 	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
 
 	//Load mesh 
@@ -220,6 +247,10 @@ void GameStateMainMenuInit() {
 
 	AEVec2 Quit_Button = { 0,-200 };
 	ButtonInstance_QUIT = gameObjInstCreate(TYPE_BUTTON, &BUTTON_SCALE, &Quit_Button, 0, 0.0f, EXIT_GAME);
+
+	AEVec2 logoscale = { 1,1 };
+	AEVec2 logopos = { 0, 0 };
+	splashcreen = gameObjInstCreate(TYPE_SPLASH, &logoscale, &logopos, 0, 0.0f, EXIT_GAME);
 }
 
 /******************************************************************************/
@@ -228,6 +259,15 @@ void GameStateMainMenuInit() {
 */
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
+
+	if (splashscreentimer > 0)
+	{
+		splashscreentimer -= g_dt;
+	}
+	else
+	{
+		gameObjInstDestroy(splashcreen);
+	}
 
 	//	if number key 1 is pressed
 	if (AEInputCheckCurr(AEVK_1))
@@ -429,6 +469,12 @@ void GameStateMainMenuDraw() {
 		if (pInst->sub_type == EXIT_GAME)
 		{
 			AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		if (pInst->pObject->type == TYPE_SPLASH)
+		{
+			AEGfxTextureSet(digipenlogo, 0.0f, 0.0f);
 			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
 
