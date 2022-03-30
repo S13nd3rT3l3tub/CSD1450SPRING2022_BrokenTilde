@@ -502,6 +502,10 @@ void GameStateLevel1Update(void)
 		{
 			AEVec2 added;
 			AEVec2Set(&added, 0.f, 1.f);
+		//if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0 && playerdeathtimer == 0) //Jump
+		//{									
+		//	AEVec2 added;
+		//	AEVec2Set(&added, 0.f, 1.f);
 
 			// Find the velocity according to the acceleration
 			added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
