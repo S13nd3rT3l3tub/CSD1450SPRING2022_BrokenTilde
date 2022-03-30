@@ -402,7 +402,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 					AEVec2Normalize(&dist, &dist);
 					AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
 					AEVec2 bulletvelocity{ dist.x * 7 , dist.y * 7 };
-					gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE::STATE_NONE);
+					gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE::STATE_GOING_LEFT);
 					pInst->shoot_timer = 0.2f;
 				}
 			}

@@ -560,6 +560,10 @@ void GameStateLevel1Update(void)
 			currPos.y += bulletDir.y * g_dt;
 			
 			int collisionFlag = CheckInstanceBinaryMapCollision_dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+			
+			if ((collisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
+				break;
+
 			bool reflectedFlag{ false };
 			AEVec2 normal{};
 			if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {
@@ -589,8 +593,7 @@ void GameStateLevel1Update(void)
 					reflectedFlag = true;
 				else
 					break;
-			}
-			
+			}			
 
 			if (reflectedFlag) {
 				AEVec2 newVel{ bulletDir.x - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.x,  bulletDir.y - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.y };
@@ -601,7 +604,7 @@ void GameStateLevel1Update(void)
 			}
 
 			if (i % 30 == 0)
-				gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_GOING_LEFT);
+				gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_NONE);
 		}
 
 	}
@@ -628,49 +631,15 @@ void GameStateLevel1Update(void)
 		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
 			gameObjInstDestroy(pInst);
 
-		if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_NONE && pInst->bulletbounce >= 1) // enemy bullet
+		if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bulletbounce >= 1) // enemy bullet
 			gameObjInstDestroy(pInst);
 		
 		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 			pInst->velCurr.y += GRAVITY * g_dt;
 
+
 		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
 			EnemyStateMachine(pInst);
-
-			//AEVec2 dist = { PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
-			//AEVec2 offset{};
-			//AEVec2Normalize(&dist, &dist);
-
-			//AEVec2 shootpos{ pInst->posCurr.x + dist.x * 1.5f, pInst->posCurr.y + dist.y * 1.5f };
-			//AEVec2 bulletvelocity = { dist.x * 7 , dist.y * 7 };
-			//pInst->shoot_timer2 -= g_dt;
-			//for (int multiply{ 1 }; multiply < 30; ++multiply) // set range of sight here (multiply)
-			//{
-			//	offset.x = pInst->posCurr.x + dist.x * multiply * 0.7f;
-			//	offset.y = pInst->posCurr.y + dist.y * multiply * 0.7f;
-			//	Enemydetection = gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
-			//	Enemydetection->gridCollisionFlag = CheckInstanceBinaryMapCollision(Enemydetection->posCurr.x, Enemydetection->posCurr.y, Enemydetection->pObject->meshSize.x * Enemydetection->scale.x, Enemydetection->pObject->meshSize.y * Enemydetection->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-			//	if (Enemydetection->gridCollisionFlag > 0)
-			//	{
-			//		break;
-			//	}
-			//	else if (CollisionIntersection_RectRect(Enemydetection->boundingBox, Enemydetection->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr))
-			//	{
-			//		if (pInst->shoot_timer2 > 0.5)
-			//		{
-			//			pInst->shoot_timer -= AEFrameRateControllerGetFrameTime();
-			//			if (pInst->shoot_timer < 0)
-			//			{
-			//				gameObjInstCreate(TYPE_BULLET, &BULLET_SCALE, &shootpos, &bulletvelocity, pInst->dirCurr, STATE_ALERT); // ALERT STATE FOR ENEMY
-			//				pInst->shoot_timer = 0.5;
-			//			}
-			//		}
-			//		if (pInst->shoot_timer2 < 0)
-			//		{
-			//			pInst->shoot_timer2 = 1.1;
-			//		}
-			//	}
-			//}
 		}
 	}
 
@@ -713,11 +682,9 @@ void GameStateLevel1Update(void)
 			continue;
 
 		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM
-			|| pInst->pObject->type == TYPE_EMPTY || pInst->pObject->type == TYPE_DIRT)
+			|| pInst->pObject->type == TYPE_EMPTY || pInst->pObject->type == TYPE_DIRT || pInst->pObject->type == TYPE_DOTTED)
 			continue;
 
-		if(pInst->pObject->type == TYPE_DOTTED)
-			continue;
 
 		/*************
 		Update grid collision flag
