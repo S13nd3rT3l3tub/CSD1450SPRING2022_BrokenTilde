@@ -33,14 +33,16 @@ enum BUTTON_TYPE {
 	CREDITS,
 	EXIT_GAME,
 	RETURN,
-	TOGGLE_FS
-
+	TOGGLE_FS,
+	YES,
+	NO,
 };
 
 enum SCREEN_TYPE {
 	MAIN_SCREEN = 0,
 	CREDIT_SCREEN,
-	OPTION_SCREEN
+	OPTION_SCREEN,
+	EXIT_SCREEN
 };
 
 
@@ -52,6 +54,7 @@ enum SCREEN_TYPE {
 static float splashscreentimer{ 3.0f };
 
 AEGfxTexture* backgroundTexture;
+AEGfxTexture* digipenLogo;
 
 AEGfxTexture* buttonTexture_START;
 AEGfxTexture* buttonTexture_QUIT;
@@ -59,8 +62,9 @@ AEGfxTexture* buttonTexture_OPTIONS;
 AEGfxTexture* buttonTexture_CREDITS;
 AEGfxTexture* buttonTexture_TOGGLE_FS;
 AEGfxTexture* buttonTexture_RETURN;
+AEGfxTexture* buttonTexture_YES;
+AEGfxTexture* buttonTexture_NO;
 
-AEGfxTexture* digipenLogo;
 
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
@@ -73,6 +77,9 @@ static GameObjInst* ButtonInstance_OPTIONS;
 static GameObjInst* ButtonInstance_CREDITS;
 static GameObjInst* ButtonInstance_TOGGLE_FS;
 static GameObjInst* ButtonInstance_RETURN;
+static GameObjInst* ButtonInstance_YES;
+static GameObjInst* ButtonInstance_NO;
+
 //static GameObjInst* splashscreen;
 
 static int			screen;
@@ -112,6 +119,9 @@ void GameStateMainMenuLoad() {
 	digipenLogo = AEGfxTextureLoad(".\\Resources\\Assets\\DigiPen.png");
 	AE_ASSERT_MESG(digipenLogo, "failed to create quit button texture");
 
+	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
+	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+	
 	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
 	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
 
@@ -130,8 +140,12 @@ void GameStateMainMenuLoad() {
 	buttonTexture_RETURN = AEGfxTextureLoad(".\\Resources\\Assets\\return_button.png");
 	AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
 
-	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
-	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+	buttonTexture_YES = AEGfxTextureLoad(".\\Resources\\Assets\\yes_button.png");
+	AE_ASSERT_MESG(buttonTexture_YES, "failed to create toggle fullscreen button texture");
+
+	buttonTexture_NO = AEGfxTextureLoad(".\\Resources\\Assets\\no_button.png");
+	AE_ASSERT_MESG(buttonTexture_NO, "failed to create toggle fullscreen button texture");
+
 
 	// =========================
 	// create the Splashscreen mesh
@@ -292,84 +306,113 @@ void GameStateMainMenuUpdate() {
 		{
 			switch (screen)
 			{
-			case MAIN_SCREEN:
-				if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
-				{
-					//	load level 1
-					g_chosenLevel = 1;
-					gGameStateNext = GS_LEVEL1;
-				}
-
-				if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_OPTIONS->boundingBox))
-				{
-					//	load option
-					screen = OPTION_SCREEN;
-					gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
-
-					//	Create Button (toggle fullscreen)
-					scale = { 1.0f, 1.0f };
-					pos = { 0.0f, 0.0f };
-					ButtonInstance_TOGGLE_FS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-					ButtonInstance_TOGGLE_FS->sub_type = TOGGLE_FS;
-
-					//	create button (return)
-					scale = { 1.0f, 1.0f };
-					pos = { 0,-300.0F };
-					ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-					ButtonInstance_RETURN->sub_type = RETURN;
-				}
-
-				if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_CREDITS->boundingBox))
-				{
-					// load credit
-					screen = CREDIT_SCREEN;
-					gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
-
-					//	create button (return)
-					scale = { 1.0f, 1.0f };
-					pos = { 0,-300.0F };
-					ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-					ButtonInstance_RETURN->sub_type = RETURN;
-				}
-
-				if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
-					gGameStateNext = GS_QUIT;
-				break;
-
-			case OPTION_SCREEN:
-				//	TOGGLE FULL SCREEN
-				if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_FS->boundingBox))
-				{
-					if (toFullScreen)
+				case MAIN_SCREEN:
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
 					{
-						toFullScreen = false;
-						AEToogleFullScreen(toFullScreen);
+						//	load level 1
+						g_chosenLevel = 1;
+						gGameStateNext = GS_LEVEL1;
 					}
-					else
+
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_OPTIONS->boundingBox))
 					{
-						toFullScreen = true;
-						AEToogleFullScreen(toFullScreen);
+						//	load option
+						screen = OPTION_SCREEN;
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+
+						//	Create Button (toggle fullscreen)
+						scale = { 1.0f, 1.0f };
+						pos = { 0.0f, 0.0f };
+						ButtonInstance_TOGGLE_FS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_TOGGLE_FS->sub_type = TOGGLE_FS;
+
+						//	create button (return)
+						scale = { 1.0f, 1.0f };
+						pos = { 0,-300.0F };
+						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_RETURN->sub_type = RETURN;
 					}
-				}
 
-				//	RETURN TO MAIN MENU
-				if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
-				{
-					//	toggle fullscreen
-					screen = MAIN_SCREEN;
-					gGameStateCurr = GS_RESTART;
-				}
-				break;
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_CREDITS->boundingBox))
+					{
+						// load credit
+						screen = CREDIT_SCREEN;
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
 
-			case CREDIT_SCREEN:
-				//	RETURN TO MAIN MENU
-				if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
-				{
-					//	toggle fullscreen
-					screen = MAIN_SCREEN;
-					gGameStateCurr = GS_RESTART;
-				}
-				break;
+						//	create button (return)
+						scale = { 1.0f, 1.0f };
+						pos = { 0,-300.0F };
+						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_RETURN->sub_type = RETURN;
+					}
+
+					//	QUIT GAME
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
+					{
+						//	exit confirmation
+						screen = EXIT_SCREEN;
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+
+						//	create button (Yes)
+						scale = { 0.5f, 0.5f };
+						pos = { -300.0f,-300.0f };
+						ButtonInstance_YES = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_YES->sub_type = YES;
+
+						//	create button (No)
+						scale = { 0.5f, 0.5f };
+						pos = { 300.0f ,-300.0f };
+						ButtonInstance_NO = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_NO->sub_type = NO;
+						//gGameStateNext = GS_QUIT;
+					}
+					break;
+
+				case OPTION_SCREEN:
+					//	TOGGLE FULL SCREEN
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_FS->boundingBox))
+					{
+						if (toFullScreen)
+						{
+							toFullScreen = false;
+							AEToogleFullScreen(toFullScreen);
+						}
+						else
+						{
+							toFullScreen = true;
+							AEToogleFullScreen(toFullScreen);
+						}
+					}
+
+					//	RETURN TO MAIN MENU
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
+					{
+						screen = MAIN_SCREEN;
+						gGameStateCurr = GS_RESTART;
+					}
+					break;
+
+				case CREDIT_SCREEN:
+					//	RETURN TO MAIN MENU
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
+					{
+						screen = MAIN_SCREEN;
+						gGameStateCurr = GS_RESTART;
+					}
+					break;
+
+				case EXIT_SCREEN:
+					//	YES to exit game
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_YES->boundingBox))
+						gGameStateNext = GS_QUIT;
+				
+					// NO to return to main menu
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_NO->boundingBox))
+					{
+						screen = MAIN_SCREEN;
+						gGameStateCurr = GS_RESTART;
+					}
+					break;
 			}
 		}
 
@@ -566,6 +609,18 @@ void GameStateMainMenuDraw() {
 					AEGfxTextureSet(buttonTexture_RETURN, 0.0f, 0.0f);
 					AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 				}
+
+				if (pInst->sub_type == YES)
+				{
+					AEGfxTextureSet(buttonTexture_YES, 0.0f, 0.0f);
+					AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+				}
+
+				if (pInst->sub_type == NO)
+				{
+					AEGfxTextureSet(buttonTexture_NO, 0.0f, 0.0f);
+					AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+				}
 			}
 			/*if (pInst->pObject->type == TYPE_SPLASH && splashscreentimer > 0)
 			{
@@ -654,6 +709,8 @@ void GameStateMainMenuUnload() {
 	AEGfxTextureUnload(buttonTexture_OPTIONS);
 	AEGfxTextureUnload(buttonTexture_TOGGLE_FS);
 	AEGfxTextureUnload(buttonTexture_RETURN);
+	AEGfxTextureUnload(buttonTexture_YES);
+	AEGfxTextureUnload(buttonTexture_NO);
 	
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {
