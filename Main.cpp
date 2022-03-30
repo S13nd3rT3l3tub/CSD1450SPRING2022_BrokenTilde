@@ -1,16 +1,13 @@
-/******************************************************************************/
 /*!
-\file		Main.cpp
-\author 	DigiPen
-\par    	email: digipen\@digipen.edu
-\date   	January 01, 20xx
-\brief		ToDo: give a brief explanation here
-
-Copyright (C) 20xx DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the
-prior written consent of DigiPen Institute of Technology is prohibited.
- */
-/******************************************************************************/
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@file       Main.cpp
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Added font loading and free-ing for game usage
+-------------------------------------------------------------------------------
+@author		
+@role		
+*//*_________________________________________________________________________*/
 
 #include "Main.h"
 #include <memory>
@@ -42,7 +39,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	AESysInit(instanceH, show, winWidth, winHeight, 1, 60, false, NULL);
 
 	// Changing the window title
-	AESysSetWindowTitle("Broken Tilde Prototype - Tutorial Level");
+	AESysSetWindowTitle("Ricochet");
 
 	//set background color
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
