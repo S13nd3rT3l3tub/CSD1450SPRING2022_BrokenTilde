@@ -458,7 +458,7 @@ void GameStateLevel1Update(void)
 		}
 	}
 
-	if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
+	if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0 && playerdeathtimer == 0) //Jump
 	{									
 		AEVec2 added;
 		AEVec2Set(&added, 0.f, 1.f);
@@ -924,6 +924,7 @@ void GameStateLevel1Update(void)
 						}
 						gameObjInstDestroy(PlayerBody);
 						gameObjInstDestroy(PlayerGun);
+						playerHealth = 0;
 						playerdeathtimer = 2.f;
 
 						if (pInst->state == STATE::STATE_NONE)
