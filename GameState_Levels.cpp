@@ -477,9 +477,9 @@ void GameStateLevelsUpdate(void)
 
 	AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); \
 
-		//	if M key is pressed
-		if (AEInputCheckCurr(AEVK_M))
-			gGameStateNext = GS_MAINMENU;
+	//	if M key is pressed
+	if (AEInputCheckCurr(AEVK_ESCAPE))
+		gGameStateNext = GS_MAINMENU;
 
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------

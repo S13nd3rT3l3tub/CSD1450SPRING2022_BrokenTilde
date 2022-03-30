@@ -66,240 +66,267 @@ void GameStateLevel1Load(void)
 	// No game object instances (sprites) at this point
 	sGameObjInstNum = 0;
 
+	// Set objects to null first
 	PlayerBody = nullptr;
 	PlayerGun = nullptr;
 	EmptyInstance = nullptr;
 	PlatformInstance = nullptr;
 	DirtInstance = nullptr;
 
-	// load/create the mesh data (game objects / Shapes)
-	GameObj* pObj;
+	/******************************************************************************/
+	/*!
+		Load/create the mesh data (game objects / Shapes)
+	*/
+	/******************************************************************************/
+	{
+		GameObj* pObj;
 
-	// =========================
-	// create the non collision shape
-	// =========================
-	emptyObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_EMPTY;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
+		// =========================
+		// create the non collision shape
+		// =========================
+		{
+			emptyObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_EMPTY;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
 
-	AEGfxTriAdd(
-		-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ EMPTY_MESHSIZE.x, EMPTY_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create non-collidable object!!");
+			AEGfxTriAdd(
+				-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ EMPTY_MESHSIZE.x, EMPTY_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create non-collidable object!!");
+		}
 
-	// =========================
-	// create the platform shape
-	// =========================
-	platformObjIndex = sGameObjNum; 
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PLATFORM;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+		// =========================
+		// create the platform shape
+		// =========================
+		{
+			platformObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PLATFORM;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
 
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
-		PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create platform object!!");
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+				PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create platform object!!");
+		}
 
-	// =====================
-	// create the player shape
-	// =====================
-	playerObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PLAYER;
+		// =====================
+		// create the player shape
+		// =====================
+		{
+			playerObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PLAYER;
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create player object!!");
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create player object!!");
+		}
 
+		// =====================
+		// create the player gun shape
+		// =====================
+		{
+			playerGunObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PLAYERGUN;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+				0.0f, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+				GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+				GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+				GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ GUN_MESHSIZE.x, GUN_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
+		}
 
-	// =====================
-	// create the player gun shape
-	// =====================
-	playerGunObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PLAYERGUN;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		0.0f, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
-		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
-		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ GUN_MESHSIZE.x, GUN_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
+		// =======================
+		// create the bullet shape
+		// =======================
+		{
+			bulletObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_BULLET;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
+				-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 1.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create bullet object!!");
+		}
 
-	// =======================
-	// create the bullet shape
-	// =======================
-	bulletObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_BULLET;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
-		-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 1.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create bullet object!!");
+		// =====================
+		// create the Enemy1 shape
+		// =====================
+		{
+			enemy1ObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_ENEMY1;
 
-	// =====================
-	// create the Enemy1 shape
-	// =====================
-	enemy1ObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_ENEMY1;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY1 object!!");
+		}
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY1 object!!");
+		// =====================
+		// create the Enemy2 shape
+		// =====================
+		{
+			enemy2ObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_ENEMY1;
 
-	// =====================
-	// create the Enemy2 shape
-	// =====================
-	enemy2ObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_ENEMY1;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY2 object!!");
+		}
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY2 object!!");
+		// =====================
+		// create the Particle1 shape
+		// =====================
+		{
+			particleObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PARTICLE1;
 
-	// =====================
-	// create the Particle1 shape
-	// =====================
-	particleObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PARTICLE1;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5 };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_PARTICLE1 object!!");
+		}
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5 };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_PARTICLE1 object!!");
+		// =====================
+		// create the dotted line shape
+		// =====================
+		{
+			dottedObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_DOTTED;
 
-	// =====================
-	// create the dotted line shape
-	// =====================
-	dottedObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_DOTTED;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+				-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 1.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 1.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y};
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
+			//Load textures
+			tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
+			AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
+		}
 
-	//Load textures
-	tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
-	AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
+		// =========================
+		// create the dirt block shape
+		// =========================
+		{
+			dirtObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_DIRT;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
 
-	// =========================
-	// create the dirt block shape
-	// =========================
-	dirtObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_DIRT;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
+				PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
+		}
 
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
-		PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
-
-	// =====================
-	// create the health bar shape
-	// =====================
-	hpObjIndex = sGameObjNum;
-	PlayerHealthBar = pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_HEALTHBAR;
-	AEGfxTriAdd(
-		0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
-		0.0f, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 1.0f,
-		HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
-		HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 0.0f,
-		HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create healthbar object!!");
-
+		// =====================
+		// create the health bar shape
+		// =====================
+		{
+			hpObjIndex = sGameObjNum;
+			PlayerHealthBar = pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_HEALTHBAR;
+			AEGfxTriAdd(
+				0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
+				0.0f, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 1.0f,
+				HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
+				HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 0.0f,
+				HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create healthbar object!!");
+		}
+	}
 
 	// =====================
 	// Load Level 1 Binary Map
@@ -588,19 +615,6 @@ void GameStateLevel1Update(void)
 
 		if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
 		{
-			/*AEVec2 dirBullet;
-			AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-			AEVec2 offset;
-			BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.15f;
-			BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.15f;
-			for (int i{1}; i < 25; ++i)
-			{
-				offset.x = BarrelEnd.x + dirBullet.x * i;
-				offset.y = BarrelEnd.y + dirBullet.y * i;
-				gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, PlayerGun->dirCurr, STATE_GOING_LEFT);
-			}*/
-
-
 			AEVec2 bulletDir{};
 			AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
 			BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * 0.15f;
@@ -1226,6 +1240,18 @@ void GameStateLevel1Draw(void)
 	sprintf_s(strBuffer, "Current Time : %.2f", levelTime);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Current Ammo : %d", ammoCount);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.8f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Enemies Left : %d", totalEnemyCount);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.7f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+
+
+
 
 	// Tutorial text scripts
 	//sprintf_s(strBuffer, "Use A & D keys to move left & right!");
