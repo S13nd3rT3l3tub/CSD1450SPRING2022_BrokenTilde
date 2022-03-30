@@ -53,7 +53,7 @@ int overlay;
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
 
-AEVec2		SPLASH_MESHSIZE = {1525.0f, 445.0f};
+AEVec2		SPLASH_MESHSIZE = {1225.0f, 380.0f};
 
 static GameObjInst* ButtonInstance_START;
 static GameObjInst* ButtonInstance_QUIT;
@@ -420,7 +420,7 @@ void GameStateMainMenuDraw() {
 				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 		}
-		if (pInst->pObject->type == TYPE_SPLASH)
+		if (pInst->pObject->type == TYPE_SPLASH && splashscreentimer > 0)
 		{
 			AEGfxSetPosition(0.0f, 0.0f);
 			AEGfxTextureSet(digipenLogo, 0.0f, 0.0f);
