@@ -53,6 +53,8 @@ int overlay;
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
 
+AEVec2		SPLASH_MESHSIZE = {1525.0f, 445.0f};
+
 static GameObjInst* ButtonInstance_START;
 static GameObjInst* ButtonInstance_QUIT;
 static GameObjInst* splashscreen;
@@ -87,6 +89,22 @@ void GameStateMainMenuLoad() {
 	GameObj* pObj;
 
 	// =========================
+	// Load textures
+	// =========================
+	digipenLogo = AEGfxTextureLoad(".\\Resources\\Assets\\DigiPen.png");
+	AE_ASSERT_MESG(digipenLogo, "failed to create quit button texture");
+
+	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
+	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
+
+	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
+	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
+
+	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
+	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+
+
+	// =========================
 	// create the Splashscreen mesh
 	// =========================
 	splashObjIndex = sGameObjNum;
@@ -94,16 +112,16 @@ void GameStateMainMenuLoad() {
 	pObj->type = TYPE_SPLASH;
 	AEGfxMeshStart();
 	AEGfxTriAdd(
-		-winWidth / 2, -winHeight / 2, 0x00FFFFFF, 0.0f, 1.0f,
-		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
+		-SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 0.0f, 1.0f,
+		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 0.0f, 0.0f);
 
 	AEGfxTriAdd(
-		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		winWidth / 2, winHeight / 2, 0x00FFFFFF, 1.0f, 0.0f,
-		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
+		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 1.0f, 0.0f,
+		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 0.0f, 0.0f);
 	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ 1.0f, 1.0f };
+	pObj->meshSize = AEVec2{ static_cast<float>(winWidth), static_cast<float>(winHeight) };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create SPLASH object!!");
 
 	// =========================
@@ -147,21 +165,7 @@ void GameStateMainMenuLoad() {
 	pObj->meshSize = AEVec2{ 1.0f, 1.0f };
 	AE_ASSERT_MESG(pObj->pMesh, "Failed to create bgMesh!!");
 
-	// =========================
-	// Load textures
-	// =========================
-	digipenLogo = AEGfxTextureLoad(".\\Resources\\Assets\\DigiPen.png");
-	AE_ASSERT_MESG(digipenLogo, "failed to create quit button texture");
-
-	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
-	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
-
-	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
-	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
-
-	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
-	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
-
+	
 	// Move camera to 0,0 in event menu is loaded after game
 	AEGfxSetCamPosition(0.0f, 0.0f);
 
@@ -186,14 +190,18 @@ void GameStateMainMenuInit() {
 	gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos,0, 0.0f, STATE_NONE);
 
 	//	Create Button
+	scale = { 1.0f, 1.0f };
+	pos = { 0.0f, 0.0f };
 	ButtonInstance_START = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_START->sub_type = START_GAME;
 
+	scale = { 1.0f, 1.0f };
 	pos = { 0,-200 };
 	ButtonInstance_QUIT = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_QUIT->sub_type = EXIT_GAME;
 
 	scale = { 1.0f, 1.0f };
+	pos = { 0.0f, 0.0f };
 	splashscreen = gameObjInstCreate(&sGameObjList[splashObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
 }
 
@@ -367,6 +375,8 @@ void GameStateMainMenuUpdate() {
 /******************************************************************************/
 void GameStateMainMenuDraw() {
 	//char strBuffer[1024];
+
+	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
 	// =====================================
 	//		DRAW BACKGROUND
