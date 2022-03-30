@@ -33,6 +33,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 	(Static) Variables
 */
 /******************************************************************************/
+static float playerdeathtimer{};
 
 // Textures
 AEGfxTexture* tex_stone = nullptr;
@@ -840,6 +841,18 @@ void GameStateLevel1Update(void)
 	// Attach gun to player after grid collision checks
 	PlayerGun->posCurr = PlayerBody->posCurr;
 
+	if (playerdeathtimer > 0) // post player death control
+	{
+		playerdeathtimer -= g_dt;
+	}
+	else if (playerdeathtimer < 0)
+	{
+		GameStateLevel1Load();
+		GameStateLevel1Init();
+		gGameStateNext = GS_RESTART;
+		playerdeathtimer = 0;
+	}
+
 	// ====================
 	// check for collision
 	// ====================
@@ -884,12 +897,25 @@ void GameStateLevel1Update(void)
 				//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player death
-						/*gameObjInstDestroy(pInst);
+						AEVec2 particleVel;
+						for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
+						{
+							AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
+							if (rand() % 2) // randomize polarity of particleVel.x
+							{
+								particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+							}
+							else
+							{
+								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+							}
+						}
 						gameObjInstDestroy(PlayerBody);
 						gameObjInstDestroy(PlayerGun);
-						GameStateLevel1Load();
-						GameStateLevel1Init();
-						gGameStateNext = GS_RESTART;*/
+						playerdeathtimer = 2.f;
+
 						if (pInst->state == STATE::STATE_NONE)
 							playerHealth -= 10.0f;
 						gameObjInstDestroy(pInst);
@@ -989,6 +1015,7 @@ void GameStateLevel1Update(void)
 	// 128x54
 	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
 	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
+	if(playerdeathtimer == 0)
 	AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 
 
