@@ -554,7 +554,6 @@ void GameStateLevel1Update(void)
 		AEVec2 currPos{ BarrelEnd };
 
 		int bounceCount{ 0 };
-
 		for (int i{ 1 }; i < 1000; ++i) {
 			currPos.x += bulletDir.x * g_dt;
 			currPos.y += bulletDir.y * g_dt;
