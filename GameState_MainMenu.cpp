@@ -40,15 +40,13 @@ enum BUTTON_TYPE {
 	(Static) Variables
 */
 /******************************************************************************/
-float splashscreentimer{ 3.0f };
+static float splashscreentimer{ 3.0f };
 
 AEGfxTexture* backgroundTexture;
 
 AEGfxTexture* buttonTexture_START;
 AEGfxTexture* buttonTexture_QUIT;
 AEGfxTexture* digipenLogo;
-
-int overlay;
 
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
@@ -183,9 +181,6 @@ void GameStateMainMenuInit() {
 
 	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
 
-	overlay = main; 
-
-
 	AEVec2 scale{ 1.0f, 1.0f }, pos{0.0f, 0.0f};
 	gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos,0, 0.0f, STATE_NONE);
 
@@ -200,9 +195,11 @@ void GameStateMainMenuInit() {
 	ButtonInstance_QUIT = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_QUIT->sub_type = EXIT_GAME;
 
-	scale = { 1.0f, 1.0f };
-	pos = { 0.0f, 0.0f };
-	splashscreen = gameObjInstCreate(&sGameObjList[splashObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+	if (splashscreentimer >= 0.0f) {
+		scale = { 1.0f, 1.0f };
+		pos = { 0.0f, 0.0f };
+		splashscreen = gameObjInstCreate(&sGameObjList[splashObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+	}
 }
 
 /******************************************************************************/
