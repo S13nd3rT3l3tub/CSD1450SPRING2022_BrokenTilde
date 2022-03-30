@@ -1,3 +1,14 @@
+/*!
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@file       Main.h
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Added font variables for game usage
+-------------------------------------------------------------------------------
+@author
+@role
+*//*_________________________________________________________________________*/
+
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
@@ -26,7 +37,7 @@ const unsigned int	GAME_OBJ_NUM_MAX = 32;			//The total number of different obje
 const unsigned int	GAME_OBJ_INST_NUM_MAX = 4096;			//The total number of different game object instances
 
 
-const float		PLAYER_INITIAL_HEALTH = 100;			// initial number of player lives
+const float			PLAYER_INITIAL_HEALTH = 100;			// initial number of player lives
 extern AEVec2		PLAYER_MESHSIZE;// = { 0.8f, 1.0f };
 extern AEVec2		PLAYER_SCALE;// = { 2.0f, 1.0f };		// player scaling
 extern AEVec2		GUN_MESHSIZE;// = { 0.5f, 0.5f };

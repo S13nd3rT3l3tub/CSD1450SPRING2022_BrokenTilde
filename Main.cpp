@@ -14,7 +14,6 @@
 #include <iostream>
 
 
-
 /******************************************************************************/
 /*!
 	Starting point of the application
