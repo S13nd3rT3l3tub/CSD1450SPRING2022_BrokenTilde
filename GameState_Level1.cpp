@@ -19,7 +19,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 	Defines
 */
 /******************************************************************************/
-
+const float MAX_SCRIPT_DISPLAY_TIME{ 3.0f };
 
 
 /******************************************************************************/
@@ -34,6 +34,9 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 */
 /******************************************************************************/
 static float playerdeathtimer{};
+
+// Level Timers for script
+float scriptTimer1;
 
 // Textures
 AEGfxTexture* tex_stone = nullptr;
@@ -132,7 +135,6 @@ void GameStateLevel1Load(void)
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create player object!!");
-
 
 
 	// =====================
@@ -401,6 +403,9 @@ void GameStateLevel1Init(void)
 			}
 		}
 	}
+
+	// Set ammoCount
+	ammoCount = static_cast<int>(totalEnemyCount * 2);
 }
 
 /******************************************************************************/
@@ -413,6 +418,10 @@ void GameStateLevel1Update(void)
 	
 	// Update level time
 	levelTime += g_dt;
+	
+	if (scriptTimer1 > 0.0f) {
+		scriptTimer1 -= g_dt;
+	}
 
 	// Check win state
 	if (totalEnemyCount <= 0) {
@@ -513,7 +522,7 @@ void GameStateLevel1Update(void)
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	AEVec2 BarrelEnd;
 	// Shoot a bullet if left mouse button is triggered (Create a new object instance)
-	if (AEInputCheckTriggered(VK_LBUTTON))
+	if (AEInputCheckTriggered(VK_LBUTTON) && ammoCount > 0)
 	{
 		AEVec2 dirBullet;
 		// Get the bullet's direction according to the player's direction
@@ -530,6 +539,7 @@ void GameStateLevel1Update(void)
 		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x*0.11f;
 		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y*0.11f;
 		gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
+		--ammoCount;
 	}
 
 	if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
@@ -1183,58 +1193,59 @@ void GameStateLevel1Draw(void)
 		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
+	//// ----- Draw ammo count on screen -----
+	//// Find offset transform from player's position	
+	//AEMtx33 translate, transform;
+	//// Compute the translation matrix
+	//AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y - 1.0f);
+	//// Concat with map transform
+	//AEMtx33Concat(&transform, &MapTransform, &translate);
+	//// Set transform
+	//AEGfxSetTransform(transform.m);
+
 	//	Drawing for Font for all states
-	//f32 TextWidth = 1.0f;
-	//f32 TextHeight = 1.0f;
-	//char strBuffer[100];
-	//memset(strBuffer, 0, 100 * sizeof(char));
+	f32 TextWidth = 1.0f;
+	f32 TextHeight = 1.0f;
+	char strBuffer[100];
+	memset(strBuffer, 0, 100 * sizeof(char));
 
-	/*switch (g_chosenLevel)
-	{
-		case 1:
-			sprintf_s(strBuffer, "A key - Move Left");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Current Time : %.2f", levelTime);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-			sprintf_s(strBuffer, "D key - Move Right");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	// Tutorial text scripts
+	//sprintf_s(strBuffer, "Use A & D keys to move left & right!");
+	//AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	//AEGfxPrint(g_font20, strBuffer, -0.9f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-			sprintf_s(strBuffer, "W key - Jump Up");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-			sprintf_s(strBuffer, "Left mouse button - Fire bullet");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	/*sprintf_s(strBuffer, "D key - Move Right");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-			sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.75f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-			sprintf_s(strBuffer, "to destroy the enemy tanks");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "W key - Jump Up");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-			sprintf_s(strBuffer, "Destroy all enemy tanks");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-			sprintf_s(strBuffer, "to clear the level");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.75f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "to destroy the enemy tanks");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-			break;
+	sprintf_s(strBuffer, "Destroy all enemy tanks");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		case 2:
-			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-			break;
-	}*/
-	
+	sprintf_s(strBuffer, "to clear the level");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);*/
+
 }
 
 /******************************************************************************/

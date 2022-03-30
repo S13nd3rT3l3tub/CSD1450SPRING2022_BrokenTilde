@@ -42,27 +42,28 @@ int winHeight{ 720 };
  unsigned long currInnerState{GAME_PAUSE};
 
 // list of original object
-  GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)
-  unsigned long		sGameObjNum;								// The number of defined game objects
+GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)
+unsigned long		sGameObjNum;								// The number of defined game objects
 
- // list of object instances
-  GameObjInst			sGameObjInstList[GAME_OBJ_INST_NUM_MAX];	// Each element in this array represents a unique game object instance (sprite)
-  unsigned long		sGameObjInstNum;							// The number of used game object instances
+// list of object instances
+GameObjInst			sGameObjInstList[GAME_OBJ_INST_NUM_MAX];	// Each element in this array represents a unique game object instance (sprite)
+unsigned long		sGameObjInstNum;							// The number of used game object instances
 
- // pointer to the PlayerBody and gun object
-  GameObjInst* PlayerBody;
-  GameObjInst* PlayerGun;
-  GameObj* PlayerHealthBar;
-  GameObjInst* Enemydetection;
+// pointer to the PlayerBody and gun object
+GameObjInst* PlayerBody;
+GameObjInst* PlayerGun;
+GameObj* PlayerHealthBar;
+GameObjInst* Enemydetection;
 
-  GameObjInst* EmptyInstance;
-  GameObjInst* PlatformInstance;
-  GameObjInst* DirtInstance;
+GameObjInst* EmptyInstance;
+GameObjInst* PlatformInstance;
+GameObjInst* DirtInstance;
 
- // number of player lives available (lives 0 = game over)
-  float				playerHealth;									// The amount of health left
-  double				jumpFuel;
-  int					totalEnemyCount;
+// Game variables 
+float			playerHealth;									// The amount of health left
+double			jumpFuel;
+int				totalEnemyCount;
+int				ammoCount;
 
 unsigned long emptyObjIndex;
 unsigned long platformObjIndex;

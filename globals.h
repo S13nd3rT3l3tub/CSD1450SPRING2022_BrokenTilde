@@ -93,6 +93,7 @@ enum TYPE
 	TYPE_BUTTON,		// 11
 	TYPE_SPLASH,
 	TYPE_BG,
+	TYPE_MOUSE,
 	TYPE_NUM
 };
 
@@ -203,6 +204,7 @@ extern GameObjInst* DirtInstance;
 extern float				playerHealth;				// The amount of health left
 extern double				jumpFuel;
 extern int					totalEnemyCount;
+extern int					ammoCount;
 
 extern unsigned long emptyObjIndex;
 extern unsigned long platformObjIndex;

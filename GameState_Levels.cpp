@@ -1130,58 +1130,16 @@ void GameStateLevelsDraw(void)
 		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
+
 	//	Drawing for Font for all states
-	//f32 TextWidth = 1.0f;
-	//f32 TextHeight = 1.0f;
-	//char strBuffer[100];
-	//memset(strBuffer, 0, 100 * sizeof(char));
+	f32 TextWidth = 1.0f;
+	f32 TextHeight = 1.0f;
+	char strBuffer[100];
+	memset(strBuffer, 0, 100 * sizeof(char));
 
-	/*switch (g_chosenLevel)
-	{
-		case 1:
-			sprintf_s(strBuffer, "A key - Move Left");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-			sprintf_s(strBuffer, "D key - Move Right");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-			sprintf_s(strBuffer, "W key - Jump Up");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-			sprintf_s(strBuffer, "Left mouse button - Fire bullet");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-			sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.75f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-			sprintf_s(strBuffer, "to destroy the enemy tanks");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-			sprintf_s(strBuffer, "Destroy all enemy tanks");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-			sprintf_s(strBuffer, "to clear the level");
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-			break;
-
-		case 2:
-			sprintf_s(strBuffer, "Current Time : %.2f", leveltime);
-			AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-			AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-			break;
-	}*/
-
+	sprintf_s(strBuffer, "Current Time : %.2f", levelTime);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/
