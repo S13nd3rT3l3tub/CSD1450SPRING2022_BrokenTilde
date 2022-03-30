@@ -39,6 +39,7 @@ int winHeight{ 720 };
 */
 /******************************************************************************/
  bool toFullScreen{ true };
+
  unsigned long currInnerState{GAME_PAUSE};
 
 // list of original object
