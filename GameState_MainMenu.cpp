@@ -153,14 +153,14 @@ void GameStateMainMenuLoad() {
 	//Load mesh 
 	AEGfxMeshStart();
 	AEGfxTriAdd(
-		-winWidth / 2, -winHeight / 2, 0x00FFFFFF, 0.0f, 1.0f,
-		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
+		-static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 1.0f,
+		static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
 
 	AEGfxTriAdd(
-		winWidth / 2, -winHeight / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		winWidth / 2, winHeight / 2, 0x00FFFFFF, 1.0f, 0.0f,
-		-winWidth / 2, winHeight / 2, 0x00FFFFFF, 0.0f, 0.0f);
+		static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
+		static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 0.0f,
+		-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ 1.0f, 1.0f };
 	AE_ASSERT_MESG(pObj->pMesh, "Failed to create bgMesh!!");
@@ -320,10 +320,10 @@ void GameStateMainMenuUpdate() {
 			if ((pInst->flag & FLAG_ACTIVE) == 0)
 				continue;
 
-			switch (pInst->pObject->type) {
+			/*switch (pInst->pObject->type) {
 			default:
 				break;
-			}
+			}*/
 		}
 
 

@@ -31,7 +31,7 @@ void GameStateWinLoad() {
 	sGameObjInstNum = 0;
 
 	// load/create the mesh data (game objects / Shapes)
-	GameObj* pObj;
+	//GameObj* pObj;
 
 }
 
@@ -113,10 +113,10 @@ void GameStateWinUpdate() {
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
 
-		switch (pInst->pObject->type) {
+		/*switch (pInst->pObject->type) {
 		default:
 			break;
-		}
+		}*/
 	}
 
 
