@@ -211,8 +211,8 @@ void GameStateMainMenuUpdate() {
 	switch (currInnerState) {
 	case GAME_PAUSE:
 		splashscreentimer -= g_dt;
-		
-		if (AEInputCheckReleased(VK_LBUTTON) && AEInputCheckReleased(VK_RBUTTON))
+
+		if (AEInputCheckReleased(VK_LBUTTON) || AEInputCheckReleased(VK_RBUTTON))
 			splashscreentimer = -1.0f;
 
 		if (splashscreentimer < 0.0f) {
