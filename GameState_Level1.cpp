@@ -1114,7 +1114,9 @@ void GameStateLevel1Draw(void)
 		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
 		{
 			AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
-			AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
+
+			AEMtx33Trans(&cellTranslation, i + 0.5f, j - 0.5f);
+
 			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
 			AEGfxSetTransform(cellFinalTransformation.m);
 
@@ -1123,11 +1125,11 @@ void GameStateLevel1Draw(void)
 
 			if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 			{
-				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-				//AEGfxTextureSet(tex_stone, 0.f, 0.f);
+				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+				AEGfxTextureSet(tex_stone, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
-			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
+			else if (GetCellValue(i, j-1, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT) // remove -1 after adding dirt texture
 			{
 				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
