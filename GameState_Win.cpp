@@ -32,7 +32,7 @@ void GameStateWinLoad() {
 
 	// load/create the mesh data (game objects / Shapes)
 	//GameObj* pObj;
-
+	
 }
 
 /******************************************************************************/
@@ -118,7 +118,8 @@ void GameStateWinUpdate() {
 			break;
 		}*/
 	}
-
+	
+	gGameStateNext = GS_LEVELS;
 
 	// =====================================
 	// calculate the matrix for all objects

@@ -31,7 +31,18 @@ enum BUTTON_TYPE {
 	START_GAME = 1,
 	OPTIONS,
 	CREDITS,
-	EXIT_GAME
+	EXIT_GAME,
+	RETURN,
+	TOGGLE_FS,
+	YES,
+	NO,
+};
+
+enum SCREEN_TYPE {
+	MAIN_SCREEN = 0,
+	CREDIT_SCREEN,
+	OPTION_SCREEN,
+	EXIT_SCREEN
 };
 
 
@@ -43,6 +54,13 @@ enum BUTTON_TYPE {
 AEGfxTexture* backgroundTexture;
 AEGfxTexture* buttonTexture_START;
 AEGfxTexture* buttonTexture_QUIT;
+AEGfxTexture* buttonTexture_OPTIONS;
+AEGfxTexture* buttonTexture_CREDITS;
+AEGfxTexture* buttonTexture_TOGGLE_FS;
+AEGfxTexture* buttonTexture_RETURN;
+AEGfxTexture* buttonTexture_YES;
+AEGfxTexture* buttonTexture_NO;
+
 
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
@@ -51,7 +69,16 @@ AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
 
 static GameObjInst* ButtonInstance_START;
 static GameObjInst* ButtonInstance_QUIT;
+static GameObjInst* ButtonInstance_OPTIONS;
+static GameObjInst* ButtonInstance_CREDITS;
+static GameObjInst* ButtonInstance_TOGGLE_FS;
+static GameObjInst* ButtonInstance_RETURN;
+static GameObjInst* ButtonInstance_YES;
+static GameObjInst* ButtonInstance_NO;
 
+
+static int			screen;
+static bool			toggle_state;
 
 /******************************************************************************/
 /*!
@@ -76,14 +103,32 @@ void GameStateMainMenuLoad() {
 	// =========================
 	// Load textures
 	// =========================
+	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
+	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+
 	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
 	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
+
+	buttonTexture_OPTIONS = AEGfxTextureLoad(".\\Resources\\Assets\\option_button.png");
+	AE_ASSERT_MESG(buttonTexture_OPTIONS, "failed to create option button texture");
+
+	buttonTexture_CREDITS = AEGfxTextureLoad(".\\Resources\\Assets\\credit_button.png");
+	AE_ASSERT_MESG(buttonTexture_CREDITS, "failed to create credit button texture");
 
 	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
 	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
 
-	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
-	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+	buttonTexture_TOGGLE_FS = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_fs.png");
+	AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
+
+	buttonTexture_RETURN = AEGfxTextureLoad(".\\Resources\\Assets\\return_button.png");
+	AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
+
+	buttonTexture_YES = AEGfxTextureLoad(".\\Resources\\Assets\\yes_button.png");
+	AE_ASSERT_MESG(buttonTexture_YES, "failed to create toggle fullscreen button texture");
+
+	buttonTexture_NO = AEGfxTextureLoad(".\\Resources\\Assets\\no_button.png");
+	AE_ASSERT_MESG(buttonTexture_NO, "failed to create toggle fullscreen button texture");
 
 
 	// =========================
@@ -130,6 +175,9 @@ void GameStateMainMenuLoad() {
 	
 	// Move camera to 0,0 in event menu is loaded after game
 	AEGfxSetCamPosition(0.0f, 0.0f);
+
+
+	screen = MAIN_SCREEN;
 }
 
 /******************************************************************************/
@@ -152,7 +200,17 @@ void GameStateMainMenuInit() {
 	ButtonInstance_START->sub_type = START_GAME;
 
 	scale = { 1.0f, 1.0f };
-	pos = { 0,-200 };
+	pos = { 0.0f, -100.0f };
+	ButtonInstance_OPTIONS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+	ButtonInstance_OPTIONS->sub_type = OPTIONS;
+
+	scale = { 1.0f, 1.0f };
+	pos = { 0.0f, -200.0f };
+	ButtonInstance_CREDITS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+	ButtonInstance_CREDITS->sub_type = CREDITS;
+
+	scale = { 1.0f, 1.0f };
+	pos = { 0,-300.0F };
 	ButtonInstance_QUIT = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_QUIT->sub_type = EXIT_GAME;
 }
@@ -163,6 +221,8 @@ void GameStateMainMenuInit() {
 */
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
+
+	AEVec2 scale{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
 	switch (currInnerState) {
 	case GAME_PLAY:
 		//	if number key 1 is pressed
@@ -190,17 +250,117 @@ void GameStateMainMenuUpdate() {
 		//	if left mouse click
 		if (AEInputCheckReleased(VK_LBUTTON))
 		{
-			if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
+			switch (screen)
 			{
-				//	load level 1
-				g_chosenLevel = 1;
-				gGameStateNext = GS_LEVEL1;
+				case MAIN_SCREEN:
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
+					{
+						//	load level 1
+						g_chosenLevel = 1;
+						gGameStateNext = GS_LEVEL1;
+					}
+
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_OPTIONS->boundingBox))
+					{
+						//	load option
+						screen = OPTION_SCREEN;
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+
+						//	Create Button (toggle fullscreen)
+						scale = { 1.0f, 1.0f };
+						pos = { 0.0f, 0.0f };
+						ButtonInstance_TOGGLE_FS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_TOGGLE_FS->sub_type = TOGGLE_FS;
+
+						//	create button (return)
+						scale = { 1.0f, 1.0f };
+						pos = { 0,-300.0F };
+						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_RETURN->sub_type = RETURN;
+					}
+
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_CREDITS->boundingBox))
+					{
+						// load credit
+						screen = CREDIT_SCREEN;
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+
+						//	create button (return)
+						scale = { 1.0f, 1.0f };
+						pos = { 0,-300.0F };
+						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_RETURN->sub_type = RETURN;
+					}
+
+					//	QUIT GAME
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
+					{
+						//	exit confirmation
+						screen = EXIT_SCREEN;
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+
+						//	create button (Yes)
+						scale = { 0.5f, 0.5f };
+						pos = { -300.0f,-300.0f };
+						ButtonInstance_YES = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_YES->sub_type = YES;
+
+						//	create button (No)
+						scale = { 0.5f, 0.5f };
+						pos = { 300.0f ,-300.0f };
+						ButtonInstance_NO = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_NO->sub_type = NO;
+						//gGameStateNext = GS_QUIT;
+					}
+					break;
+
+				case OPTION_SCREEN:
+					//	TOGGLE FULL SCREEN
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_FS->boundingBox))
+					{
+						if (toFullScreen)
+						{
+							toFullScreen = false;
+							AEToogleFullScreen(toFullScreen);
+						}
+						else
+						{
+							toFullScreen = true;
+							AEToogleFullScreen(toFullScreen);
+						}
+					}
+
+					//	RETURN TO MAIN MENU
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
+					{
+						screen = MAIN_SCREEN;
+						gGameStateCurr = GS_RESTART;
+					}
+					break;
+
+				case CREDIT_SCREEN:
+					//	RETURN TO MAIN MENU
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
+					{
+						screen = MAIN_SCREEN;
+						gGameStateCurr = GS_RESTART;
+					}
+					break;
+
+				case EXIT_SCREEN:
+					//	YES to exit game
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_YES->boundingBox))
+						gGameStateNext = GS_QUIT;
+				
+					// NO to return to main menu
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_NO->boundingBox))
+					{
+						screen = MAIN_SCREEN;
+						gGameStateCurr = GS_RESTART;
+					}
+					break;
 			}
-
-			if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
-				gGameStateNext = GS_QUIT;
 		}
-
 
 		// =========================
 		// update according to input
@@ -361,10 +521,98 @@ void GameStateMainMenuDraw() {
 			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
 
-		if (pInst->pObject->type == TYPE_BG) {
-			AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+		if (pInst->sub_type == OPTIONS)
+		{
+			AEGfxTextureSet(buttonTexture_OPTIONS, 0.0f, 0.0f);
 			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
+
+		if (pInst->sub_type == CREDITS)
+		{
+			AEGfxTextureSet(buttonTexture_CREDITS, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		if (pInst->sub_type == TOGGLE_FS)
+		{
+			AEGfxTextureSet(buttonTexture_TOGGLE_FS, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		if (pInst->sub_type == RETURN)
+		{
+			AEGfxTextureSet(buttonTexture_RETURN, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		if (pInst->sub_type == YES)
+		{
+			AEGfxTextureSet(buttonTexture_YES, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		if (pInst->sub_type == NO)
+		{
+			AEGfxTextureSet(buttonTexture_NO, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+		
+			/*if (pInst->pObject->type == TYPE_SPLASH && splashscreentimer > 0)
+			{
+				AEGfxSetPosition(0.0f, 0.0f);
+				AEGfxTextureSet(digipenLogo, 0.0f, 0.0f);
+				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}*/
+
+			if (pInst->pObject->type == TYPE_BG) {
+				AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+			}
+		}
+	}
+
+	//	Drawing for Font for all states
+	f32 TextWidth = 1.0f;
+	f32 TextHeight = 1.0f;
+	char strBuffer[100];
+	memset(strBuffer, 0, 100 * sizeof(char));
+	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+
+	/*sprintf_s(strBuffer, "Current Time : %.2f", levelTime);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);*/
+	switch (screen)
+	{
+	case CREDIT_SCREEN:
+		sprintf_s(strBuffer, "Broken Tilde");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.6f, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Team Members :");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.9f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Mohamed Zafir");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Lee Hsien Wei, Joachim");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Desmond Too Wei Kang");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Leong Wai Kit");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Instructors :");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.83f, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Cheng Ding Xiang");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Gerald Wong Han Feng");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 	}
 }
 
@@ -391,6 +639,12 @@ void GameStateMainMenuUnload() {
 	AEGfxTextureUnload(backgroundTexture);
 	AEGfxTextureUnload(buttonTexture_START);
 	AEGfxTextureUnload(buttonTexture_QUIT);
+	AEGfxTextureUnload(buttonTexture_CREDITS);
+	AEGfxTextureUnload(buttonTexture_OPTIONS);
+	AEGfxTextureUnload(buttonTexture_TOGGLE_FS);
+	AEGfxTextureUnload(buttonTexture_RETURN);
+	AEGfxTextureUnload(buttonTexture_YES);
+	AEGfxTextureUnload(buttonTexture_NO);
 	
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {
