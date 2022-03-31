@@ -432,7 +432,7 @@ void GameStateLevel1Init(void)
 	}
 
 	// Set ammoCount
-	ammoCount = static_cast<int>(totalEnemyCount * 2);
+	ammoCount = static_cast<int>(totalEnemyCount * 4);
 }
 
 /******************************************************************************/
@@ -481,7 +481,8 @@ void GameStateLevel1Update(void)
 		}
 
 		// Check lose state
-		if (playerHealth <= 0.0f) {
+		if (playerHealth <= 0.0f || ammoCount <= 0) {
+			playerHealth = 0;
 			gameObjInstDestroy(PlayerGun);
 			gameObjInstDestroy(PlayerBody);
 			playerdeathtimer = 2.0f;
