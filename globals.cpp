@@ -8,6 +8,7 @@ double	 g_appTime;
 double	 levelTime;
 s8		 g_font12;
 s8		 g_font20;
+s8		 g_font30;
 int		 g_mouseX;
 int		 g_mouseY;
 int		 g_chosenLevel;
@@ -38,7 +39,7 @@ int winHeight{ 720 };
 	Static Variables
 */
 /******************************************************************************/
- bool toFullScreen{ false };
+ bool toFullScreen{ true };
  unsigned long currInnerState{GAME_PLAY};
 
 // list of original object

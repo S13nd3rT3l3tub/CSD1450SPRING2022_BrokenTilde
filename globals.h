@@ -21,6 +21,7 @@ extern double	 g_appTime;
 extern double	 levelTime;
 extern s8		 g_font12;
 extern s8		 g_font20;
+extern s8		 g_font30;
 extern int		 g_mouseX;
 extern int		 g_mouseY;
 extern int		 g_chosenLevel;
@@ -73,8 +74,7 @@ const float			ENEMY_SHOOT_DELAY = 2.0f;
 // -----------------------------------------------------------------------------
 // object flag definition
 const unsigned int	FLAG_ACTIVE = 0x00000001;
-const unsigned int	FLAG_NON_VISIBLE = 0x00000002;
-const unsigned int	FLAG_VISIBLE = 0x00000003;
+const unsigned int	FLAG_VISIBLE = 0x00000002;
 const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
 
 // Collision flags

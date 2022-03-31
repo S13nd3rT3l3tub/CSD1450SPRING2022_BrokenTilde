@@ -451,6 +451,8 @@ void GameStateLevel1Update(void)
 		break;
 	case GAME_LOSE: {
 		if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
+			gameObjInstDestroy(PlayerGun);
+			gameObjInstDestroy(PlayerBody);
 			AEVec2 particleVel;
 			for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 			{
@@ -537,8 +539,6 @@ void GameStateLevel1Update(void)
 			playerHealth = 0;
 			//gameObjInstDestroy(PlayerGun);
 			//gameObjInstDestroy(PlayerBody);
-			PlayerBody->flag = FLAG_NON_VISIBLE;
-			PlayerGun->flag = FLAG_NON_VISIBLE;
 			playerdeathtimer = PLAYER_DEATH_ANIME_TIME;
 			currInnerState = GAME_LOSE;
 
@@ -794,6 +794,13 @@ void GameStateLevel1Update(void)
 			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
 			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
 		}
+
+		AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+		AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
+		//std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
+
+		float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
+		PlayerGun->dirCurr = dotProduct;
 
 	break;
 	}
@@ -1124,12 +1131,12 @@ void GameStateLevel1Update(void)
 	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
 	//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
 
-	AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-	AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-	//std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
+	//AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+	//AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
+	////std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
 
-	float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
-	PlayerGun->dirCurr = dotProduct;
+	//float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
+	//PlayerGun->dirCurr = dotProduct;
 }
 
 /******************************************************************************/
@@ -1207,7 +1214,7 @@ void GameStateLevel1Draw(void)
 		GameObjInst* pInst = sGameObjInstList + i;
 
 		// skip non-active object
-		if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE) || 1 == (pInst->flag & FLAG_NON_VISIBLE))
+		if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
 			continue;
 
 		//Don't forget to concatenate the MapTransform matrix with the transformation of each game object instance
@@ -1309,8 +1316,11 @@ void GameStateLevel1Draw(void)
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.7f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-
-
+	if (currInnerState == GAME_PAUSE) {
+		sprintf_s(strBuffer, "GAME PAUSED");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+	}
 
 
 	// Tutorial text scripts

@@ -46,6 +46,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	// Load font
 	g_font12 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 12);
 	g_font20 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 20);
+	g_font30 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 30);
 
 	g_chosenLevel = 0;
 	//std::cout << g_chosenLevel << std::endl;
@@ -103,6 +104,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	// Free font
 	AEGfxDestroyFont(g_font12);
 	AEGfxDestroyFont(g_font20);
+	AEGfxDestroyFont(g_font30);
 
 	// free the system
 	AESysExit();
