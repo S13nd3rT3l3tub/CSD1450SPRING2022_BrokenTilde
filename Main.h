@@ -28,6 +28,7 @@
 #include "Collision.h"
 #include "Globals.h"
 #include "BinaryMap.h"
+#include "GameState_SplashScreen.h"
 #include "GameState_MainMenu.h"
 #include "GameState_Level1.h"
 #include "GameState_Levels.h"

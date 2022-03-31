@@ -19,7 +19,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 	Defines
 */
 /******************************************************************************/
-const float MAX_SCRIPT_DISPLAY_TIME{ 3.0f };
+//const float MAX_SCRIPT_DISPLAY_TIME{ 3.0f };
 
 
 /******************************************************************************/
@@ -36,7 +36,7 @@ const float MAX_SCRIPT_DISPLAY_TIME{ 3.0f };
 static float playerdeathtimer{};
 
 // Level Timers for script
-float scriptTimer1;
+//float scriptTimer1;
 
 // Textures
 AEGfxTexture* tex_stone = nullptr;
@@ -445,7 +445,9 @@ void GameStateLevel1Update(void)
 
 	switch (currInnerState) {
 	case GAME_WIN:
-
+		gGameStateNext = GS_LEVELS;
+		g_chosenLevel = 2;
+		currInnerState = GAME_PLAY;
 		break;
 	case GAME_LOSE:
 		if (playerdeathtimer > 0) // post player death control
@@ -463,15 +465,16 @@ void GameStateLevel1Update(void)
 
 		break;
 	case GAME_PAUSE:
-
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PLAY;
 		break;
 	case GAME_PLAY:
 		// Update level time
 		levelTime += g_dt;
 
-		if (scriptTimer1 > 0.0f) {
+		/*if (scriptTimer1 > 0.0f) {
 			scriptTimer1 -= g_dt;
-		}
+		}*/
 
 		// Check win state
 		if (totalEnemyCount <= 0) {
@@ -507,10 +510,15 @@ void GameStateLevel1Update(void)
 		// =========================
 		// update according to input
 		// =========================
+		// 
+		//	if escape key is pressed
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PAUSE;
+
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the following input movement based on our player movement
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
-		if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
+		if (AEInputCheckReleased(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
 		{
 			for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
 				GameObjInst* pInst = sGameObjInstList + i;
@@ -583,17 +591,13 @@ void GameStateLevel1Update(void)
 
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); \
 
-			//	if M key is pressed
-			if (AEInputCheckCurr(AEVK_ESCAPE))
-				gGameStateNext = GS_MAINMENU;
-
 
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change to bullet spawning on mouse click in direction
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		AEVec2 BarrelEnd;
 		// Shoot a bullet if left mouse button is triggered (Create a new object instance)
-		if (AEInputCheckTriggered(VK_LBUTTON) && ammoCount > 0)
+		if (AEInputCheckReleased(VK_LBUTTON) && ammoCount > 0)
 		{
 			AEVec2 dirBullet;
 			// Get the bullet's direction according to the player's direction

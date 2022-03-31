@@ -39,7 +39,7 @@ int winHeight{ 720 };
 */
 /******************************************************************************/
  bool toFullScreen{ true };
- unsigned long currInnerState{GAME_PAUSE};
+ unsigned long currInnerState{GAME_PLAY};
 
 // list of original object
 GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)

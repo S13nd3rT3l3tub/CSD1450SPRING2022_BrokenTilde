@@ -40,30 +40,17 @@ enum BUTTON_TYPE {
 	(Static) Variables
 */
 /******************************************************************************/
-static float splashscreentimer{ 3.0f };
-
 AEGfxTexture* backgroundTexture;
-
 AEGfxTexture* buttonTexture_START;
 AEGfxTexture* buttonTexture_QUIT;
-AEGfxTexture* digipenLogo;
 
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
 
-AEVec2		SPLASH_MESHSIZE = {1225.0f, 380.0f};
+
 
 static GameObjInst* ButtonInstance_START;
 static GameObjInst* ButtonInstance_QUIT;
-//static GameObjInst* splashscreen;
-
-
-
-/******************************************************************************/
-/*!
-	Helper Functions
-*/
-/******************************************************************************/
 
 
 /******************************************************************************/
@@ -89,9 +76,6 @@ void GameStateMainMenuLoad() {
 	// =========================
 	// Load textures
 	// =========================
-	digipenLogo = AEGfxTextureLoad(".\\Resources\\Assets\\DigiPen.png");
-	AE_ASSERT_MESG(digipenLogo, "failed to create quit button texture");
-
 	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
 	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
 
@@ -101,26 +85,6 @@ void GameStateMainMenuLoad() {
 	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
 	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
 
-
-	// =========================
-	// create the Splashscreen mesh
-	// =========================
-	splashObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_SPLASH;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 0.0f, 1.0f,
-		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 0.0f, 0.0f);
-
-	AEGfxTriAdd(
-		SPLASH_MESHSIZE.x / 2, -SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 1.0f, 0.0f,
-		-SPLASH_MESHSIZE.x / 2, SPLASH_MESHSIZE.y / 2, 0x00FFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ static_cast<float>(winWidth), static_cast<float>(winHeight) };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create SPLASH object!!");
 
 	// =========================
 	// create the Button Shape
@@ -166,9 +130,6 @@ void GameStateMainMenuLoad() {
 	
 	// Move camera to 0,0 in event menu is loaded after game
 	AEGfxSetCamPosition(0.0f, 0.0f);
-
-	// Set fullscreen to true
-	AEToogleFullScreen(toFullScreen);
 }
 
 /******************************************************************************/
@@ -194,12 +155,6 @@ void GameStateMainMenuInit() {
 	pos = { 0,-200 };
 	ButtonInstance_QUIT = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_QUIT->sub_type = EXIT_GAME;
-
-	/*if (splashscreentimer >= 0.0f) {
-		scale = { 1.0f, 1.0f };
-		pos = { 0.0f, 0.0f };
-		splashscreen = gameObjInstCreate(&sGameObjList[splashObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
-	}*/
 }
 
 /******************************************************************************/
@@ -209,16 +164,6 @@ void GameStateMainMenuInit() {
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
 	switch (currInnerState) {
-	case GAME_PAUSE:
-		splashscreentimer -= g_dt;
-
-		if (AEInputCheckReleased(VK_LBUTTON) || AEInputCheckReleased(VK_RBUTTON))
-			splashscreentimer = -1.0f;
-
-		if (splashscreentimer < 0.0f) {
-			currInnerState = GAME_PLAY;
-		}
-		break;
 	case GAME_PLAY:
 		//	if number key 1 is pressed
 		//if (AEInputCheckCurr(AEVK_1))
@@ -375,69 +320,50 @@ void GameStateMainMenuDraw() {
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
 
-	if (splashscreentimer > 0.0f) {
+	// =====================================
+	//		DRAW BACKGROUND
+	// =====================================
+	AEGfxSetBlendMode(AE_GFX_BM_NONE);
+	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
+
+	// draw all object instances in the list
+	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+
+		GameObjInst* pInst = sGameObjInstList + i;
+
+		// skip non-active object
+		if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
+			continue;
+
+		// Set the current object instance's transform matrix using "AEGfxSetTransform"
+		AEGfxSetTransform(pInst->transform.m);
+		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
+		// =====================================
+		//		DRAW BUTTON
+		// =====================================
 		AEGfxSetBlendMode(AE_GFX_BM_NONE);
 		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
-		AEGfxSetPosition(0.0f, 0.0f);
-		AEGfxTextureSet(digipenLogo, 0.0f, 0.0f);
-		AEGfxMeshDraw(sGameObjList[splashObjIndex].pMesh, AE_GFX_MDM_TRIANGLES);
-	}
-	else {
 
-		// =====================================
-		//		DRAW BACKGROUND
-		// =====================================
-		AEGfxSetBlendMode(AE_GFX_BM_NONE);
-		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-		// draw all object instances in the list
-		for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+
+		if (pInst->sub_type == START_GAME)
 		{
+			AEGfxTextureSet(buttonTexture_START, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
 
-			GameObjInst* pInst = sGameObjInstList + i;
+		if (pInst->sub_type == EXIT_GAME)
+		{
+			AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
 
-			// skip non-active object
-			if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
-				continue;
-
-			// Set the current object instance's transform matrix using "AEGfxSetTransform"
-			AEGfxSetTransform(pInst->transform.m);
-			// Draw the shape used by the current object instance using "AEGfxMeshDraw"
-			// =====================================
-			//		DRAW BUTTON
-			// =====================================
-			AEGfxSetBlendMode(AE_GFX_BM_NONE);
-			AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-
-			AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
-
-			if (splashscreentimer < 0)
-			{
-				if (pInst->sub_type == START_GAME)
-				{
-					AEGfxTextureSet(buttonTexture_START, 0.0f, 0.0f);
-					AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-				}
-
-				if (pInst->sub_type == EXIT_GAME)
-				{
-					AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
-					AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-				}
-			}
-			/*if (pInst->pObject->type == TYPE_SPLASH && splashscreentimer > 0)
-			{
-				AEGfxSetPosition(0.0f, 0.0f);
-				AEGfxTextureSet(digipenLogo, 0.0f, 0.0f);
-				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-			}*/
-
-			if (pInst->pObject->type == TYPE_BG) {
-				AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
-				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-			}
+		if (pInst->pObject->type == TYPE_BG) {
+			AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
 	}
 }
@@ -462,7 +388,6 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
-	AEGfxTextureUnload(digipenLogo);
 	AEGfxTextureUnload(backgroundTexture);
 	AEGfxTextureUnload(buttonTexture_START);
 	AEGfxTextureUnload(buttonTexture_QUIT);

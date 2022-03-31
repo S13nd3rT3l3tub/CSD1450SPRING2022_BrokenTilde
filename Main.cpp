@@ -51,7 +51,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	//std::cout << g_chosenLevel << std::endl;
 
 
-	GameStateMgrInit(GS_MAINMENU);
+	GameStateMgrInit(GS_SPLASHSCREEN);
 
 	while(gGameStateCurr != GS_QUIT)
 	{
