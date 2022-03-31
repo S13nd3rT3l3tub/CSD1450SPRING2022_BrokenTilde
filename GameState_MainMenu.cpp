@@ -318,16 +318,18 @@ void GameStateMainMenuUpdate() {
 					//	TOGGLE FULL SCREEN
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_FS->boundingBox))
 					{
-						if (toFullScreen)
-						{
-							toFullScreen = false;
-							AEToogleFullScreen(toFullScreen);
-						}
-						else
-						{
-							toFullScreen = true;
-							AEToogleFullScreen(toFullScreen);
-						}
+						//if (toFullScreen)
+						//{
+						//	toFullScreen = false;
+						//	AEToogleFullScreen(toFullScreen);
+						//}
+						//else
+						//{
+						//	toFullScreen = true;
+						//	AEToogleFullScreen(toFullScreen);
+						//}
+						toFullScreen = !toFullScreen;
+						AEToogleFullScreen(toFullScreen);
 					}
 
 					//	RETURN TO MAIN MENU

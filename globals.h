@@ -37,6 +37,7 @@ const unsigned int	GAME_OBJ_NUM_MAX = 32;			//The total number of different obje
 const unsigned int	GAME_OBJ_INST_NUM_MAX = 4096;			//The total number of different game object instances
 
 
+const float			PLAYER_DEATH_ANIME_TIME = 2.0f;
 const float			PLAYER_INITIAL_HEALTH = 100;			// initial number of player lives
 extern AEVec2		PLAYER_MESHSIZE;// = { 0.8f, 1.0f };
 extern AEVec2		PLAYER_SCALE;// = { 2.0f, 1.0f };		// player scaling
@@ -60,7 +61,6 @@ extern AEVec2		HEALTHBAR_SCALE;// = { 15.0f, 0.5f, };
 const float			GRAVITY = -9.8f;
 const float			JUMP_VELOCITY = 800.0f;
 const float			HOVER_VELOCITY = 7.0f;
-const int			HERO_LIVES = 3;
 
 const float			MOVE_VELOCITY = 14.0f;
 const float			MOVE_VELOCITY_ENEMY = 2.5f;
@@ -69,10 +69,12 @@ const float			ENEMY_DETECTION_RANGE = 150.0f;
 const float			ENEMY_SHOOT_DELAY = 2.0f;
 
 
+
 // -----------------------------------------------------------------------------
 // object flag definition
 const unsigned int	FLAG_ACTIVE = 0x00000001;
-const unsigned int	FLAG_VISIBLE = 0x00000002;
+const unsigned int	FLAG_NON_VISIBLE = 0x00000002;
+const unsigned int	FLAG_VISIBLE = 0x00000003;
 const unsigned int	FLAG_NON_COLLIDABLE = 0x00000004;
 
 // Collision flags
@@ -186,7 +188,7 @@ struct GameObjInst
 
 /******************************************************************************/
 /*!
-	Static Variables
+	(Static) Variables
 */
 /******************************************************************************/
 extern bool toFullScreen;

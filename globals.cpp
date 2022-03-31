@@ -38,7 +38,7 @@ int winHeight{ 720 };
 	Static Variables
 */
 /******************************************************************************/
- bool toFullScreen{ true };
+ bool toFullScreen{ false };
  unsigned long currInnerState{GAME_PLAY};
 
 // list of original object
