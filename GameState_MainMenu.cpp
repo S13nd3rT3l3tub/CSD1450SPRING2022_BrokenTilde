@@ -556,25 +556,18 @@ void GameStateMainMenuDraw() {
 			AEGfxTextureSet(buttonTexture_NO, 0.0f, 0.0f);
 			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
-		
-			/*if (pInst->pObject->type == TYPE_SPLASH && splashscreentimer > 0)
-			{
-				AEGfxSetPosition(0.0f, 0.0f);
-				AEGfxTextureSet(digipenLogo, 0.0f, 0.0f);
-				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-			}*/
 
-			if (pInst->pObject->type == TYPE_BG) {
-				AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
-				AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-			}
+		if (pInst->pObject->type == TYPE_BG) {
+			AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
 	}
 
 	//	Drawing for Font for all states
+	char strBuffer[100];
 	f32 TextWidth = 1.0f;
 	f32 TextHeight = 1.0f;
-	char strBuffer[100];
+
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
