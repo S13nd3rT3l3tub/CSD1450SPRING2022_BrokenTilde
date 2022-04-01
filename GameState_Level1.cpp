@@ -449,7 +449,6 @@ void GameStateLevel1Update(void)
 			currInnerState = GAME_PLAY;
 		break;
 	case GAME_WIN:
-		std::cout << "Won" << std::endl;
 		gGameStateNext = GS_LEVELS;
 		g_chosenLevel = 2;
 		currInnerState = GAME_PLAY;
@@ -582,9 +581,10 @@ void GameStateLevel1Update(void)
 					gameObjInstDestroy(pInst);
 
 			}
-
-			totalEnemyCount = 0;
 		}
+
+		if (AEInputCheckReleased(AEVK_DOWN))
+			totalEnemyCount = 0;
 
 		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
 		{
