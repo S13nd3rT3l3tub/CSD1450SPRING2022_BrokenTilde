@@ -674,8 +674,8 @@ void GameStateLevel1Update(void)
 		{
 			AEVec2 bulletDir{};
 			AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-			BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * 0.15f;
-			BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * 0.15f;
+			BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * BULLET_SPEED * 0.11f;
+			BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * BULLET_SPEED * 0.11f;
 
 			AEVec2 currPos{ BarrelEnd };
 
@@ -1021,7 +1021,7 @@ void GameStateLevel1Update(void)
 					//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player is hit
-						if (pInst->state == STATE::STATE_GOING_LEFT)
+						if (pInst->state == STATE::STATE_GOING_LEFT || pInst->state == STATE::STATE_NONE)
 							playerHealth -= 10.0f;
 						gameObjInstDestroy(pInst);
 					}
@@ -1254,6 +1254,10 @@ void GameStateLevel1Draw(void)
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
 		{
 			AEGfxSetTransparency(0.f);
+		}
+		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE)
+		{
+			AEGfxSetTransparency(0.4f);
 		}
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
