@@ -38,10 +38,6 @@ static float playerdeathtimer{};
 // Level Timers for script
 //float scriptTimer1;
 
-// Textures
-AEGfxTexture* tex_stone = nullptr;
-
-
 /******************************************************************************/
 /*!
 	Helper Functions
@@ -444,7 +440,16 @@ void GameStateLevel1Update(void)
 {	
 
 	switch (currInnerState) {
+	case GAME_PAUSE:
+		if (AEInputCheckReleased(AEVK_M)) {
+			gGameStateNext = GS_MAINMENU;
+			currInnerState = GAME_PLAY;
+		}
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PLAY;
+		break;
 	case GAME_WIN:
+		std::cout << "Won" << std::endl;
 		gGameStateNext = GS_LEVELS;
 		g_chosenLevel = 2;
 		currInnerState = GAME_PLAY;
@@ -516,10 +521,6 @@ void GameStateLevel1Update(void)
 
 		break;
 	}
-	case GAME_PAUSE:
-		if (AEInputCheckReleased(AEVK_ESCAPE))
-			currInnerState = GAME_PLAY;
-		break;
 	case GAME_PLAY:
 		// Update level time
 		levelTime += g_dt;
@@ -530,9 +531,7 @@ void GameStateLevel1Update(void)
 
 		// Check win state
 		if (totalEnemyCount <= 0) {
-			std::cout << "Win state\n";
-			// Go to win state
-
+			currInnerState = GAME_WIN;
 		}
 		// Check lose state
 		if (playerHealth <= 0.0f || ammoCount <= 0) {
@@ -583,6 +582,8 @@ void GameStateLevel1Update(void)
 					gameObjInstDestroy(pInst);
 
 			}
+
+			totalEnemyCount = 0;
 		}
 
 		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
@@ -1319,9 +1320,12 @@ void GameStateLevel1Draw(void)
 	if (currInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
 		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+	
+		sprintf_s(strBuffer, "Press 'M' to go back to main menu");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
 	}
-
 
 	// Tutorial text scripts
 	//sprintf_s(strBuffer, "Use A & D keys to move left & right!");
@@ -1371,7 +1375,6 @@ void GameStateLevel1Free(void)
 
 		gameObjInstDestroy(pInst);
 	}
-	
 }
 
 /******************************************************************************/
@@ -1390,4 +1393,5 @@ void GameStateLevel1Unload(void)
 
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 	AEGfxTextureUnload(tex_stone);
+	tex_stone = nullptr;
 }

@@ -11,7 +11,7 @@ s8		 g_font20;
 s8		 g_font30;
 int		 g_mouseX;
 int		 g_mouseY;
-int		 g_chosenLevel;
+int		 g_chosenLevel{ 0 };
 
 int winWidth{ 1280 };
 int winHeight{ 720 };
@@ -93,6 +93,13 @@ unsigned long buttonObjIndex;
  // Transform matrix containing shift of grid to world coordinates
  // concatenate this with object instance's own transform matrix
   AEMtx33			MapTransform;
+
+/******************************************************************************/
+ /*!
+	 Textures
+ */
+ /******************************************************************************/
+  AEGfxTexture* tex_stone = nullptr;
 
 /******************************************************************************/
 /*!

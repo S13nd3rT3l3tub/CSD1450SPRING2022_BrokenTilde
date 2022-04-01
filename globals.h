@@ -248,6 +248,13 @@ extern int				BINARY_MAP_HEIGHT;
 // concatenate this with object instance's own transform matrix
 extern AEMtx33			MapTransform;
 
+/******************************************************************************/
+ /*!
+	 Textures
+ */
+ /******************************************************************************/
+extern AEGfxTexture* tex_stone;
+
 // ---------------------------------------------------------------------------
 // functions to create/destroy a game object instance
 //GameObjInst* gameObjInstCreate(unsigned int type, AEVec2* scale,

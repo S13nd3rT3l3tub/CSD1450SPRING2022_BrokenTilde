@@ -186,7 +186,7 @@ void GameStateMainMenuLoad() {
 */
 /******************************************************************************/
 void GameStateMainMenuInit() {
-	g_chosenLevel = 0;
+	//g_chosenLevel = 0;
 
 	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
 
@@ -256,7 +256,7 @@ void GameStateMainMenuUpdate() {
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
 					{
 						//	load level 1
-						g_chosenLevel = 1;
+						//g_chosenLevel = 1;
 						gGameStateNext = GS_LEVEL1;
 					}
 
