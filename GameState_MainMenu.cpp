@@ -608,6 +608,62 @@ void GameStateMainMenuDraw() {
 		sprintf_s(strBuffer, "Gerald Wong Han Feng");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "All content copyright 2021 DigiPen Institute of Technology Singapore, all rights reserved.");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "President :");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.05f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Claude COMAIR");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.28f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Executives :");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.035f, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Jason CHU");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Christopher COMAIR");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Michael GATS");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Michele COMAIR");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Raymond YAN");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.45f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Samir ABOU SAMRA");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.55f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Prasanna GHALI");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "John BAUER");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Michael GATS");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "Michael GATS");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 	}
 }
 

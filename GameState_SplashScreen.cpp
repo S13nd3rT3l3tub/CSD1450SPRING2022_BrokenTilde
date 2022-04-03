@@ -84,7 +84,7 @@ void GameStateSplashScreenInit(void) {
 	AEToogleFullScreen(toFullScreen);
 
 	// Initialize timer
-	timer = 5.0f;
+	timer = 1.0f;
 }
 void GameStateSplashScreenUpdate(void) {
 	timer -= g_dt;
