@@ -38,10 +38,6 @@ static float playerdeathtimer{};
 // Level Timers for script
 //float scriptTimer1;
 
-// Textures
-AEGfxTexture* tex_stone = nullptr;
-
-
 /******************************************************************************/
 /*!
 	Helper Functions
@@ -444,6 +440,14 @@ void GameStateLevel1Update(void)
 {	
 
 	switch (currInnerState) {
+	case GAME_PAUSE:
+		if (AEInputCheckReleased(AEVK_M)) {
+			gGameStateNext = GS_MAINMENU;
+			currInnerState = GAME_PLAY;
+		}
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PLAY;
+		break;
 	case GAME_WIN:
 		gGameStateNext = GS_LEVELS;
 		g_chosenLevel = 2;
@@ -516,10 +520,6 @@ void GameStateLevel1Update(void)
 
 		break;
 	}
-	case GAME_PAUSE:
-		if (AEInputCheckReleased(AEVK_ESCAPE))
-			currInnerState = GAME_PLAY;
-		break;
 	case GAME_PLAY:
 		// Update level time
 		levelTime += g_dt;
@@ -530,9 +530,7 @@ void GameStateLevel1Update(void)
 
 		// Check win state
 		if (totalEnemyCount <= 0) {
-			std::cout << "Win state\n";
-			// Go to win state
-
+			currInnerState = GAME_WIN;
 		}
 		// Check lose state
 		if (playerHealth <= 0.0f || ammoCount <= 0) {
@@ -584,6 +582,9 @@ void GameStateLevel1Update(void)
 
 			}
 		}
+
+		if (AEInputCheckReleased(AEVK_DOWN))
+			totalEnemyCount = 0;
 
 		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
 		{
@@ -673,8 +674,8 @@ void GameStateLevel1Update(void)
 		{
 			AEVec2 bulletDir{};
 			AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-			BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * 0.15f;
-			BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * 0.15f;
+			BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * BULLET_SPEED * 0.11f;
+			BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * BULLET_SPEED * 0.11f;
 
 			AEVec2 currPos{ BarrelEnd };
 
@@ -1020,7 +1021,7 @@ void GameStateLevel1Update(void)
 					//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player is hit
-						if (pInst->state == STATE::STATE_GOING_LEFT)
+						if (pInst->state == STATE::STATE_GOING_LEFT || pInst->state == STATE::STATE_NONE)
 							playerHealth -= 10.0f;
 						gameObjInstDestroy(pInst);
 					}
@@ -1254,6 +1255,10 @@ void GameStateLevel1Draw(void)
 		{
 			AEGfxSetTransparency(0.f);
 		}
+		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE)
+		{
+			AEGfxSetTransparency(0.4f);
+		}
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 		AEGfxTextureSet(NULL, 0.0f, 0.0f);
@@ -1319,9 +1324,12 @@ void GameStateLevel1Draw(void)
 	if (currInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
 		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+	
+		sprintf_s(strBuffer, "Press 'M' to go back to main menu");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
 	}
-
 
 	// Tutorial text scripts
 	//sprintf_s(strBuffer, "Use A & D keys to move left & right!");
@@ -1371,7 +1379,6 @@ void GameStateLevel1Free(void)
 
 		gameObjInstDestroy(pInst);
 	}
-	
 }
 
 /******************************************************************************/
@@ -1390,4 +1397,5 @@ void GameStateLevel1Unload(void)
 
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 	AEGfxTextureUnload(tex_stone);
+	tex_stone = nullptr;
 }

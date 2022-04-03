@@ -14,8 +14,35 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "Main.h"
 
-// texutres
-extern AEGfxTexture* tex_stone;
+/******************************************************************************/
+/*!
+	Defines
+*/
+/******************************************************************************/
+//const float MAX_SCRIPT_DISPLAY_TIME{ 3.0f };
+
+
+/******************************************************************************/
+/*!
+	Enums/Struct/Class Definitions
+*/
+/******************************************************************************/
+
+/******************************************************************************/
+/*!
+	(Static) Variables
+*/
+/******************************************************************************/
+static float playerdeathtimer{};
+
+// Level Timers for script
+//float scriptTimer1;
+
+/******************************************************************************/
+/*!
+	Helper Functions
+*/
+/******************************************************************************/
 
 /******************************************************************************/
 /*!
@@ -34,241 +61,267 @@ void GameStateLevelsLoad(void)
 	// No game object instances (sprites) at this point
 	sGameObjInstNum = 0;
 
+	// Set objects to null first
 	PlayerBody = nullptr;
 	PlayerGun = nullptr;
 	EmptyInstance = nullptr;
 	PlatformInstance = nullptr;
 	DirtInstance = nullptr;
 
-	// load/create the mesh data (game objects / Shapes)
-	GameObj* pObj;
+	/******************************************************************************/
+	/*!
+		Load/create the mesh data (game objects / Shapes)
+	*/
+	/******************************************************************************/
+	{
+		GameObj* pObj;
 
-	// =========================
-	// create the non collision shape
-	// =========================
-	emptyObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_EMPTY;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
+		// =========================
+		// create the non collision shape
+		// =========================
+		{
+			emptyObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_EMPTY;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
 
-	AEGfxTriAdd(
-		-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-		EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ EMPTY_MESHSIZE.x, EMPTY_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create non-collidable object!!");
+			AEGfxTriAdd(
+				-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
+				EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ EMPTY_MESHSIZE.x, EMPTY_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create non-collidable object!!");
+		}
 
-	// =========================
-	// create the platform shape
-	// =========================
-	platformObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PLATFORM;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+		// =========================
+		// create the platform shape
+		// =========================
+		{
+			platformObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PLATFORM;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
 
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
-		PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create platform object!!");
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+				PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create platform object!!");
+		}
 
-	// =====================
-	// create the player shape
-	// =====================
-	playerObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PLAYER;
+		// =====================
+		// create the player shape
+		// =====================
+		{
+			playerObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PLAYER;
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create player object!!");
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF32a852, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create player object!!");
+		}
 
+		// =====================
+		// create the player gun shape
+		// =====================
+		{
+			playerGunObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PLAYERGUN;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+				0.0f, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+				GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
+				GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+				GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ GUN_MESHSIZE.x, GUN_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
+		}
 
+		// =======================
+		// create the bullet shape
+		// =======================
+		{
+			bulletObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_BULLET;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
+				-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 1.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create bullet object!!");
+		}
 
-	// =====================
-	// create the player gun shape
-	// =====================
-	playerGunObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PLAYERGUN;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		0.0f, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
-		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		0.0f, GUN_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f,
-		GUN_MESHSIZE.x, GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
-		GUN_MESHSIZE.x, -GUN_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ GUN_MESHSIZE.x, GUN_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create player gun object!!");
+		// =====================
+		// create the Enemy1 shape
+		// =====================
+		{
+			enemy1ObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_ENEMY1;
 
-	// =======================
-	// create the bullet shape
-	// =======================
-	bulletObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_BULLET;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
-		-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 1.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 0.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFF00, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create bullet object!!");
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
 
-	// =====================
-	// create the Enemy1 shape
-	// =====================
-	enemy1ObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_ENEMY1;
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY1 object!!");
+		}
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+		// =====================
+		// create the Enemy2 shape
+		// =====================
+		{
+			enemy2ObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_ENEMY1;
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY1 object!!");
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
 
-	// =====================
-	// create the Enemy2 shape
-	// =====================
-	enemy2ObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_ENEMY1;
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY2 object!!");
+		}
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
+		// =====================
+		// create the Particle1 shape
+		// =====================
+		{
+			particleObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_PARTICLE1;
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 2, -PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFF3265a8, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 2, PLAYER_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x, PLAYER_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create ENEMY2 object!!");
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
 
-	// =====================
-	// create the Particle1 shape
-	// =====================
-	particleObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_PARTICLE1;
+			AEGfxTriAdd(
+				PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
+				-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5 };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_PARTICLE1 object!!");
+		}
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
+		// =====================
+		// create the dotted line shape
+		// =====================
+		{
+			dottedObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_DOTTED;
 
-	AEGfxTriAdd(
-		PLAYER_MESHSIZE.x / 5, -PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f,
-		-PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5, 0xFFFF0000, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5 };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_PARTICLE1 object!!");
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+				-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 1.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 0.0f,
+				BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
 
-	// =====================
-	// create the dotted line shape
-	// =====================
-	dottedObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_DOTTED;
+			//Load textures
+			tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
+			AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
+		}
 
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		-BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 1.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		-BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 0.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 0.0f,
-		BULLET_MESHSIZE.x / 2, -BULLET_MESHSIZE.y / 2, 0xFFFFFFFF, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ BULLET_MESHSIZE.x, BULLET_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
+		// =========================
+		// create the dirt block shape
+		// =========================
+		{
+			dirtObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_DIRT;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
 
-	//Load textures
-	tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
-	AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
+			AEGfxTriAdd(
+				-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+				PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
+				PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
+		}
 
-	// =========================
-	// create the dirt block shape
-	// =========================
-	dirtObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_DIRT;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
-
-	AEGfxTriAdd(
-		-PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
-		PLATFORM_MESHSIZE.x / 2, -PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
-		PLATFORM_MESHSIZE.x / 2, PLATFORM_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ PLATFORM_MESHSIZE.x, PLATFORM_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
-
-	// =====================
-	// create the health bar shape
-	// =====================
-	hpObjIndex = sGameObjNum;
-	PlayerHealthBar = pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_HEALTHBAR;
-	AEGfxTriAdd(
-		0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
-		0.0f, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 1.0f,
-		HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
-	AEGfxTriAdd(
-		0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
-		HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 0.0f,
-		HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create healthbar object!!");
-
+		// =====================
+		// create the health bar shape
+		// =====================
+		{
+			hpObjIndex = sGameObjNum;
+			PlayerHealthBar = pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_HEALTHBAR;
+			AEGfxTriAdd(
+				0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
+				0.0f, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 1.0f,
+				HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
+			AEGfxTriAdd(
+				0.0f, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 0.0f, 0.0f,
+				HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 0.0f,
+				HEALTHBAR_MESHSIZE.x, -HEALTHBAR_MESHSIZE.y / 2, 0xFFc24040, 1.0f, 1.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create healthbar object!!");
+		}
+	}
 
 	// =====================
 	// Load Level Binary Map
@@ -305,6 +358,7 @@ void GameStateLevelsLoad(void)
 	AEMtx33Trans(&trans, static_cast<f32>(-(BINARY_MAP_WIDTH / 2)), static_cast<f32>(-(BINARY_MAP_HEIGHT / 2)));
 	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / 40), static_cast<f32>(AEGetWindowHeight() / 20));
 	AEMtx33Concat(&MapTransform, &scale, &trans);
+
 }
 
 /******************************************************************************/
@@ -376,6 +430,9 @@ void GameStateLevelsInit(void)
 			}
 		}
 	}
+
+	// Set ammoCount
+	ammoCount = static_cast<int>(totalEnemyCount * 4);
 }
 
 /******************************************************************************/
@@ -385,267 +442,374 @@ void GameStateLevelsInit(void)
 /******************************************************************************/
 void GameStateLevelsUpdate(void)
 {
-	// Update level time
-	levelTime += g_dt;
+	switch (currInnerState) {
+	case GAME_PAUSE:
+		if (AEInputCheckReleased(AEVK_M)) {
+			gGameStateNext = GS_MAINMENU;
+			currInnerState = GAME_PLAY;
+		}
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PLAY;
+		break;
+	case GAME_WIN:
+		gGameStateNext = GS_MAINMENU;
+		currInnerState = GAME_PLAY;
+		break;
+	case GAME_LOSE: {
+		if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
+			gameObjInstDestroy(PlayerGun);
+			gameObjInstDestroy(PlayerBody);
+			AEVec2 particleVel;
+			for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
+			{
+				AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
+				if (rand() % 2) // randomize polarity of particleVel.x
+				{
+					particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+				}
+				else
+				{
+					particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+				}
+			}
+		}
 
-	// Check win state
-	if (totalEnemyCount <= 0) {
-		std::cout << "Win state\n";
-		// Go to win state
+		if (playerdeathtimer > 0) // post player death control
+		{
+			playerdeathtimer -= g_dt;
+		}
+		else if (playerdeathtimer < 0)
+		{
+			//GameStateLevel1Load();
+			//GameStateLevel1Init();
+			currInnerState = GAME_PLAY;
+			gGameStateNext = GS_RESTART;
+			playerdeathtimer = 0;
+		}
 
-	}
-
-	// Check lose state
-	if (playerHealth <= 0.0f) {
-		std::cout << "Lose state\n";
-		// Go to lose state
-
-	}
-
-	// =========================
-	// update according to input
-	// =========================
-	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	// Change the following input movement based on our player movement
-	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	if (AEInputCheckCurr(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
-	{
-		for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
-			GameObjInst* pInst = sGameObjInstList + i;
+		int i{};
+		GameObjInst* pInst;
+		//Update object instances positions
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
 
 			// skip non-active object
-			if ((pInst->flag & FLAG_ACTIVE) == 0)
+			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
 
-			if (pInst->pObject->type == TYPE_BULLET)
-				gameObjInstDestroy(pInst);
+			/**********
+			update the position using: P1 = V1*dt + P0
+			Get the bouding rectangle of every active instance:
+				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
+				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
+			**********/
 
+			// ----- Update Position -----
+			pInst->posCurr.x += pInst->velCurr.x * g_dt;
+			pInst->posCurr.y += pInst->velCurr.y * g_dt;
+
+			// ----- Update Bounding Box -----
+			pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+
+			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
 		}
+
+
+		break;
 	}
+	case GAME_PLAY:
+		// Update level time
+		levelTime += g_dt;
 
-	if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
-	{
-		AEVec2 added;
-		AEVec2Set(&added, 0.f, 1.f);
-
-		// Find the velocity according to the acceleration
-		added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-		added.y *= 20 * g_dt; //500
-
-		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
-		jumpFuel -= g_dt;
-		AEVec2 particleVel = { 0, -1.5f };
-		for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
-		{
-			AEVec2 particlespawn = { static_cast<float>(i), PlayerBody->posCurr.y - 0.5f };
-			if (rand() % 2) {
-
-				gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
-			}
-			else {
-				gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orangy red color
-			}
-		}
-	}
-
-	if (AEInputCheckCurr(AEVK_A)) // Move left
-	{
-		AEVec2 added;
-		AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
-
-		// Find the velocity according to the acceleration
-		added.x *= -MOVE_VELOCITY * g_dt;
-		added.y *= -MOVE_VELOCITY * g_dt;
-		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
-	}
-	else if (AEInputCheckCurr(AEVK_D))
-	{
-		AEVec2 added;
-		AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
-
-		// Find the velocity according to the acceleration
-		added.x *= MOVE_VELOCITY * g_dt;
-		added.y *= MOVE_VELOCITY * g_dt;
-		AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-		// Limit your speed over here
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
-	}
-
-	AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); \
-
-	//	if M key is pressed
-	if (AEInputCheckCurr(AEVK_ESCAPE))
-		gGameStateNext = GS_MAINMENU;
-
-
-	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	// Change to bullet spawning on mouse click in direction
-	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	AEVec2 BarrelEnd;
-	// Shoot a bullet if left mouse button is triggered (Create a new object instance)
-	if (AEInputCheckTriggered(VK_LBUTTON))
-	{
-		AEVec2 dirBullet;
-		// Get the bullet's direction according to the player's direction
-		AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-		// Set the velocity
-		dirBullet.x *= BULLET_SPEED;
-		dirBullet.y *= BULLET_SPEED;
-		// Calculate end of gun barrel position
-		// 
-		// 
-		// Create an instance
-
-		//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
-		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
-		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
-		gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
-	}
-
-	if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
-	{
-		/*AEVec2 dirBullet;
-		AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-		AEVec2 offset;
-		BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.15f;
-		BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.15f;
-		for (int i{1}; i < 25; ++i)
-		{
-			offset.x = BarrelEnd.x + dirBullet.x * i;
-			offset.y = BarrelEnd.y + dirBullet.y * i;
-			gameObjInstCreate(TYPE_DOTTED, &BULLET_SCALE, &offset, 0, PlayerGun->dirCurr, STATE_GOING_LEFT);
+		/*if (scriptTimer1 > 0.0f) {
+			scriptTimer1 -= g_dt;
 		}*/
 
+		// Check win state
+		if (totalEnemyCount <= 0) {
+			currInnerState = GAME_WIN;
+		}
+		// Check lose state
+		if (playerHealth <= 0.0f || ammoCount <= 0) {
+			playerHealth = 0;
+			//gameObjInstDestroy(PlayerGun);
+			//gameObjInstDestroy(PlayerBody);
+			playerdeathtimer = PLAYER_DEATH_ANIME_TIME;
+			currInnerState = GAME_LOSE;
 
-		AEVec2 bulletDir{};
-		AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-		BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * 0.15f;
-		BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * 0.15f;
-
-		AEVec2 currPos{ BarrelEnd };
-
-		int bounceCount{ 0 };
-		for (int i{ 1 }; i < 1000; ++i) {
-			currPos.x += bulletDir.x * g_dt;
-			currPos.y += bulletDir.y * g_dt;
-
-			int collisionFlag = CheckInstanceBinaryMapCollision_dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-
-			if ((collisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
-				break;
-
-			bool reflectedFlag{ false };
-			AEVec2 normal{};
-			if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {
-				normal = { 0, -1 };
-				if (++bounceCount < 3)
-					reflectedFlag = true;
-				else
-					break;
-			}
-			if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {
-				normal = { 0, 1 };
-				if (++bounceCount < 3)
-					reflectedFlag = true;
-				else
-					break;
-			}
-			if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {
-				normal = { 1, 0 };
-				if (++bounceCount < 3)
-					reflectedFlag = true;
-				else
-					break;
-			}
-			if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {
-				normal = { -1, 0 };
-				if (++bounceCount < 3)
-					reflectedFlag = true;
-				else
-					break;
-			}
-
-			if (reflectedFlag) {
-				AEVec2 newVel{ bulletDir.x - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.x,  bulletDir.y - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.y };
-				AEVec2Normalize(&newVel, &newVel);
-				bulletDir = newVel;
-				currPos.x += bulletDir.x * g_dt;
-				currPos.y += bulletDir.y * g_dt;
-			}
-
-			if (i % 30 == 0)
-				gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_NONE);
+			//AEVec2 particleVel;
+			//for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
+			//{
+			//	AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
+			//	if (rand() % 2) // randomize polarity of particleVel.x
+			//	{
+			//		particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+			//		gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+			//	}
+			//	else
+			//	{
+			//		particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+			//		gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+			//	}
+			//}
 		}
 
+		// =========================
+		// update according to input
+		// =========================
+		// 
+		//	if escape key is pressed
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PAUSE;
+
+		// ----------------------------------------------------------------------------------------------------------------------------------------------
+		// Change the following input movement based on our player movement
+		// ----------------------------------------------------------------------------------------------------------------------------------------------
+		if (AEInputCheckReleased(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
+		{
+			for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
+				GameObjInst* pInst = sGameObjInstList + i;
+
+				// skip non-active object
+				if ((pInst->flag & FLAG_ACTIVE) == 0)
+					continue;
+
+				if (pInst->pObject->type == TYPE_BULLET)
+					gameObjInstDestroy(pInst);
+
+			}
+		}
+
+		if (AEInputCheckReleased(AEVK_DOWN))
+			totalEnemyCount = 0;
+
+		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
+		{
+			AEVec2 added;
+			AEVec2Set(&added, 0.f, 1.f);
+			//if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0 && playerdeathtimer == 0) //Jump
+			//{									
+			//	AEVec2 added;
+			//	AEVec2Set(&added, 0.f, 1.f);
+
+				// Find the velocity according to the acceleration
+			added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
+			added.y *= 20 * g_dt; //500
+
+			AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+			// Limit your speed over here
+			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+			jumpFuel -= g_dt;
+			AEVec2 particleVel = { 0, -1.5f };
+			for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
+			{
+				AEVec2 particlespawn = { static_cast<float>(i), PlayerBody->posCurr.y - 0.5f };
+				if (rand() % 2) {
+
+					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
+				}
+				else {
+					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orangy red color
+				}
+			}
+		}
+
+		if (AEInputCheckCurr(AEVK_A)) // Move left
+		{
+			AEVec2 added;
+			AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
+
+			// Find the velocity according to the acceleration
+			added.x *= -MOVE_VELOCITY * g_dt;
+			added.y *= -MOVE_VELOCITY * g_dt;
+			AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+			// Limit your speed over here
+			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
+		}
+		else if (AEInputCheckCurr(AEVK_D))
+		{
+			AEVec2 added;
+			AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
+
+			// Find the velocity according to the acceleration
+			added.x *= MOVE_VELOCITY * g_dt;
+			added.y *= MOVE_VELOCITY * g_dt;
+			AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+			// Limit your speed over here
+			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
+		}
+
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); \
+
+
+			// ----------------------------------------------------------------------------------------------------------------------------------------------
+			// Change to bullet spawning on mouse click in direction
+			// ----------------------------------------------------------------------------------------------------------------------------------------------
+			AEVec2 BarrelEnd;
+		// Shoot a bullet if left mouse button is triggered (Create a new object instance)
+		if (AEInputCheckReleased(VK_LBUTTON) && ammoCount > 0)
+		{
+			AEVec2 dirBullet;
+			// Get the bullet's direction according to the player's direction
+			AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+			// Set the velocity
+			dirBullet.x *= BULLET_SPEED;
+			dirBullet.y *= BULLET_SPEED;
+			// Calculate end of gun barrel position
+			// 
+			// 
+			// Create an instance
+
+			//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
+			BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
+			BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
+			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
+			--ammoCount;
+		}
+
+		if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
+		{
+			AEVec2 bulletDir{};
+			AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+			BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * BULLET_SPEED * 0.11f;
+			BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * BULLET_SPEED * 0.11f;
+
+			AEVec2 currPos{ BarrelEnd };
+
+			int bounceCount{ 0 };
+			for (int i{ 1 }; i < 1000; ++i) {
+				currPos.x += bulletDir.x * g_dt;
+				currPos.y += bulletDir.y * g_dt;
+
+				int collisionFlag = CheckInstanceBinaryMapCollision_dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+
+				if ((collisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
+					break;
+
+				bool reflectedFlag{ false };
+				AEVec2 normal{};
+				if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {
+					normal = { 0, -1 };
+					if (++bounceCount < 3)
+						reflectedFlag = true;
+					else
+						break;
+				}
+				if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {
+					normal = { 0, 1 };
+					if (++bounceCount < 3)
+						reflectedFlag = true;
+					else
+						break;
+				}
+				if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {
+					normal = { 1, 0 };
+					if (++bounceCount < 3)
+						reflectedFlag = true;
+					else
+						break;
+				}
+				if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {
+					normal = { -1, 0 };
+					if (++bounceCount < 3)
+						reflectedFlag = true;
+					else
+						break;
+				}
+
+				if (reflectedFlag) {
+					AEVec2 newVel{ bulletDir.x - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.x,  bulletDir.y - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.y };
+					AEVec2Normalize(&newVel, &newVel);
+					bulletDir = newVel;
+					currPos.x += bulletDir.x * g_dt;
+					currPos.y += bulletDir.y * g_dt;
+				}
+
+				if (i % 30 == 0)
+					gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_NONE);
+			}
+
+		}
+
+		int i{};
+		GameObjInst* pInst;
+
+		//Update object instances physics and behavior
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+			/****************
+			Apply gravity
+				Velocity Y = Gravity * Frame Time + Velocity Y
+
+			If object instance is an enemy
+				Apply enemy state machine
+			****************/
+			if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
+				gameObjInstDestroy(pInst);
+
+			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bulletbounce >= 1) // enemy bullet
+				gameObjInstDestroy(pInst);
+
+			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
+				pInst->velCurr.y += GRAVITY * g_dt;
+
+
+			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
+				EnemyStateMachine(pInst);
+			}
+		}
+
+		//Update object instances positions
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+			/**********
+			update the position using: P1 = V1*dt + P0
+			Get the bouding rectangle of every active instance:
+				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
+				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
+			**********/
+
+			// ----- Update Position -----
+			pInst->posCurr.x += pInst->velCurr.x * g_dt;
+			pInst->posCurr.y += pInst->velCurr.y * g_dt;
+
+			// ----- Update Bounding Box -----
+			pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+
+			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+		}
+
+		AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+		AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
+		//std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
+
+		float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
+		PlayerGun->dirCurr = dotProduct;
+
+		break;
 	}
 
 	int i{};
 	GameObjInst* pInst;
-
-	//Update object instances physics and behavior
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if (0 == (pInst->flag & FLAG_ACTIVE))
-			continue;
-
-		/****************
-		Apply gravity
-			Velocity Y = Gravity * Frame Time + Velocity Y
-
-		If object instance is an enemy
-			Apply enemy state machine
-		****************/
-		if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
-			gameObjInstDestroy(pInst);
-
-		if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bulletbounce >= 1) // enemy bullet
-			gameObjInstDestroy(pInst);
-
-		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
-			pInst->velCurr.y += GRAVITY * g_dt;
-
-
-		if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
-			EnemyStateMachine(pInst);
-		}
-	}
-
-
-	//Update object instances positions
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if (0 == (pInst->flag & FLAG_ACTIVE))
-			continue;
-
-		/**********
-		update the position using: P1 = V1*dt + P0
-		Get the bouding rectangle of every active instance:
-			boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-		**********/
-
-		// ----- Update Position -----
-		pInst->posCurr.x += pInst->velCurr.x * g_dt;
-		pInst->posCurr.y += pInst->velCurr.y * g_dt;
-
-		// ----- Update Bounding Box -----
-		pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-		pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-
-		pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-		pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-	}
-
 	//Check for grid collision
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
@@ -858,14 +1022,8 @@ void GameStateLevelsUpdate(void)
 					//	}
 					//	break;
 				case TYPE_PLAYER:
-					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player death
-						/*gameObjInstDestroy(pInst);
-						gameObjInstDestroy(PlayerBody);
-						gameObjInstDestroy(PlayerGun);
-						GameStateLevel1Load();
-						GameStateLevel1Init();
-						gGameStateNext = GS_RESTART;*/
-						if (pInst->state == STATE::STATE_NONE)
+					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player is hit
+						if (pInst->state == STATE::STATE_GOING_LEFT || pInst->state == STATE::STATE_NONE)
 							playerHealth -= 10.0f;
 						gameObjInstDestroy(pInst);
 					}
@@ -964,7 +1122,8 @@ void GameStateLevelsUpdate(void)
 	// 128x54
 	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
 	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
-	AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
+	if (playerdeathtimer == 0)
+		AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 
 
 	//std::cout << "Mouse Window Pos: (" << g_mouseX << ", " << g_mouseY << ")\n";
@@ -975,12 +1134,12 @@ void GameStateLevelsUpdate(void)
 	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
 	//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
 
-	AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-	AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-	//std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
+	//AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+	//AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
+	////std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
 
-	float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
-	PlayerGun->dirCurr = dotProduct;
+	//float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
+	//PlayerGun->dirCurr = dotProduct;
 }
 
 /******************************************************************************/
@@ -1023,7 +1182,9 @@ void GameStateLevelsDraw(void)
 		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
 		{
 			AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
-			AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
+
+			AEMtx33Trans(&cellTranslation, i + 0.5f, j - 0.5f);
+
 			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
 			AEGfxSetTransform(cellFinalTransformation.m);
 
@@ -1032,11 +1193,11 @@ void GameStateLevelsDraw(void)
 
 			if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 			{
-				//AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-				//AEGfxTextureSet(tex_stone, 0.f, 0.f);
+				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+				AEGfxTextureSet(tex_stone, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
-			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
+			else if (GetCellValue(i, j - 1, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT) // remove -1 after adding dirt texture
 			{
 				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
@@ -1096,6 +1257,10 @@ void GameStateLevelsDraw(void)
 		{
 			AEGfxSetTransparency(0.f);
 		}
+		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE)
+		{
+			AEGfxSetTransparency(0.4f);
+		}
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 		AEGfxTextureSet(NULL, 0.0f, 0.0f);
@@ -1108,7 +1273,7 @@ void GameStateLevelsDraw(void)
 		}
 	}
 
-	if (playerHealth >= 0) {
+	if (playerHealth >= 0.0f) {
 		// ----- Draw health bar on screen -----
 		// Find offset transform from player's position	
 		AEMtx33 scale, translate, transform;
@@ -1130,6 +1295,15 @@ void GameStateLevelsDraw(void)
 		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
+	//// ----- Draw ammo count on screen -----
+	//// Find offset transform from player's position	
+	//AEMtx33 translate, transform;
+	//// Compute the translation matrix
+	//AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y - 1.0f);
+	//// Concat with map transform
+	//AEMtx33Concat(&transform, &MapTransform, &translate);
+	//// Set transform
+	//AEGfxSetTransform(transform.m);
 
 	//	Drawing for Font for all states
 	f32 TextWidth = 1.0f;
@@ -1140,6 +1314,58 @@ void GameStateLevelsDraw(void)
 	sprintf_s(strBuffer, "Current Time : %.2f", levelTime);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Current Ammo : %d", ammoCount);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.8f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Enemies Left : %d", totalEnemyCount);
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.7f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	if (currInnerState == GAME_PAUSE) {
+		sprintf_s(strBuffer, "GAME PAUSED");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+
+		sprintf_s(strBuffer, "Press 'M' to go back to main menu");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+	}
+
+	// Tutorial text scripts
+	//sprintf_s(strBuffer, "Use A & D keys to move left & right!");
+	//AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	//AEGfxPrint(g_font20, strBuffer, -0.9f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+
+	/*sprintf_s(strBuffer, "D key - Move Right");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "W key - Jump Up");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.75f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "to destroy the enemy tanks");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Destroy all enemy tanks");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "to clear the level");
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);*/
+
 }
 
 /******************************************************************************/
@@ -1155,7 +1381,6 @@ void GameStateLevelsFree(void)
 
 		gameObjInstDestroy(pInst);
 	}
-
 }
 
 /******************************************************************************/
@@ -1168,9 +1393,11 @@ void GameStateLevelsUnload(void)
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {
 		GameObj* pObj = sGameObjList + i;
-		AEGfxMeshFree(pObj->pMesh);
+		if (pObj->pMesh != nullptr)
+			AEGfxMeshFree(pObj->pMesh);
 	}
 
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 	AEGfxTextureUnload(tex_stone);
+	tex_stone = nullptr;
 }

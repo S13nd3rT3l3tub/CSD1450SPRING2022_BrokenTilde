@@ -186,30 +186,30 @@ void GameStateMainMenuLoad() {
 */
 /******************************************************************************/
 void GameStateMainMenuInit() {
-	g_chosenLevel = 0;
+	//g_chosenLevel = 0;
 
 	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
 
-	AEVec2 scale{ 1.0f, 1.0f }, pos{0.0f, 0.0f};
-	gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos,0, 0.0f, STATE_NONE);
+	AEVec2 scaling{ 1.0f, 1.0f }, pos{0.0f, 0.0f};
+	gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos,0, 0.0f, STATE_NONE);
 
 	//	Create Button
-	scale = { 1.0f, 1.0f };
+	scaling = { 1.0f, 1.0f };
 	pos = { 0.0f, 0.0f };
 	ButtonInstance_START = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_START->sub_type = START_GAME;
 
-	scale = { 1.0f, 1.0f };
+	scaling = { 1.0f, 1.0f };
 	pos = { 0.0f, -100.0f };
 	ButtonInstance_OPTIONS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_OPTIONS->sub_type = OPTIONS;
 
-	scale = { 1.0f, 1.0f };
+	scaling = { 1.0f, 1.0f };
 	pos = { 0.0f, -200.0f };
 	ButtonInstance_CREDITS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_CREDITS->sub_type = CREDITS;
 
-	scale = { 1.0f, 1.0f };
+	scaling = { 1.0f, 1.0f };
 	pos = { 0,-300.0F };
 	ButtonInstance_QUIT = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_QUIT->sub_type = EXIT_GAME;
@@ -222,7 +222,7 @@ void GameStateMainMenuInit() {
 /******************************************************************************/
 void GameStateMainMenuUpdate() {
 
-	AEVec2 scale{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
+	AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
 	switch (currInnerState) {
 	case GAME_PLAY:
 		//	if number key 1 is pressed
@@ -256,7 +256,7 @@ void GameStateMainMenuUpdate() {
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox))
 					{
 						//	load level 1
-						g_chosenLevel = 1;
+						//g_chosenLevel = 1;
 						gGameStateNext = GS_LEVEL1;
 					}
 
@@ -264,16 +264,16 @@ void GameStateMainMenuUpdate() {
 					{
 						//	load option
 						screen = OPTION_SCREEN;
-						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE);
 
 						//	Create Button (toggle fullscreen)
-						scale = { 1.0f, 1.0f };
+						scaling = { 1.0f, 1.0f };
 						pos = { 0.0f, 0.0f };
 						ButtonInstance_TOGGLE_FS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_TOGGLE_FS->sub_type = TOGGLE_FS;
 
 						//	create button (return)
-						scale = { 1.0f, 1.0f };
+						scaling = { 1.0f, 1.0f };
 						pos = { 0,-300.0F };
 						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_RETURN->sub_type = RETURN;
@@ -283,10 +283,10 @@ void GameStateMainMenuUpdate() {
 					{
 						// load credit
 						screen = CREDIT_SCREEN;
-						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE);
 
 						//	create button (return)
-						scale = { 1.0f, 1.0f };
+						scaling = { 1.0f, 1.0f };
 						pos = { 0,-300.0F };
 						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_RETURN->sub_type = RETURN;
@@ -297,16 +297,16 @@ void GameStateMainMenuUpdate() {
 					{
 						//	exit confirmation
 						screen = EXIT_SCREEN;
-						gameObjInstCreate(&sGameObjList[bgObjIndex], &scale, &pos, 0, 0.0f, STATE_NONE);
+						gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE);
 
 						//	create button (Yes)
-						scale = { 0.5f, 0.5f };
+						scaling = { 0.5f, 0.5f };
 						pos = { -300.0f,-300.0f };
 						ButtonInstance_YES = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_YES->sub_type = YES;
 
 						//	create button (No)
-						scale = { 0.5f, 0.5f };
+						scaling = { 0.5f, 0.5f };
 						pos = { 300.0f ,-300.0f };
 						ButtonInstance_NO = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_NO->sub_type = NO;
