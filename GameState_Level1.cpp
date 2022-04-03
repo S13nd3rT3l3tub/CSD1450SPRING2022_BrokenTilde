@@ -1062,6 +1062,11 @@ void GameStateLevel1Update(void)
 				}
 			}
 			break;
+		case TYPE_ENEMY1:
+			if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
+				playerHealth = 0; // player dies if collision with enemy
+			}
+
 		}
 	}
 
