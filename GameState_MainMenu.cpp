@@ -360,6 +360,7 @@ void GameStateMainMenuUpdate() {
 						screen = MAIN_SCREEN;
 						gGameStateCurr = GS_RESTART;
 					}
+
 					break;
 			}
 		}
@@ -664,6 +665,15 @@ void GameStateMainMenuDraw() {
 		sprintf_s(strBuffer, "Michael GATS");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		break;
+
+	case EXIT_SCREEN:
+		sprintf_s(strBuffer, "Are you sure you want to exit?");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.2f, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		break;
 	}
 }
 
