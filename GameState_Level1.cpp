@@ -480,8 +480,6 @@ void GameStateLevel1Update(void)
 		}
 		else if (playerdeathtimer < 0)
 		{
-			//GameStateLevel1Load();
-			//GameStateLevel1Init();
 			currInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
 			playerdeathtimer = 0;
@@ -529,7 +527,7 @@ void GameStateLevel1Update(void)
 		}*/
 
 		// Check win state
-		if (totalEnemyCount <= 0) {
+		if (totalEnemyCount <= 0 && ammoCount > 1) {
 			currInnerState = GAME_WIN;
 		}
 		// Check lose state
