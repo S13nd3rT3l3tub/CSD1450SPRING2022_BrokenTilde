@@ -450,8 +450,8 @@ void GameStateLevel1Update(void)
 		break;
 	case GAME_WIN:
 		gGameStateNext = GS_LEVELS;
-		g_chosenLevel = 2;
 		currInnerState = GAME_PLAY;
+		g_chosenLevel = 2;
 		break;
 	case GAME_LOSE: {
 		if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
@@ -581,8 +581,9 @@ void GameStateLevel1Update(void)
 			}
 		}
 
-		if (AEInputCheckReleased(AEVK_DOWN))
+		if (AEInputCheckReleased(AEVK_DOWN)) {
 			totalEnemyCount = 0;
+		}
 
 		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
 		{
@@ -1043,10 +1044,6 @@ void GameStateLevel1Update(void)
 								particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
 								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
 							}
-						}
-						if (totalEnemyCount <= 0 && gGameStateNext != GS_RESTART) // WIN CONDITION, KILL ALL ENEMIES TO WIN LEVEL
-						{
-							gGameStateNext = GS_MAINMENU; // temporary - go to main menu after level completion.
 						}
 					}
 					break;
