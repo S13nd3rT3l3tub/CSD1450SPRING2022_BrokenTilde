@@ -428,7 +428,7 @@ void GameStateLevel1Init(void)
 	}
 
 	// Set ammoCount
-	ammoCount = static_cast<int>(totalEnemyCount * 4);
+	ammoCount = static_cast<int>(totalEnemyCount * 3);
 }
 
 /******************************************************************************/
@@ -480,8 +480,6 @@ void GameStateLevel1Update(void)
 		}
 		else if (playerdeathtimer < 0)
 		{
-			//GameStateLevel1Load();
-			//GameStateLevel1Init();
 			currInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
 			playerdeathtimer = 0;
@@ -529,7 +527,7 @@ void GameStateLevel1Update(void)
 		}*/
 
 		// Check win state
-		if (totalEnemyCount <= 0) {
+		if (totalEnemyCount <= 0 && ammoCount > 1) {
 			currInnerState = GAME_WIN;
 		}
 		// Check lose state
@@ -1061,6 +1059,11 @@ void GameStateLevel1Update(void)
 				}
 			}
 			break;
+		case TYPE_ENEMY1:
+			if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
+				playerHealth = 0; // player dies if collision with enemy
+			}
+
 		}
 	}
 
@@ -1313,6 +1316,13 @@ void GameStateLevel1Draw(void)
 	sprintf_s(strBuffer, "Current Ammo : %d", ammoCount);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.8f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	if (ammoCount < 8) // Warning for low Ammo
+	{
+		sprintf_s(strBuffer, "Warning: Low Ammo");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	}
 
 	sprintf_s(strBuffer, "Enemies Left : %d", totalEnemyCount);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
