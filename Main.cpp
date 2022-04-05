@@ -87,7 +87,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 			if ((AESysDoesWindowExist() == false))
 				gGameStateNext = GS_QUIT;
 
-			g_dt = (f32)AEFrameRateControllerGetFrameTime() < 1.0f / 60.0f ? AEFrameRateControllerGetFrameRate() : 1.0f / 60.0f;
+			g_dt = static_cast<float>(AEFrameRateControllerGetFrameTime()) < 1.0f / 60.0f ? static_cast<float>(AEFrameRateControllerGetFrameTime()) : 1.0f / 60.0f;
 			AEInputGetCursorPosition(&g_mouseX, &g_mouseY);
 			g_appTime += g_dt;
 		}

@@ -388,6 +388,8 @@ int		CheckInstanceBinaryMapCollision_dotted(float PosX, float PosY, float scaleX
 
 void	FreeMapData(int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
+	UNREFERENCED_PARAMETER(_BINARY_MAP_WIDTH);
+
 	for (int i = 0; i < _BINARY_MAP_HEIGHT; i++)
 	{
 		delete[](*_MapData)[i];
