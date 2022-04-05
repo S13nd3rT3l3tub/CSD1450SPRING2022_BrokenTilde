@@ -1,0 +1,36 @@
+8888888b.  8888888 .d8888b.   .d88888b.   .d8888b.  888    888 8888888888 88888888888 
+888   Y88b   888  d88P  Y88b d88P" "Y88b d88P  Y88b 888    888 888            888     
+888    888   888  888    888 888     888 888    888 888    888 888            888     
+888   d88P   888  888        888     888 888        8888888888 8888888        888     
+8888888P"    888  888        888     888 888        888    888 888            888     
+888 T88b     888  888    888 888     888 888    888 888    888 888            888     
+888  T88b    888  Y88b  d88P Y88b. .d88P Y88b  d88P 888    888 888            888     
+888   T88b 8888888 "Y8888P"   "Y88888P"   "Y8888P"  888    888 8888888888     888 
+
+(Action Shooter, Tactical)  
+
+Ricochet is a 2D platformer encompassing elements of tactical shooters, platformer and puzzle.
+The player dropped behind enemy lines and has to clear the enemies in the level to allow
+allies to push through. Players have at their disposal a tank that has the ability to jump,
+ricochet projectiles off walls while being able to take multiple hits from opposing enemies.
+However, bullet ammunition is limited! The player must make each shot count and clear all 
+enemies in the level before they can refill and tackle later challenges.
+
+By Broken Tidle - CSD1450 Sections C & D
+
+RTIS	Lee Hsien Wei, Joachim - Programmer
+RTIS	Zafir MOHAMAD	       - Programmer
+IMGD	Desmond Too Wei Kang   - Programmer
+RTIS	Leong Wai Kit	       - Programmer
+
+Game Controls
+	A - to move left
+	D - to move right
+	W - to thrust upward
+	LMB - to shoot
+	RMB - to aim with projectile trajectory
+
+Tips
+	You are given limited ammo so use them wisely to dispense your enemies.
+
+	
