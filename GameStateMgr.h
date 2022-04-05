@@ -1,16 +1,19 @@
-/******************************************************************************/
 /*!
-\file		GameStateMgr.h
-\author 	DigiPen
-\par    	email: digipen\@digipen.edu
-\date   	January 01, 20xx
-\brief		ToDo: give a brief explanation here
-
-Copyright (C) 20xx DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the
-prior written consent of DigiPen Institute of Technology is prohibited.
- */
-/******************************************************************************/
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@file       BinaryMap.cpp
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Desmond Too Wei Kang (d.too@digipen.edu)
+@role		Authored Functions
+*//*_________________________________________________________________________*/
 
 #ifndef GAME_STATE_MGR_H_
 #define GAME_STATE_MGR_H_

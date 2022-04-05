@@ -1,3 +1,16 @@
+/*!
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@file       BinaryMap.cpp
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Authored Functions
+*//*_________________________________________________________________________*/
 #include "Main.h"
 
 int ImportMapDataFromFile(std::string FileName, int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)

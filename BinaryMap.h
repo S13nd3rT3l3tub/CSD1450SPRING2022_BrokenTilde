@@ -1,3 +1,16 @@
+/*!
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@file       BinaryMap.h
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Desmond Too Wei Kang (d.too@digipen.edu)
+@role		Authored Functions
+*//*_________________________________________________________________________*/
 #pragma once
 
 #ifndef BINARY_MAP_H_

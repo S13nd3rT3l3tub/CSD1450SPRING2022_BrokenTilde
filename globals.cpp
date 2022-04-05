@@ -1,5 +1,18 @@
-#include "Main.h"
+/*!
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@file       Globals.cpp
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Authored Functions
+*//*_________________________________________________________________________*/
 
+#include "Main.h"
 
 // ---------------------------------------------------------------------------
 // Globals
