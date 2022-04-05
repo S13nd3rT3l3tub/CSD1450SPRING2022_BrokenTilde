@@ -52,8 +52,11 @@ int winHeight{ 720 };
 	Static Variables
 */
 /******************************************************************************/
- bool toFullScreen{ true };
+ bool toFullScreen{ false };
  unsigned long currInnerState{GAME_PLAY};
+
+ FMOD::System* fmodSys{nullptr};
+ FMOD::Sound* mainMenuBG{nullptr};
 
 // list of original object
 GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)

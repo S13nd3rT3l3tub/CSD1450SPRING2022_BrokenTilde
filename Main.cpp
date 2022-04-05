@@ -46,10 +46,23 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	g_font30 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 30);
 
 	g_chosenLevel = 0;
-	//std::cout << g_chosenLevel << std::endl;
-
 
 	GameStateMgrInit(GS_SPLASHSCREEN);
+
+	FMOD_RESULT result{};
+	result = FMOD::System_Create(&fmodSys);      // Create the main system object.
+	if (result != FMOD_OK){
+		//printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+		return -1;
+	}
+	result = fmodSys->init(5, FMOD_INIT_NORMAL, 0);    // Initialize FMOD.
+	if (result != FMOD_OK){
+		//printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+		return -1;
+	}
+
+	fmodSys->createSound(".\\Resources\\Sounds\\Change.wav", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
+	//fmodSys->playSound(mainMenuBG, nullptr, false, nullptr);
 
 	while(gGameStateCurr != GS_QUIT)
 	{
@@ -102,6 +115,9 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	AEGfxDestroyFont(g_font12);
 	AEGfxDestroyFont(g_font20);
 	AEGfxDestroyFont(g_font30);
+
+	// Free the fMod Sys
+	fmodSys->release();
 
 	// free the system
 	AESysExit();

@@ -21,7 +21,6 @@
 /******************************************************************************/
 
 
-
 /******************************************************************************/
 /*!
 	Enums/Struct/Class Definitions
@@ -51,6 +50,8 @@ enum SCREEN_TYPE {
 	(Static) Variables
 */
 /******************************************************************************/
+FMOD::Channel* mainMenuChannel;
+
 AEGfxTexture* backgroundTexture;
 AEGfxTexture* buttonTexture_START;
 AEGfxTexture* buttonTexture_QUIT;
@@ -64,7 +65,6 @@ AEGfxTexture* buttonTexture_NO;
 
 AEVec2		BUTTON_MESHSIZE = { 500.0f, 100.0f };
 AEVec2		BUTTON_SCALE	= { 1.0f, 1.0f };
-
 
 
 static GameObjInst* ButtonInstance_START;
@@ -96,6 +96,8 @@ void GameStateMainMenuLoad() {
 	memset(sGameObjInstList, 0, sizeof(GameObjInst) * GAME_OBJ_INST_NUM_MAX);
 	// No game object instances (sprites) at this point
 	sGameObjInstNum = 0;
+
+
 
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
@@ -176,7 +178,8 @@ void GameStateMainMenuLoad() {
 	// Move camera to 0,0 in event menu is loaded after game
 	AEGfxSetCamPosition(0.0f, 0.0f);
 
-
+	fmodSys->playSound(mainMenuBG, nullptr, false, &mainMenuChannel);
+	
 	screen = MAIN_SCREEN;
 }
 
@@ -336,7 +339,7 @@ void GameStateMainMenuUpdate() {
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
 					{
 						screen = MAIN_SCREEN;
-						gGameStateCurr = GS_RESTART;
+						gGameStateNext = GS_RESTART;
 					}
 					break;
 
@@ -345,7 +348,7 @@ void GameStateMainMenuUpdate() {
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
 					{
 						screen = MAIN_SCREEN;
-						gGameStateCurr = GS_RESTART;
+						gGameStateNext = GS_RESTART;
 					}
 					break;
 
@@ -358,17 +361,14 @@ void GameStateMainMenuUpdate() {
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_NO->boundingBox))
 					{
 						screen = MAIN_SCREEN;
-						gGameStateCurr = GS_RESTART;
+						gGameStateNext = GS_RESTART;
 					}
 
 					break;
 			}
 		}
 
-		// =========================
-		// update according to input
-		// =========================
-
+		fmodSys->update();
 
 		int i{};
 		GameObjInst* pInst;
@@ -706,7 +706,9 @@ void GameStateMainMenuUnload() {
 	AEGfxTextureUnload(buttonTexture_RETURN);
 	AEGfxTextureUnload(buttonTexture_YES);
 	AEGfxTextureUnload(buttonTexture_NO);
-	
+
+	mainMenuChannel->stop();
+		
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {
 		GameObj* pObj = sGameObjList + i;

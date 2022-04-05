@@ -19,6 +19,7 @@
 #define _GLOBAL_H_
 
 #include "AEEngine.h"
+#include <fmod.hpp>
 
 // ---------------------------------------------------------------------------
 // Globals
@@ -200,6 +201,10 @@ struct GameObjInst
 extern bool toFullScreen;
 
 extern unsigned long currInnerState;
+
+// Sounds
+extern FMOD::System* fmodSys;
+extern FMOD::Sound* mainMenuBG;
 
 // list of original object
 extern GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)

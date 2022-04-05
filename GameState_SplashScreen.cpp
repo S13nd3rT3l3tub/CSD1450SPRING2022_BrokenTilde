@@ -91,6 +91,8 @@ void GameStateSplashScreenUpdate(void) {
 
 	if (timer < 0.0f)
 		gGameStateNext = GS_MAINMENU;
+
+	fmodSys->update();
 }
 
 void GameStateSplashScreenDraw(void) {

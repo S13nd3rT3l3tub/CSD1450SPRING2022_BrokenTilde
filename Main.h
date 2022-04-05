@@ -21,7 +21,7 @@
 
 // ---------------------------------------------------------------------------
 // includes
-//#include <SFML>
+#include <fmod.hpp>
 #include <string>
 #include <iostream>
 #include <fstream>
