@@ -1,12 +1,18 @@
 /*!
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
-@file       Main.h
+@file       BinaryMap.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Added font variables for game usage
+@role		Authored Functions
 -------------------------------------------------------------------------------
-@author
-@role
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Desmond Too Wei Kang (d.too@digipen.edu)
+@role		Authored Functions
 *//*_________________________________________________________________________*/
 
 

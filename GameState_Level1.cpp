@@ -1,16 +1,19 @@
-/******************************************************************************/
 /*!
-\file		GameState_Level1.cpp
-\author 	DigiPen
-\par    	email: digipen\@digipen.edu
-\date   	January 01, 20xx
-\brief		ToDo: give a brief explanation here
-
-Copyright (C) 20xx DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the
-prior written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+@Copyright	Copyright � 2022 DigiPen, All rights reserved.
+@file       GameState_Level1.cpp
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Desmond Too Wei Kang (d.too@digipen.edu)
+@role		Authored Functions
+*//*_________________________________________________________________________*/
 
 #include "Main.h"
 
@@ -368,14 +371,18 @@ void GameStateLevel1Init(void)
 	totalEnemyCount = 0;
 	// Set player's initial health
 	playerHealth = PLAYER_INITIAL_HEALTH;
+
+	//create empty instance
 	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
 	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
 	
+	//create platform instance
 	PlatformInstance = gameObjInstCreate(&sGameObjList[platformObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
 
+	//create distructable wall instance
 	DirtInstance = gameObjInstCreate(&sGameObjList[dirtObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	DirtInstance->flag ^= FLAG_VISIBLE;
 	DirtInstance->flag |= FLAG_NON_COLLIDABLE;
@@ -384,8 +391,6 @@ void GameStateLevel1Init(void)
 
 	srand(static_cast<unsigned int>(time(NULL))); // Seed random generator
 
-	//PrintRetrievedInformation();
-
 	// Initialise Binary map
 	for (int row = 0; row < BINARY_MAP_HEIGHT; row++) {
 		for (int col = 0; col < BINARY_MAP_WIDTH; col++) {
@@ -393,22 +398,6 @@ void GameStateLevel1Init(void)
 			Pos.y = row + 0.5f;
 
 			switch(GetCellValue(col, row, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT)) {
-				//	Boundary walls - Top and Bottom
-				//case 1:
-				//	platScale = { 150, 50 };
-				//	platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
-				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
-				//	break;
-				////	Platforms
-				//case 2:
-				//	platScale = { 150, 25 };
-				//	platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
-				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
-				//	break;
-
-			//case TYPE_PLATFORM:
-			//	gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
-			//	break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(&sGameObjList[playerObjIndex], &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
 				PlayerGun = gameObjInstCreate(&sGameObjList[playerGunObjIndex], &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
@@ -438,7 +427,6 @@ void GameStateLevel1Init(void)
 /******************************************************************************/
 void GameStateLevel1Update(void)
 {	
-
 	switch (currInnerState) {
 	case GAME_PAUSE:
 		if (AEInputCheckReleased(AEVK_M)) {
@@ -455,8 +443,11 @@ void GameStateLevel1Update(void)
 		break;
 	case GAME_LOSE: {
 		if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
+			//destroy player instances
 			gameObjInstDestroy(PlayerGun);
 			gameObjInstDestroy(PlayerBody);
+
+			//Simulate particles upon player death
 			AEVec2 particleVel;
 			for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 			{
@@ -474,7 +465,8 @@ void GameStateLevel1Update(void)
 			}
 		}
 
-		if (playerdeathtimer > 0) // post player death control
+		// post player death control
+		if (playerdeathtimer > 0) 
 		{
 			playerdeathtimer -= g_dt;
 		}
@@ -483,6 +475,11 @@ void GameStateLevel1Update(void)
 			currInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
 			playerdeathtimer = 0;
+			std::string fileName{ "" };
+			fileName = ".\\Resources\\Level Data\\Level1.txt";
+
+			if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+				gGameStateNext = GS_QUIT;
 		}
 
 		int i{};
@@ -495,13 +492,6 @@ void GameStateLevel1Update(void)
 			// skip non-active object
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
-
-			/**********
-			update the position using: P1 = V1*dt + P0
-			Get the bouding rectangle of every active instance:
-				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			**********/
 
 			// ----- Update Position -----
 			pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -522,10 +512,6 @@ void GameStateLevel1Update(void)
 		// Update level time
 		levelTime += g_dt;
 
-		/*if (scriptTimer1 > 0.0f) {
-			scriptTimer1 -= g_dt;
-		}*/
-
 		// Check win state
 		if (totalEnemyCount <= 0 && ammoCount > 1) {
 			currInnerState = GAME_WIN;
@@ -533,32 +519,14 @@ void GameStateLevel1Update(void)
 		// Check lose state
 		if (playerHealth <= 0.0f || ammoCount <= 0) {
 			playerHealth = 0;
-			//gameObjInstDestroy(PlayerGun);
-			//gameObjInstDestroy(PlayerBody);
 			playerdeathtimer = PLAYER_DEATH_ANIME_TIME;
 			currInnerState = GAME_LOSE;
-
-			//AEVec2 particleVel;
-			//for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
-			//{
-			//	AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
-			//	if (rand() % 2) // randomize polarity of particleVel.x
-			//	{
-			//		particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-			//		gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
-			//	}
-			//	else
-			//	{
-			//		particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-			//		gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
-			//	}
-			//}
 		}
 
 		// =========================
 		// update according to input
 		// =========================
-		// 
+
 		//	if escape key is pressed
 		if (AEInputCheckReleased(AEVK_ESCAPE))
 			currInnerState = GAME_PAUSE;
@@ -566,42 +534,27 @@ void GameStateLevel1Update(void)
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the following input movement based on our player movement
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
-		if (AEInputCheckReleased(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
-		{
-			for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
-				GameObjInst* pInst = sGameObjInstList + i;
 
-				// skip non-active object
-				if ((pInst->flag & FLAG_ACTIVE) == 0)
-					continue;
-
-				if (pInst->pObject->type == TYPE_BULLET)
-					gameObjInstDestroy(pInst);
-
-			}
-		}
-
+		//cheatcode to go next level
 		if (AEInputCheckReleased(AEVK_DOWN)) {
 			totalEnemyCount = 0;
 		}
 
-		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
+		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to thrust upward
 		{
 			AEVec2 added;
+
+			//add velocity to player
 			AEVec2Set(&added, 0.f, 1.f);
-		//if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0 && playerdeathtimer == 0) //Jump
-		//{									
-		//	AEVec2 added;
-		//	AEVec2Set(&added, 0.f, 1.f);
-
-			// Find the velocity according to the acceleration
-			added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-			added.y *= 20 * g_dt; //500
-
+			added.x *= 1;
+			added.y *= 20 * g_dt;
 			AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-			// Limit your speed over here
+
+			// Limit speed
 			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
-			jumpFuel -= g_dt;
+			jumpFuel -= g_dt; //deplete jump fuel
+
+			//Simulate particles when thrust is active
 			AEVec2 particleVel = { 0, -1.5f };
 			for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
 			{
@@ -628,7 +581,7 @@ void GameStateLevel1Update(void)
 			// Limit your speed over here
 			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 		}
-		else if (AEInputCheckCurr(AEVK_D))
+		else if (AEInputCheckCurr(AEVK_D)) // Move right
 		{
 			AEVec2 added;
 			AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
@@ -641,7 +594,8 @@ void GameStateLevel1Update(void)
 			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 		}
 
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); \
+		//limit player movement velocity
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 
 
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -657,19 +611,14 @@ void GameStateLevel1Update(void)
 			// Set the velocity
 			dirBullet.x *= BULLET_SPEED;
 			dirBullet.y *= BULLET_SPEED;
-			// Calculate end of gun barrel position
-			// 
-			// 
-			// Create an instance
-
-			//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
 			BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
 			BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
+			//create bullet instance
 			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
-			--ammoCount;
+			--ammoCount; //deplete ammo
 		}
 
-		if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
+		if (AEInputCheckCurr(VK_RBUTTON)) // aim with trajectory line
 		{
 			AEVec2 bulletDir{};
 			AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
@@ -745,23 +694,19 @@ void GameStateLevel1Update(void)
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
 
-			/****************
-			Apply gravity
-				Velocity Y = Gravity * Frame Time + Velocity Y
-
-			If object instance is an enemy
-				Apply enemy state machine
-			****************/
+			//If bullet bounces more than 2 times, destroy bullet
 			if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
 				gameObjInstDestroy(pInst);
 
-			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bulletbounce >= 1) // enemy bullet
+			//Prevent enemy bullets from bouncing
+			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bulletbounce >= 1)
 				gameObjInstDestroy(pInst);
 
+			//Apply gravity to enemies and player
 			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 				pInst->velCurr.y += GRAVITY * g_dt;
 
-
+			//Apply enemy state machine to enemy AI.
 			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
 				EnemyStateMachine(pInst);
 			}
@@ -775,13 +720,6 @@ void GameStateLevel1Update(void)
 			// skip non-active object
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
-
-			/**********
-			update the position using: P1 = V1*dt + P0
-			Get the bouding rectangle of every active instance:
-				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			**********/
 
 			// ----- Update Position -----
 			pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -797,12 +735,10 @@ void GameStateLevel1Update(void)
 
 		AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 		AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-		//std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
 
 		float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
 		PlayerGun->dirCurr = dotProduct;
-
-	break;
+		break;
 	}
 
 	int i{};
@@ -821,35 +757,20 @@ void GameStateLevel1Update(void)
 			continue;
 
 
-		/*************
-		Update grid collision flag
-
-		if collision from bottom
-			Snap to cell on Y axis
-			Velocity Y = 0
-
-		if collision from top
-			Snap to cell on Y axis
-			Velocity Y = 0
-
-		if collision from left
-			Snap to cell on X axis
-			Velocity X = 0
-
-		if collision from right
-			Snap to cell on X axis
-			Velocity X = 0
-		*************/
+		/**************************
+		 Update grid collision flag
+		***************************/
 		int prevbounce = pInst->bulletbounce;
-		if (pInst->pObject->type == TYPE_BULLET)
+		if (pInst->pObject->type == TYPE_BULLET) //for bullets
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
-		}
-		else //if(pInst->pObject->type != TYPE_PARTICLE1 && pInst->state != STATE_ALERT)
+		} 
+		else //for everything else
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 		}
 
+		//if bullet hits destructable wall
 		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable) // dirt destroy particles
 		{
 			AEVec2 particlevel{ 0,0 };
@@ -859,7 +780,8 @@ void GameStateLevel1Update(void)
 			hold.x = hold.x / 6;
 			hold.y = hold.y / 6;
 			AEVec2 particlepos = { static_cast<float>(static_cast<int>(pInst->posCurr.x + hold.x)),  static_cast<float>(static_cast<int>(pInst->posCurr.y + hold.y)) + 0.65f };
-			//std::cout << particlepos.x << " " << particlepos.y << std::endl;
+			
+			//simulate particles upon destruction of destructable wall
 			for (int innerI{}; innerI < 7; ++innerI)
 			{
 				particlevel.y = static_cast<float>(rand() % 7 + 2) / -3.5f;
@@ -869,21 +791,19 @@ void GameStateLevel1Update(void)
 				particlepos.x += 0.13f;
 				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
 			}
-			gameObjInstDestroy(pInst);
+			gameObjInstDestroy(pInst); //destroy bullet
 		}
 
 		bool reflectedFlag = false;
+
+		//bullet collision with left side of platform
 		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ 1, 0 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-					//Limit number of bullet bounces:
-					//std::cout << pInst->bulletbounce;
 					reflectedFlag = true;
 					if (prevbounce == pInst->bulletbounce)
 						++(pInst->bulletbounce);
@@ -896,6 +816,7 @@ void GameStateLevel1Update(void)
 			}
 		}
 
+		//bullet collision with right side of platform
 		if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT) {
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
@@ -918,6 +839,7 @@ void GameStateLevel1Update(void)
 			}
 		}
 
+		//bullet collision with bottom side of platform
 		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM) {
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
@@ -948,6 +870,7 @@ void GameStateLevel1Update(void)
 			}
 		}
 
+		//bullet collision with top side of platform
 		if ((pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP) {
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
@@ -969,8 +892,6 @@ void GameStateLevel1Update(void)
 				SnapToCell(&pInst->posCurr.y);
 			}
 		}
-
-
 	}
 
 	// Attach gun to player after grid collision checks
@@ -998,26 +919,6 @@ void GameStateLevel1Update(void)
 					continue;
 
 				switch (pOtherInst->pObject->type) {
-					//case TYPE_PLATFORM:
-					//	if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-					//		std::cout << "Collided";
-					//		AEVec2 normal{}, newBulletVel{};
-					//		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM ||
-					//			(pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP)
-					//			normal = { 0, 1 };
-					//		else if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || 
-					//			(pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT)
-					//			normal = { 1, 0 };
-					//		//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
-					//		newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
-					//		newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-					//		pInst->velCurr = newBulletVel;
-					//		//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-
-					//		// Increment bullet bounces
-					//		++(pInst->bulletbounce);
-					//	}
-					//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player is hit
 						if (pInst->state == STATE::STATE_GOING_LEFT || pInst->state == STATE::STATE_NONE)
@@ -1027,10 +928,14 @@ void GameStateLevel1Update(void)
 					break;
 				case TYPE_ENEMY1:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
+						
+						//destroy enemy instance
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(pOtherInst);
 						--totalEnemyCount;
 						AEVec2 particleVel;
+
+						//Simulate particles upon enemy death
 						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
 							AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y };
@@ -1052,6 +957,8 @@ void GameStateLevel1Update(void)
 					{
 						break;
 					}
+
+					//destroy two bullets if they collide with one another.
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 						gameObjInstDestroy(pInst);
 						gameObjInstDestroy(pOtherInst);
@@ -1061,9 +968,8 @@ void GameStateLevel1Update(void)
 			break;
 		case TYPE_ENEMY1:
 			if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
-				playerHealth = 0; // player dies if collision with enemy
+				playerHealth = 0; // player dies if collide with enemy
 			}
-
 		}
 	}
 
@@ -1077,10 +983,6 @@ void GameStateLevel1Update(void)
 		pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
 
-		//UNREFERENCED_PARAMETER(trans);
-		//UNREFERENCED_PARAMETER(rot);
-		//UNREFERENCED_PARAMETER(scale);
-
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
@@ -1088,7 +990,7 @@ void GameStateLevel1Update(void)
 		// Compute the scaling matrix
 		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
 		// Compute the rotation matrix 
-		//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
+
 		if (pInst->pObject->type == TYPE_BULLET)
 			AEMtx33Rot(&rot, 0);
 		else
@@ -1100,44 +1002,19 @@ void GameStateLevel1Update(void)
 		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
 
-	// Update Camera position, for Level2
-		// To follow the player's position
-		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
-			// You may use an alpha engine helper function to clamp the camera position: AEClamp()
-	//f32 clampedx = PlayerBody->posCurr.x * BINARY_MAP_WIDTH - AEGetWindowWidth() - 500;
-	////clampedx = AEClamp(clampedx, -400, 400); // clamp x axis
-	//f32 clampedy = PlayerBody->posCurr.y * static_cast<f32>(BINARY_MAP_HEIGHT) / 2.5f - AEGetWindowHeight();
-	////clampedy = AEClamp(clampedy, -200, 270); // clamp y axis
-	//AEGfxSetCamPosition(clampedx, clampedy); // set camera to pHero clamped to map
-
+	//Camera follows the player around the level
 	float cameraX, cameraY;
 	AEGfxGetCamPosition(&cameraX, &cameraY);
-	//std::cout << "Camera Pos: (" << cameraX << ", " << cameraY << ")\n";
-
 	AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 	AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
 
-	// 128x54
 	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
 	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
 	if (playerdeathtimer == 0)
 		AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 
-
-	//std::cout << "Mouse Window Pos: (" << g_mouseX << ", " << g_mouseY << ")\n";
-	//worldMouseX = static_cast<float>(g_mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(40));
-	//worldMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(g_mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(20));
-	// Mouse in world coordinates
 	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
 	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
-	//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
-
-	//AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-	//AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-	////std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
-
-	//float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
-	//PlayerGun->dirCurr = dotProduct;
 }
 
 /******************************************************************************/
@@ -1147,8 +1024,6 @@ void GameStateLevel1Update(void)
 /******************************************************************************/
 void GameStateLevel1Draw(void)
 {
-	//char strBuffer[1024];
-
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);	
 	AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
@@ -1158,24 +1033,6 @@ void GameStateLevel1Draw(void)
 	AEMtx33 cellTranslation, cellFinalTransformation;
 
 	//Drawing the tile map
-
-	/******REMINDER*****
-	You need to concatenate MapTransform with the transformation matrix
-	of any object you want to draw. MapTransform transform the instance
-	from the normalized coordinates system of the binary map
-	*******************/
-	/*********
-	for each array element in BinaryCollisionArray (2 loops)
-		Compute the cell's translation matrix acoording to its
-		X and Y coordinates and save it in "cellTranslation"
-		Concatenate MapTransform with the cell's transformation
-		and save the result in "cellFinalTransformation"
-		Send the resultant matrix to the graphics manager using "AEGfxSetTransform"
-
-		Draw the instance's shape depending on the cell's value using "AEGfxMeshDraw"
-			Use the black instance in case the cell's value is TYPE_OBJECT_EMPTY
-			Use the white instance in case the cell's value is TYPE_OBJECT_COLLISION
-	*********/
 	for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
 		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
 		{
@@ -1218,25 +1075,9 @@ void GameStateLevel1Draw(void)
 		if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
 			continue;
 
-		//Don't forget to concatenate the MapTransform matrix with the transformation of each game object instance
-		//AEMtx33 concatTransform{};
-		//AEMtx33Concat(&concatTransform, &MapTransform, &pInst->transform);
-
-		// Set the current object instance's transform matrix using "AEGfxSetTransform"
-		//AEGfxSetTransform(concatTransform.m);
 		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &pInst->transform);
 		AEGfxSetTransform(cellFinalTransformation.m);
-		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
-		//if (pInst->pObject->type == TYPE_DIRT && pInst->state == STATE_ALERT) // particles for dirt destroy
-		//{
-		//	std::cout << "HERE";
-		//	AEGfxSetTransparency(pInst->dirCurr);
-		//	if (pInst->dirCurr <= 0)
-		//	{
-		//		gameObjInstDestroy(pInst);
-		//	}
-		//	pInst->dirCurr -= g_dt;
-		//}
+
 		if (pInst->pObject->type == TYPE_PARTICLE1) // Particle transparancy handler
 		{
 			AEGfxSetTransparency(pInst->dirCurr);
@@ -1247,7 +1088,7 @@ void GameStateLevel1Draw(void)
 
 			if (pInst->state == STATE_ALERT)
 			{
-				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); //0.5f, 0.1f, 0.f, 1.f alt color
+				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); 
 			}
 			pInst->dirCurr -= g_dt;
 		}
@@ -1293,15 +1134,7 @@ void GameStateLevel1Draw(void)
 		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
-	//// ----- Draw ammo count on screen -----
-	//// Find offset transform from player's position	
-	//AEMtx33 translate, transform;
-	//// Compute the translation matrix
-	//AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y - 1.0f);
-	//// Concat with map transform
-	//AEMtx33Concat(&transform, &MapTransform, &translate);
-	//// Set transform
-	//AEGfxSetTransform(transform.m);
+	//// ----- Drawing UI elements -----
 
 	//	Drawing for Font for all states
 	f32 TextWidth = 1.0f;

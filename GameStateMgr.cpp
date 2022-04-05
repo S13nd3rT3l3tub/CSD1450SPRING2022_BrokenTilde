@@ -1,16 +1,10 @@
-/******************************************************************************/
 /*!
-\file		GameStateMgr.cpp
-\author 	DigiPen
-\par    	email: digipen\@digipen.edu
-\date   	January 01, 20xx
-\brief		ToDo: give a brief explanation here
-
-Copyright (C) 20xx DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the
-prior written consent of DigiPen Institute of Technology is prohibited.
- */
-/******************************************************************************/
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@file       GameStateMgr.cpp
+-------------------------------------------------------------------------------
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Authored Functions
+*//*_________________________________________________________________________*/
 
 #include "Main.h"
 
