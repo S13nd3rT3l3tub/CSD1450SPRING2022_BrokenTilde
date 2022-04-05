@@ -447,12 +447,17 @@ void GameStateLevelsUpdate(void)
 {
 	switch (currInnerState) {
 	case GAME_PAUSE:
-		if (AEInputCheckReleased(AEVK_M)) {
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PLAY;
+		else if (AEInputCheckReleased(AEVK_R)) {
+			gGameStateNext = GS_RESTART;
+			currInnerState = GAME_PLAY;
+		}
+		else if (AEInputCheckReleased(AEVK_M)) {
 			gGameStateNext = GS_MAINMENU;
 			currInnerState = GAME_PLAY;
 		}
-		if (AEInputCheckReleased(AEVK_ESCAPE))
-			currInnerState = GAME_PLAY;
+
 		break;
 	case GAME_WIN:
 		gGameStateNext = GS_MAINMENU;
@@ -490,6 +495,17 @@ void GameStateLevelsUpdate(void)
 			currInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
 			playerdeathtimer = 0;
+			
+			std::string fileName{ "" };
+			switch (g_chosenLevel) {
+			case 2:
+				fileName = ".\\Resources\\Level Data\\Level2.txt";
+				break;
+			default:
+				break;
+			}
+			if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+				gGameStateNext = GS_QUIT;
 		}
 
 		int i{};
@@ -534,7 +550,7 @@ void GameStateLevelsUpdate(void)
 		}*/
 
 		// Check win state
-		if (totalEnemyCount <= 0) {
+		if (totalEnemyCount <= 0 && ammoCount > 1) {
 			currInnerState = GAME_WIN;
 		}
 		// Check lose state
@@ -573,21 +589,7 @@ void GameStateLevelsUpdate(void)
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the following input movement based on our player movement
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
-		if (AEInputCheckReleased(AEVK_UP)) // DEV TOOL, Delete all bullet on screen.
-		{
-			for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
-				GameObjInst* pInst = sGameObjInstList + i;
-
-				// skip non-active object
-				if ((pInst->flag & FLAG_ACTIVE) == 0)
-					continue;
-
-				if (pInst->pObject->type == TYPE_BULLET)
-					gameObjInstDestroy(pInst);
-
-			}
-		}
-
+		//cheatcode to go next level		
 		if (AEInputCheckReleased(AEVK_DOWN))
 			totalEnemyCount = 0;
 
@@ -1051,10 +1053,6 @@ void GameStateLevelsUpdate(void)
 								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
 							}
 						}
-						if (totalEnemyCount <= 0 && gGameStateNext != GS_RESTART) // WIN CONDITION, KILL ALL ENEMIES TO WIN LEVEL
-						{
-							gGameStateNext = GS_MAINMENU; // temporary - go to main menu after level completion.
-						}
 					}
 					break;
 				case TYPE_BULLET:
@@ -1069,6 +1067,10 @@ void GameStateLevelsUpdate(void)
 				}
 			}
 			break;
+		case TYPE_ENEMY1:
+			if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
+				playerHealth = 0; // player dies if collide with enemy
+			}
 		}
 	}
 
@@ -1214,6 +1216,27 @@ void GameStateLevelsDraw(void)
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);
 
+	if (playerHealth >= 0.0f) {
+		// ----- Draw health bar on screen -----
+		// Find offset transform from player's position	
+		AEMtx33 scale, translate, transform;
+		AEMtx33Scale(&scale, HEALTHBAR_SCALE.x * (playerHealth / PLAYER_INITIAL_HEALTH), HEALTHBAR_SCALE.y);
+		// Compute the translation matrix
+		AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y + 1.0f);
+		// Concat Matrix together
+		AEMtx33Concat(&transform, &translate, &scale);
+		// Concat with map transform
+		AEMtx33Concat(&transform, &MapTransform, &transform);
+		// Set transform
+		AEGfxSetTransform(transform.m);
+
+		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+		AEGfxTextureSet(NULL, 0.0f, 0.0f);
+		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+		AEGfxSetTransparency(0.8f);
+		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
+	}
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
@@ -1276,27 +1299,7 @@ void GameStateLevelsDraw(void)
 		}
 	}
 
-	if (playerHealth >= 0.0f) {
-		// ----- Draw health bar on screen -----
-		// Find offset transform from player's position	
-		AEMtx33 scale, translate, transform;
-		AEMtx33Scale(&scale, HEALTHBAR_SCALE.x * (playerHealth / PLAYER_INITIAL_HEALTH), HEALTHBAR_SCALE.y);
-		// Compute the translation matrix
-		AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y - 1.0f);
-		// Concat Matrix together
-		AEMtx33Concat(&transform, &translate, &scale);
-		// Concat with map transform
-		AEMtx33Concat(&transform, &MapTransform, &transform);
-		// Set transform
-		AEGfxSetTransform(transform.m);
-
-		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
-		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-		AEGfxTextureSet(NULL, 0.0f, 0.0f);
-		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
-		AEGfxSetTransparency(0.8f);
-		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
-	}
+	//// ----- Drawing UI elements -----
 
 	//// ----- Draw ammo count on screen -----
 	//// Find offset transform from player's position	
@@ -1322,18 +1325,32 @@ void GameStateLevelsDraw(void)
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.8f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
+	if (ammoCount < 8) // Warning for low Ammo
+	{
+		sprintf_s(strBuffer, "Warning: Low Ammo");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	}
 	sprintf_s(strBuffer, "Enemies Left : %d", totalEnemyCount);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.7f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
 	if (currInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
-
-		sprintf_s(strBuffer, "Press 'M' to go back to main menu");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	
+		sprintf_s(strBuffer, "Press 'Esc' to Continue Game");
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		
+		sprintf_s(strBuffer, "Press 'R' to Restart Level");
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+
+		sprintf_s(strBuffer, "Press 'M' to Return to Main Menu");
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
 	}
 
 	// Tutorial text scripts

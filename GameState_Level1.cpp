@@ -429,12 +429,17 @@ void GameStateLevel1Update(void)
 {	
 	switch (currInnerState) {
 	case GAME_PAUSE:
-		if (AEInputCheckReleased(AEVK_M)) {
+		if (AEInputCheckReleased(AEVK_ESCAPE))
+			currInnerState = GAME_PLAY;
+		else if (AEInputCheckReleased(AEVK_R)) {
+			gGameStateNext = GS_RESTART;
+			currInnerState = GAME_PLAY;
+		}
+		else if (AEInputCheckReleased(AEVK_M)) {
 			gGameStateNext = GS_MAINMENU;
 			currInnerState = GAME_PLAY;
 		}
-		if (AEInputCheckReleased(AEVK_ESCAPE))
-			currInnerState = GAME_PLAY;
+
 		break;
 	case GAME_WIN:
 		gGameStateNext = GS_LEVELS;
@@ -534,7 +539,6 @@ void GameStateLevel1Update(void)
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the following input movement based on our player movement
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
-
 		//cheatcode to go next level
 		if (AEInputCheckReleased(AEVK_DOWN)) {
 			totalEnemyCount = 0;
@@ -1066,6 +1070,28 @@ void GameStateLevel1Draw(void)
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);
 
+	if (playerHealth >= 0.0f) {
+		// ----- Draw health bar on screen -----
+		// Find offset transform from player's position	
+		AEMtx33 scale, translate, transform;
+		AEMtx33Scale(&scale, HEALTHBAR_SCALE.x * (playerHealth / PLAYER_INITIAL_HEALTH), HEALTHBAR_SCALE.y);
+		// Compute the translation matrix
+		AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y + 1.0f);
+		// Concat Matrix together
+		AEMtx33Concat(&transform, &translate, &scale);
+		// Concat with map transform
+		AEMtx33Concat(&transform, &MapTransform, &transform);
+		// Set transform
+		AEGfxSetTransform(transform.m);
+
+		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
+		AEGfxTextureSet(NULL, 0.0f, 0.0f);
+		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
+		AEGfxSetTransparency(0.8f);
+		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
+	}
+
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
@@ -1112,28 +1138,6 @@ void GameStateLevel1Draw(void)
 		}
 	}
 
-	if (playerHealth >= 0.0f) {
-		// ----- Draw health bar on screen -----
-		// Find offset transform from player's position	
-		AEMtx33 scale, translate, transform;
-		AEMtx33Scale(&scale, HEALTHBAR_SCALE.x * (playerHealth / PLAYER_INITIAL_HEALTH), HEALTHBAR_SCALE.y);
-		// Compute the translation matrix
-		AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y - 1.0f);
-		// Concat Matrix together
-		AEMtx33Concat(&transform, &translate, &scale);
-		// Concat with map transform
-		AEMtx33Concat(&transform, &MapTransform, &transform);
-		// Set transform
-		AEGfxSetTransform(transform.m);
-
-		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
-		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-		AEGfxTextureSet(NULL, 0.0f, 0.0f);
-		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
-		AEGfxSetTransparency(0.8f);
-		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
-	}
-
 	//// ----- Drawing UI elements -----
 
 	//	Drawing for Font for all states
@@ -1163,12 +1167,20 @@ void GameStateLevel1Draw(void)
 
 	if (currInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
 	
-		sprintf_s(strBuffer, "Press 'M' to go back to main menu");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		sprintf_s(strBuffer, "Press 'Esc' to Continue Game");
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		
+		sprintf_s(strBuffer, "Press 'R' to Restart Level");
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+
+		sprintf_s(strBuffer, "Press 'M' to Return to Main Menu");
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
 	}
 
 	// Tutorial text scripts

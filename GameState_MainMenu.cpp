@@ -610,7 +610,7 @@ void GameStateMainMenuDraw() {
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "All content copyright 2021 DigiPen Institute of Technology Singapore, all rights reserved.");
+		sprintf_s(strBuffer, "All content copyright 2022 DigiPen Institute of Technology Singapore, all rights reserved.");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
