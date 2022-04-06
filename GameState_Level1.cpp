@@ -81,28 +81,6 @@ void GameStateLevel1Load(void)
 		GameObj* pObj;
 
 		// =========================
-		// create the non collision shape
-		// =========================
-		{
-			emptyObjIndex = sGameObjNum;
-			pObj = sGameObjList + sGameObjNum++;
-			pObj->type = TYPE_EMPTY;
-			AEGfxMeshStart();
-			AEGfxTriAdd(
-				-EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-				EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-				-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
-
-			AEGfxTriAdd(
-				-EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-				EMPTY_MESHSIZE.x / 2, -EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f,
-				EMPTY_MESHSIZE.x / 2, EMPTY_MESHSIZE.y / 2, 0xFF000000, 0.0f, 0.0f);
-			pObj->pMesh = AEGfxMeshEnd();
-			pObj->meshSize = AEVec2{ EMPTY_MESHSIZE.x, EMPTY_MESHSIZE.y };
-			AE_ASSERT_MESG(pObj->pMesh, "fail to create non-collidable object!!");
-		}
-
-		// =========================
 		// create the platform shape
 		// =========================
 		{
@@ -282,6 +260,8 @@ void GameStateLevel1Load(void)
 			//Load textures
 			tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
 			AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
+			tex_dirt = AEGfxTextureLoad(".\\Resources\\Assets\\dirt.jpg"); // Load stone texture
+			AE_ASSERT_MESG(tex_dirt, "Failed to create texture1!!");
 		}
 
 		// =========================
@@ -356,11 +336,6 @@ void GameStateLevel1Init(void)
 	totalEnemyCount = 0;
 	// Set player's initial health
 	playerHealth = PLAYER_INITIAL_HEALTH;
-
-	//create empty instance
-	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
-	EmptyInstance->flag ^= FLAG_VISIBLE;
-	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
 	
 	//create platform instance
 	PlatformInstance = gameObjInstCreate(&sGameObjList[platformObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
@@ -780,7 +755,7 @@ void GameStateLevel1Update(void)
 				else { particlevel.x = static_cast<float>(rand() % 10) / 9.0f; }
 
 				particlepos.x += 0.13f;
-				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
+				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_GOING_LEFT);
 			}
 			gameObjInstDestroy(pInst); //destroy bullet
 		}
@@ -859,15 +834,12 @@ void GameStateLevel1Update(void)
 		if ((pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP) {
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
-					AEVec2 normal{ 0, -1 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
+
+					AEVec2 normal{ 0, -1 }, newBulletVel{};	
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-					pInst->velCurr = newBulletVel;
-
+				
 					//Limit number of bullet bounces:
-					//std::cout << pInst->bulletbounce;
 					if (prevbounce == pInst->bulletbounce)
 						++(pInst->bulletbounce);
 				}
@@ -1023,7 +995,7 @@ void GameStateLevel1Draw(void)
 		{
 			AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
 
-			AEMtx33Trans(&cellTranslation, i + 0.5f, j - 0.5f);
+			AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
 
 			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
 			AEGfxSetTransform(cellFinalTransformation.m);
@@ -1037,15 +1009,11 @@ void GameStateLevel1Draw(void)
 				AEGfxTextureSet(tex_stone, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
-			else if (GetCellValue(i, j-1, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT) // remove -1 after adding dirt texture
+			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT) // remove -1 after adding dirt texture
 			{
+				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+				AEGfxTextureSet(tex_dirt, 0.f, 0.f);
 				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-			}
-			else
-			{
-				AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-				AEGfxTextureSet(NULL, 0, 0);
-				AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 		}
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
@@ -1099,6 +1067,10 @@ void GameStateLevel1Draw(void)
 			if (pInst->state == STATE_ALERT) //Orange particles
 			{
 				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); 
+			}
+			if (pInst->state == STATE_GOING_LEFT) //Orange particles
+			{
+				AEGfxSetBlendColor(0.627f, 0.321f, 0.176f, 1.f);
 			}
 			pInst->dirCurr -= g_dt;
 		}
@@ -1240,4 +1212,6 @@ void GameStateLevel1Unload(void)
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 	AEGfxTextureUnload(tex_stone);
 	tex_stone = nullptr;
+	AEGfxTextureUnload(tex_dirt);
+	tex_dirt = nullptr;
 }
