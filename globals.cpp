@@ -273,7 +273,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 				AEVec2 offset{};
 				AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
 				AEVec2Normalize(&dist, &dist);
-				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
+				for (int multiply{ 1 }; multiply < 60; ++multiply) {	// set range of sight here (multiply)
 					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
 					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
 					Enemydetection = gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
@@ -300,7 +300,7 @@ void EnemyStateMachine(GameObjInst* pInst)
 				AEVec2 offset{};
 				AEVec2 dist{ PlayerBody->posCurr.x - pInst->posCurr.x, PlayerBody->posCurr.y - pInst->posCurr.y };
 				AEVec2Normalize(&dist, &dist);
-				for (int multiply{ 1 }; multiply < 30; ++multiply) {	// set range of sight here (multiply)
+				for (int multiply{ 1 }; multiply < 60; ++multiply) {	// set range of sight here (multiply)
 					offset.x = pInst->posCurr.x + dist.x * multiply * 0.3f;
 					offset.y = pInst->posCurr.y + dist.y * multiply * 0.3f;
 					Enemydetection = gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &offset, 0, 0.f, STATE_GOING_RIGHT);
