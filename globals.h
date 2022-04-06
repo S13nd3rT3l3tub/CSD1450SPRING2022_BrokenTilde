@@ -267,7 +267,6 @@ extern AEMtx33			MapTransform;
  */
  /******************************************************************************/
 extern AEGfxTexture* tex_stone;
-extern AEGfxTexture* tex_dirt;
 
 // ---------------------------------------------------------------------------
 // functions to create/destroy a game object instance
