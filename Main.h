@@ -27,6 +27,7 @@
 #include <fstream>
 #include <vector>
 #include <time.h>
+#include <windowsx.h>
 #include "AEEngine.h"
 #include "Math.h"
 
