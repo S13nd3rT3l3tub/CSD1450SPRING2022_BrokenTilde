@@ -53,10 +53,13 @@ int winHeight{ 720 };
 */
 /******************************************************************************/
  bool toFullScreen{ false };
+ bool soundVolumeLevel{true};
  unsigned long currInnerState{GAME_PLAY};
 
- FMOD::System* fmodSys{nullptr};
- FMOD::Sound* mainMenuBG{nullptr};
+ FMOD::System *fmodSys{nullptr};
+ FMOD::Sound *mainMenuBG{nullptr};
+ FMOD::Sound* playerShoot{ nullptr };
+ FMOD::Channel* soundChannel{nullptr};
 
 // list of original object
 GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)

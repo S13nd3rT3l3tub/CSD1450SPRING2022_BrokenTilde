@@ -61,8 +61,8 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 		return -1;
 	}
 
-	fmodSys->createSound(".\\Resources\\Sounds\\Change.wav", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
-	//fmodSys->playSound(mainMenuBG, nullptr, false, nullptr);
+	//fmodSys->createSound(".\\Resources\\Sounds\\", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
+	//fmodSys->createSound(".\\Resources\\Sounds\\", FMOD_DEFAULT, nullptr, &playerShoot);
 
 	while(gGameStateCurr != GS_QUIT)
 	{

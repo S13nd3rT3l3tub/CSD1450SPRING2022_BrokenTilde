@@ -429,6 +429,7 @@ void GameStateLevel1Update(void)
 {	
 	switch (currInnerState) {
 	case GAME_PAUSE:
+		soundChannel->stop();
 		if (AEInputCheckReleased(AEVK_ESCAPE))
 			currInnerState = GAME_PLAY;
 		else if (AEInputCheckReleased(AEVK_R)) {
@@ -439,7 +440,6 @@ void GameStateLevel1Update(void)
 			gGameStateNext = GS_MAINMENU;
 			currInnerState = GAME_PLAY;
 		}
-
 		break;
 	case GAME_WIN:
 		gGameStateNext = GS_LEVELS;
@@ -620,6 +620,7 @@ void GameStateLevel1Update(void)
 			//create bullet instance
 			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 			--ammoCount; //deplete ammo
+			fmodSys->playSound(playerShoot, nullptr, false, &soundChannel);
 		}
 
 		if (AEInputCheckCurr(VK_RBUTTON)) // aim with trajectory line
@@ -1231,6 +1232,8 @@ void GameStateLevel1Free(void)
 
 		gameObjInstDestroy(pInst);
 	}
+
+	soundChannel->stop();
 }
 
 /******************************************************************************/
