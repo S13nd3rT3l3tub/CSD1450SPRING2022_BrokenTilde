@@ -50,8 +50,6 @@ enum SCREEN_TYPE {
 	(Static) Variables
 */
 /******************************************************************************/
-FMOD::Channel* mainMenuChannel;
-
 AEGfxTexture* backgroundTexture;
 AEGfxTexture* buttonTexture_START;
 AEGfxTexture* buttonTexture_QUIT;
@@ -178,7 +176,7 @@ void GameStateMainMenuLoad() {
 	// Move camera to 0,0 in event menu is loaded after game
 	AEGfxSetCamPosition(0.0f, 0.0f);
 
-	fmodSys->playSound(mainMenuBG, nullptr, false, &mainMenuChannel);
+	fmodSys->playSound(mainMenuBG, nullptr, false, &soundChannel);
 	
 	screen = MAIN_SCREEN;
 }
@@ -334,6 +332,15 @@ void GameStateMainMenuUpdate() {
 						toFullScreen = !toFullScreen;
 						AEToogleFullScreen(toFullScreen);
 					}
+
+					// Toggle Sound
+					/*if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_SOUND->boundingBox)){
+						soundVolumeLevel = !soundVolumeLevel;
+						if (soundVolumeLevel)
+							soundChannel->setVolume(1.0f);
+						else
+							soundChannel->setVolume(0.0f);
+					}*/
 
 					//	RETURN TO MAIN MENU
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
@@ -707,7 +714,7 @@ void GameStateMainMenuUnload() {
 	AEGfxTextureUnload(buttonTexture_YES);
 	AEGfxTextureUnload(buttonTexture_NO);
 
-	mainMenuChannel->stop();
+	soundChannel->stop();
 		
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {

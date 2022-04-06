@@ -199,12 +199,14 @@ struct GameObjInst
 */
 /******************************************************************************/
 extern bool toFullScreen;
-
+extern bool soundVolumeLevel;
 extern unsigned long currInnerState;
 
 // Sounds
-extern FMOD::System* fmodSys;
-extern FMOD::Sound* mainMenuBG;
+extern FMOD::System *fmodSys;
+extern FMOD::Sound *mainMenuBG;
+extern FMOD::Sound *playerShoot;
+extern FMOD::Channel *soundChannel;
 
 // list of original object
 extern GameObj				sGameObjList[GAME_OBJ_NUM_MAX];				// Each element in this array represents a unique game object (shape)
