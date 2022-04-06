@@ -1078,6 +1078,8 @@ void GameStateLevel1Draw(void)
 		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
+	AEGfxSetTransparency(1.0f);
+
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
@@ -1166,6 +1168,83 @@ void GameStateLevel1Draw(void)
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.7f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
+	// Tutorial text scripts
+	// A & D Key
+	std::cout << PlayerBody->posCurr.x << ", " << PlayerBody->posCurr.y << std::endl;
+	if (PlayerBody->posCurr.x >= 0.0f && PlayerBody->posCurr.x <= 7.0f &&
+		PlayerBody->posCurr.y >= 0.0f && PlayerBody->posCurr.y <= 10.0f) {
+		sprintf_s(strBuffer, "Use A & D Keys to");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.8f - TextWidth / 2, -0.6f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Move Left & Right");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.8f - TextWidth / 2, -0.65f - TextHeight / 2, 0.85, 1.f, 1.f, 1.f);
+	}
+
+	if (PlayerBody->posCurr.x >= 5.0f && PlayerBody->posCurr.x <= 12.0f &&
+		PlayerBody->posCurr.y >= 0.0f && PlayerBody->posCurr.y <= 10.0f) {
+		sprintf_s(strBuffer, "Use W Key to");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.65f - TextWidth / 2, -0.45f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Boost Upwards & Hover");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.65f - TextWidth / 2, -0.5f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+	}
+
+	if (PlayerBody->posCurr.x >= 7.0f && PlayerBody->posCurr.x <= 14.0f &&
+		PlayerBody->posCurr.y >= 2.0f && PlayerBody->posCurr.y <= 10.0f) {
+		sprintf_s(strBuffer, "Watch Out");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.45f - TextWidth / 2, -0.4f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "For Enemies!!!");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.45f - TextWidth / 2, -0.45f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
+	}
+
+	if (PlayerBody->posCurr.x >= 12.0f && PlayerBody->posCurr.x <= 18.0f &&
+		PlayerBody->posCurr.y >= 4.0f && PlayerBody->posCurr.y <= 12.0f) {
+		sprintf_s(strBuffer, "Left Click to Shoot");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.35f - TextWidth / 2, -0.28f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "& Defeat Enemies");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.35f - TextWidth / 2, -0.33f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+	}
+
+	if (PlayerBody->posCurr.x >= 17.0f && PlayerBody->posCurr.x <= 24.0f &&
+		PlayerBody->posCurr.y >= 2.0f && PlayerBody->posCurr.y <= 12.0f) {
+		sprintf_s(strBuffer, "Had Trouble Aiming?");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.35f - TextWidth / 2, -0.2f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
+	}
+
+	if (PlayerBody->posCurr.x >= 19.0f && PlayerBody->posCurr.x <= 24.0f &&
+		PlayerBody->posCurr.y >= 2.0f && PlayerBody->posCurr.y <= 12.0f) {
+		sprintf_s(strBuffer, "Hold Right Click To Aim!");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.05f - TextWidth / 2, -0.2f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+	}
+
+	if (PlayerBody->posCurr.x >= 22.0f && PlayerBody->posCurr.x <= 29.0f &&
+		PlayerBody->posCurr.y >= 4.0f && PlayerBody->posCurr.y <= 12.0f) {
+		sprintf_s(strBuffer, "~Have Fun~ ^.^/");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.2f - TextWidth / 2, 0.0f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
+	}
+
+	if (PlayerBody->posCurr.x >= 23.0f && PlayerBody->posCurr.x <= 38.0f &&
+		PlayerBody->posCurr.y >= 12.5f && PlayerBody->posCurr.y <= 20.0f) {
+		sprintf_s(strBuffer, "Don't Forget to Check Your");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.25f - TextWidth / 2, 0.2f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Ammo Count on the Right of");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.25f - TextWidth / 2, 0.15f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "The Screen");
+		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.25f - TextWidth / 2, 0.1f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
+	}
+
 	//Pause menu
 	if (currInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
@@ -1185,10 +1264,7 @@ void GameStateLevel1Draw(void)
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
 	}
 
-	// Tutorial text scripts
-	//sprintf_s(strBuffer, "Use A & D keys to move left & right!");
-	//AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	//AEGfxPrint(g_font20, strBuffer, -0.9f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	
 
 
 	/*sprintf_s(strBuffer, "D key - Move Right");
