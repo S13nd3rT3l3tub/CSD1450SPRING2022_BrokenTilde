@@ -52,8 +52,8 @@ int winHeight{ 720 };
 	Static Variables
 */
 /******************************************************************************/
- bool toFullScreen{ false };
- bool soundVolumeLevel{true};
+ bool toFullScreen{ true };
+ bool soundVolumeLevel{ true };
  unsigned long currInnerState{GAME_PLAY};
 
  FMOD::System *fmodSys{nullptr};
