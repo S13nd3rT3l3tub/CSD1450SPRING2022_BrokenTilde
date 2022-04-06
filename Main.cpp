@@ -93,6 +93,11 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 
 			AEInputUpdate();
 
+			bool isFocused;
+			
+			isFocused = AESysGetWindowHandle() == GetFocus();
+			ShowWindow(AESysGetWindowHandle(), isFocused == true ? SW_SHOW : SW_MINIMIZE);
+
 			GameStateUpdate();
 
 			GameStateDraw();
@@ -106,6 +111,8 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 			g_dt = static_cast<float>(AEFrameRateControllerGetFrameTime()) < 1.0f / 60.0f ? static_cast<float>(AEFrameRateControllerGetFrameTime()) : 1.0f / 60.0f;
 			AEInputGetCursorPosition(&g_mouseX, &g_mouseY);
 			g_appTime += g_dt;
+
+
 		}
 		
 		GameStateFree();
