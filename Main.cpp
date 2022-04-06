@@ -61,8 +61,9 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 		return -1;
 	}
 
-	//fmodSys->createSound(".\\Resources\\Sounds\\", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
-	//fmodSys->createSound(".\\Resources\\Sounds\\", FMOD_DEFAULT, nullptr, &playerShoot);
+	fmodSys->createSound(".\\Resources\\Sounds\\CRITICAL_MASS_-_Corporate_MSCCRP1_31.wav", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
+	fmodSys->createSound(".\\Resources\\Sounds\\WhooshCartoon CTE02_88.6.wav", FMOD_DEFAULT, nullptr, &playerShoot);
+
 
 	while(gGameStateCurr != GS_QUIT)
 	{

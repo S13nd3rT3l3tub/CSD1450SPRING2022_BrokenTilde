@@ -620,7 +620,8 @@ void GameStateLevel1Update(void)
 			//create bullet instance
 			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 			--ammoCount; //deplete ammo
-			fmodSys->playSound(playerShoot, nullptr, false, &soundChannel);
+			if (soundVolumeLevel)
+				fmodSys->playSound(playerShoot, nullptr, false, &soundChannel);
 		}
 
 		if (AEInputCheckCurr(VK_RBUTTON)) // aim with trajectory line

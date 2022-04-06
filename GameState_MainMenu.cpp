@@ -33,6 +33,7 @@ enum BUTTON_TYPE {
 	EXIT_GAME,
 	RETURN,
 	TOGGLE_FS,
+	TOGGLE_SOUND,
 	YES,
 	NO,
 };
@@ -56,6 +57,7 @@ AEGfxTexture* buttonTexture_QUIT;
 AEGfxTexture* buttonTexture_OPTIONS;
 AEGfxTexture* buttonTexture_CREDITS;
 AEGfxTexture* buttonTexture_TOGGLE_FS;
+AEGfxTexture* buttonTexture_TOGGLE_SOUND;
 AEGfxTexture* buttonTexture_RETURN;
 AEGfxTexture* buttonTexture_YES;
 AEGfxTexture* buttonTexture_NO;
@@ -70,6 +72,7 @@ static GameObjInst* ButtonInstance_QUIT;
 static GameObjInst* ButtonInstance_OPTIONS;
 static GameObjInst* ButtonInstance_CREDITS;
 static GameObjInst* ButtonInstance_TOGGLE_FS;
+static GameObjInst* ButtonInstance_TOGGLE_SOUND;
 static GameObjInst* ButtonInstance_RETURN;
 static GameObjInst* ButtonInstance_YES;
 static GameObjInst* ButtonInstance_NO;
@@ -95,8 +98,6 @@ void GameStateMainMenuLoad() {
 	// No game object instances (sprites) at this point
 	sGameObjInstNum = 0;
 
-
-
 	// load/create the mesh data (game objects / Shapes)
 	GameObj* pObj;
 
@@ -120,6 +121,9 @@ void GameStateMainMenuLoad() {
 
 	buttonTexture_TOGGLE_FS = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_fs.png");
 	AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
+
+	buttonTexture_TOGGLE_SOUND = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_sound.png");
+	AE_ASSERT_MESG(buttonTexture_TOGGLE_SOUND, "failed to create toggle sound button texture");
 
 	buttonTexture_RETURN = AEGfxTextureLoad(".\\Resources\\Assets\\return_button.png");
 	AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
@@ -177,6 +181,11 @@ void GameStateMainMenuLoad() {
 	AEGfxSetCamPosition(0.0f, 0.0f);
 
 	fmodSys->playSound(mainMenuBG, nullptr, false, &soundChannel);
+	if (soundVolumeLevel)
+		soundChannel->setVolume(0.7f);
+	else
+		soundChannel->setVolume(0.0f);
+		
 	
 	screen = MAIN_SCREEN;
 }
@@ -226,28 +235,6 @@ void GameStateMainMenuUpdate() {
 	AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
 	switch (currInnerState) {
 	case GAME_PLAY:
-		//	if number key 1 is pressed
-		//if (AEInputCheckCurr(AEVK_1))
-		//{
-		//	//	load level 1
-		//	g_chosenLevel = 1;
-		//	gGameStateNext = GS_LEVEL1;
-		//}
-
-		////	if number key 2 is pressed
-		//if (AEInputCheckCurr(AEVK_2))
-		//{
-		//	//	load level 2
-		//	g_chosenLevel = 2;
-		//	gGameStateNext = GS_LEVELS;
-		//}
-
-		////	if number key 2 is pressed
-		//if (AEInputCheckCurr(AEVK_Q))
-		//{
-		//	gGameStateNext = GS_QUIT;
-		//}
-
 		//	if left mouse click
 		if (AEInputCheckReleased(VK_LBUTTON))
 		{
@@ -273,9 +260,16 @@ void GameStateMainMenuUpdate() {
 						ButtonInstance_TOGGLE_FS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_TOGGLE_FS->sub_type = TOGGLE_FS;
 
+						//	Create Button (toggle sound)
+						scaling = { 1.0f, 1.0f };
+						pos = { 0.0f, -130.0f };
+						ButtonInstance_TOGGLE_SOUND = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+						ButtonInstance_TOGGLE_SOUND->sub_type = TOGGLE_SOUND;
+
+
 						//	create button (return)
 						scaling = { 1.0f, 1.0f };
-						pos = { 0,-300.0F };
+						pos = { 0,-300.0f };
 						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_RETURN->sub_type = RETURN;
 					}
@@ -319,28 +313,18 @@ void GameStateMainMenuUpdate() {
 					//	TOGGLE FULL SCREEN
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_FS->boundingBox))
 					{
-						//if (toFullScreen)
-						//{
-						//	toFullScreen = false;
-						//	AEToogleFullScreen(toFullScreen);
-						//}
-						//else
-						//{
-						//	toFullScreen = true;
-						//	AEToogleFullScreen(toFullScreen);
-						//}
 						toFullScreen = !toFullScreen;
 						AEToogleFullScreen(toFullScreen);
 					}
 
 					// Toggle Sound
-					/*if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_SOUND->boundingBox)){
+					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_SOUND->boundingBox)){
 						soundVolumeLevel = !soundVolumeLevel;
 						if (soundVolumeLevel)
-							soundChannel->setVolume(1.0f);
+							soundChannel->setVolume(0.7f);
 						else
 							soundChannel->setVolume(0.0f);
-					}*/
+					}
 
 					//	RETURN TO MAIN MENU
 					if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox))
@@ -546,6 +530,12 @@ void GameStateMainMenuDraw() {
 		if (pInst->sub_type == TOGGLE_FS)
 		{
 			AEGfxTextureSet(buttonTexture_TOGGLE_FS, 0.0f, 0.0f);
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		if (pInst->sub_type == TOGGLE_SOUND)
+		{
+			AEGfxTextureSet(buttonTexture_TOGGLE_SOUND, 0.0f, 0.0f);
 			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		}
 
