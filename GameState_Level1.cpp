@@ -1152,6 +1152,11 @@ void GameStateLevel1Draw(void)
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 		AEGfxTextureSet(NULL, 0.0f, 0.0f);
 
+		//if (pInst->pObject->type== TYPE_SCRIPT) {
+		//	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+		//	AEGfxTextureSet(script1Texture, 0.0f, 0.0f);
+		//}
+
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 		AEGfxSetTransparency(1.f);
