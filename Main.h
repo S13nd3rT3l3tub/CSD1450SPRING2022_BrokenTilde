@@ -21,6 +21,7 @@
 
 // ---------------------------------------------------------------------------
 // includes
+#include "windowsx.h"
 #include <fmod.hpp>
 #include <string>
 #include <iostream>
