@@ -38,10 +38,6 @@
 /******************************************************************************/
 static float playerdeathtimer{};
 
-unsigned long scriptObjIndex;
-AEGfxTexture* script1Texture;
-GameObjInst* script1;
-
 /******************************************************************************/
 /*!
 	Helper Functions
@@ -285,8 +281,6 @@ void GameStateLevel1Load(void)
 			AE_ASSERT_MESG(stoneTexture, "Failed to create texture1!!");
 			dirtTexture = AEGfxTextureLoad(".\\Resources\\Assets\\dirt.png"); // Load stone texture
 			AE_ASSERT_MESG(dirtTexture, "Failed to create texture1!!");
-			script1Texture = AEGfxTextureLoad(".\\Resources\\Assets\\Script1Image.png"); // Load script texture
-			AE_ASSERT_MESG(script1Texture, "Failed to create texture1!!");
 		}
 
 		// =========================
@@ -331,27 +325,6 @@ void GameStateLevel1Load(void)
 			AE_ASSERT_MESG(pObj->pMesh, "fail to create healthbar object!!");
 		}
 
-		// =========================
-		// create the script1 image shape
-		// =========================
-		{
-			scriptObjIndex = sGameObjNum;
-			pObj = sGameObjList + sGameObjNum++;
-			pObj->type = TYPE_SCRIPT;
-			AEGfxMeshStart();
-			AEGfxTriAdd(
-				-SCRIPTIMAGE_MESHSIZE.x / 2, -SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
-				SCRIPTIMAGE_MESHSIZE.x / 2, -SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
-				-SCRIPTIMAGE_MESHSIZE.x / 2, SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
-
-			AEGfxTriAdd(
-				-SCRIPTIMAGE_MESHSIZE.x / 2, SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
-				SCRIPTIMAGE_MESHSIZE.x / 2, -SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
-				SCRIPTIMAGE_MESHSIZE.x / 2, SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
-			pObj->pMesh = AEGfxMeshEnd();
-			pObj->meshSize = AEVec2{ SCRIPTIMAGE_MESHSIZE.x, SCRIPTIMAGE_MESHSIZE.y };
-			AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
-		}
 	}
 
 	// =====================
@@ -428,9 +401,6 @@ void GameStateLevel1Init(void)
 			}
 		}
 	}
-
-	Pos = { PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-	script1 = gameObjInstCreate(&sGameObjList[scriptObjIndex], &SCRIPTIMAGE_SCALE, 0, 0, 0.0f, STATE_NONE);
 
 	// Set ammoCount
 	ammoCount = static_cast<int>(totalEnemyCount * 3);
@@ -1247,7 +1217,6 @@ void GameStateLevel1Draw(void)
 	sprintf_s(strBuffer, "to clear the level");
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);*/
-
 }
 
 /******************************************************************************/
@@ -1286,7 +1255,4 @@ void GameStateLevel1Unload(void)
 	stoneTexture = nullptr;
 	AEGfxTextureUnload(dirtTexture);
 	dirtTexture = nullptr;
-	AEGfxTextureUnload(script1Texture);
-	script1Texture = nullptr;
-
 }

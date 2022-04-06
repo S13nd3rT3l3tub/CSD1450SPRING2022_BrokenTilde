@@ -31,8 +31,6 @@ float timer;
 AEGfxTexture* digipenLogo;
 AEGfxVertexList* splashMesh;
 
-
-
 /******************************************************************************/
 /*!
 	Helper Functions
@@ -68,7 +66,6 @@ void GameStateSplashScreenLoad(void) {
 	// Move camera to 0,0
 	AEGfxSetCamPosition(0.0f, 0.0f);
 
-
 	// Set fullscreen to true
 	AEToogleFullScreen(toFullScreen);
 }
@@ -96,7 +93,7 @@ void GameStateSplashScreenUpdate(void) {
 }
 
 void GameStateSplashScreenDraw(void) {
-	//char strBuffer[1024];
+	
 
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 	AEGfxSetBlendMode(AE_GFX_BM_NONE);
@@ -105,6 +102,16 @@ void GameStateSplashScreenDraw(void) {
 	AEGfxSetPosition(0.0f, 0.0f);
 	AEGfxTextureSet(digipenLogo, 0.0f, 0.0f);
 	AEGfxMeshDraw(splashMesh, AE_GFX_MDM_TRIANGLES);
+
+	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+	
+	char strBuffer[100];
+	float textWidth{}, textHeight{};
+	memset(strBuffer, 0, 100 * sizeof(char));
+
+	sprintf_s(strBuffer, "All Content Copyright 2022 DigiPen Institute of Technology Singapore, All Rights Reserved.");
+	AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, textWidth, textHeight);
+	AEGfxPrint(g_font12, strBuffer, 0.0f - textWidth / 2, -0.9f - textHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 void GameStateSplashScreenFree(void) {

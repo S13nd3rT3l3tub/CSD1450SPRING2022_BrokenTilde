@@ -282,7 +282,7 @@ void GameStateMainMenuUpdate() {
 
 						//	create button (return)
 						scaling = { 1.0f, 1.0f };
-						pos = { 0,-300.0F };
+						pos = { 0,-280.0f };
 						ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 						ButtonInstance_RETURN->sub_type = RETURN;
 					}
@@ -577,98 +577,134 @@ void GameStateMainMenuDraw() {
 	switch (screen)
 	{
 	case CREDIT_SCREEN:
-		sprintf_s(strBuffer, "Broken Tilde");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.6f, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Team Members :");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.9f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Created at ");
+		AEGfxGetPrintSize(g_font30, strBuffer, 0.8f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, -0.35f - TextWidth / 2, 0.27f - TextHeight / 2, 0.8f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "DigiPen Institute of Technology Singapore");
+		AEGfxGetPrintSize(g_font30, strBuffer, 0.8f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, -0.35f - TextWidth / 2, 0.2f - TextHeight / 2, 0.8f, 1.f, 1.f, 1.f);
 
+
+		sprintf_s(strBuffer, "By Broken Tilde");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, -0.6f - TextWidth / 2, 0.10f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		
 		sprintf_s(strBuffer, "Mohamed Zafir");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, 0.02f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Lee Hsien Wei, Joachim");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Desmond Too Wei Kang");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Leong Wai Kit");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.12f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Desmond Too Wei Kang");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.19f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "Instructors :");
+		sprintf_s(strBuffer, "Instructors");
 		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.83f, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font20, strBuffer, -0.6f - TextWidth / 2, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Cheng Ding Xiang");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.43f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Gerald Wong Han Feng");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "All content copyright 2022 DigiPen Institute of Technology Singapore, all rights reserved.");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f, -0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "President :");
+		sprintf_s(strBuffer, "Softwares Used");
 		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, 0.05f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font20, strBuffer, -0.15f - TextWidth / 2, 0.10f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Visual Studio 2019");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, 0.03f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Alpha Engine");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.04f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "FMOD Sound System");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.11f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "by FireLight Technologies Pty Ltd (1998 - 2020)");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.14f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Paint 3D");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.21f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "OBS Studio");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.28f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "DaVinci Resolve");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
+
+		sprintf_s(strBuffer, "President");
+		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font20, strBuffer, 0.45f -TextWidth / 2, 0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Claude COMAIR");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.28f, 0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, 0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "Executives :");
+		sprintf_s(strBuffer, "Executives");
 		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, 0.035f, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font20, strBuffer, 0.45f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
 		sprintf_s(strBuffer, "Jason CHU");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
+		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Christopher COMAIR");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
+		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Michael GATS");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
 		sprintf_s(strBuffer, "Michele COMAIR");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
+		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Raymond YAN");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.45f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
+		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Samir ABOU SAMRA");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.28f, -0.55f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
+		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		
 		sprintf_s(strBuffer, "Prasanna GHALI");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
+		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "John BAUER");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "Michael GATS");
+		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Dr. Erik MOHRMANN");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "Michael GATS");
+		sprintf_s(strBuffer, "Melvin GONSALVEZ");
 		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.52f, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Angela KUGLER");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Dr Charles DUBA");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
+		sprintf_s(strBuffer, "Ben ELLINGER");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.35f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		sprintf_s(strBuffer, "Johnny DEEK");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.55f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+		sprintf_s(strBuffer, "All content copyright 2022 DigiPen Institute of Technology Singapore, all rights reserved.");
+		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font12, strBuffer, 0.0f - TextWidth / 2, -0.95f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 		break;
 
 	case EXIT_SCREEN:
 		sprintf_s(strBuffer, "Are you sure you want to exit?");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.2f, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
 		break;
 	}
