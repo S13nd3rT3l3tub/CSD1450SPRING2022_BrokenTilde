@@ -47,6 +47,9 @@ int winHeight{ 720 };
  AEVec2		HEALTHBAR_MESHSIZE = { 0.1f, 0.75f };
  AEVec2		HEALTHBAR_SCALE = { 15.0f, 0.5f, };
 
+ AEVec2		SCRIPTIMAGE_MESHSIZE = { 1.0f, 1.0f };
+ AEVec2		SCRIPTIMAGE_SCALE = { 1.0f, 1.0f };
+
  /******************************************************************************/
 /*!
 	Static Variables
@@ -118,8 +121,8 @@ unsigned long buttonObjIndex;
 	 Textures
  */
  /******************************************************************************/
-  AEGfxTexture* tex_stone = nullptr;
-  AEGfxTexture* tex_dirt = nullptr;
+  AEGfxTexture* stoneTexture = nullptr;
+  AEGfxTexture* dirtTexture = nullptr;
 
 /******************************************************************************/
 /*!

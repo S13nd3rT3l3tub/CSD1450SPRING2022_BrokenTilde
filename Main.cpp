@@ -87,15 +87,9 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 		{
 			AESysFrameStart();
 
-			bool isFocused{ AESysGetWindowHandle() == GetFocus() };
-			if (toFullScreen && isFocused == false)
-				ShowWindow(AESysGetWindowHandle(), SW_MINIMIZE);
-
 			AEInputUpdate();
 
-			bool isFocused;
-			
-			isFocused = AESysGetWindowHandle() == GetFocus();
+			bool isFocused{ AESysGetWindowHandle() == GetFocus() };
 			ShowWindow(AESysGetWindowHandle(), isFocused == true ? SW_SHOW : SW_MINIMIZE);
 
 			GameStateUpdate();

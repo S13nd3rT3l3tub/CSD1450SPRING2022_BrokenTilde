@@ -38,8 +38,9 @@
 /******************************************************************************/
 static float playerdeathtimer{};
 
-// Level Timers for script
-//float scriptTimer1;
+unsigned long scriptObjIndex;
+AEGfxTexture* script1Texture;
+GameObjInst* script1;
 
 /******************************************************************************/
 /*!
@@ -280,10 +281,12 @@ void GameStateLevel1Load(void)
 			AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
 
 			//Load textures
-			tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
-			AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
-			tex_dirt = AEGfxTextureLoad(".\\Resources\\Assets\\dirt.png"); // Load stone texture
-			AE_ASSERT_MESG(tex_dirt, "Failed to create texture1!!");
+			stoneTexture = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
+			AE_ASSERT_MESG(stoneTexture, "Failed to create texture1!!");
+			dirtTexture = AEGfxTextureLoad(".\\Resources\\Assets\\dirt.png"); // Load stone texture
+			AE_ASSERT_MESG(dirtTexture, "Failed to create texture1!!");
+			script1Texture = AEGfxTextureLoad(".\\Resources\\Assets\\Script1Image.png"); // Load script texture
+			AE_ASSERT_MESG(script1Texture, "Failed to create texture1!!");
 		}
 
 		// =========================
@@ -326,6 +329,28 @@ void GameStateLevel1Load(void)
 			pObj->pMesh = AEGfxMeshEnd();
 			pObj->meshSize = AEVec2{ HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y };
 			AE_ASSERT_MESG(pObj->pMesh, "fail to create healthbar object!!");
+		}
+
+		// =========================
+		// create the script1 image shape
+		// =========================
+		{
+			scriptObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_SCRIPT;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-SCRIPTIMAGE_MESHSIZE.x / 2, -SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 1.0f,
+				SCRIPTIMAGE_MESHSIZE.x / 2, -SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+				-SCRIPTIMAGE_MESHSIZE.x / 2, SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+
+			AEGfxTriAdd(
+				-SCRIPTIMAGE_MESHSIZE.x / 2, SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 1.0f,
+				SCRIPTIMAGE_MESHSIZE.x / 2, -SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 1.0f, 0.0f,
+				SCRIPTIMAGE_MESHSIZE.x / 2, SCRIPTIMAGE_MESHSIZE.y / 2, 0x00FF5853, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ SCRIPTIMAGE_MESHSIZE.x, SCRIPTIMAGE_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create DIRT object!!");
 		}
 	}
 
@@ -374,7 +399,8 @@ void GameStateLevel1Init(void)
 	DirtInstance->flag ^= FLAG_VISIBLE;
 	DirtInstance->flag |= FLAG_NON_COLLIDABLE;
 
-	AEVec2 Pos{}, Scale{};
+	
+	AEVec2 Pos{};
 
 	srand(static_cast<unsigned int>(time(NULL))); // Seed random generator
 
@@ -402,6 +428,9 @@ void GameStateLevel1Init(void)
 			}
 		}
 	}
+
+	Pos = { PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+	script1 = gameObjInstCreate(&sGameObjList[scriptObjIndex], &SCRIPTIMAGE_SCALE, 0, 0, 0.0f, STATE_NONE);
 
 	// Set ammoCount
 	ammoCount = static_cast<int>(totalEnemyCount * 3);
@@ -1036,13 +1065,13 @@ void GameStateLevel1Draw(void)
 			if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 			{
 				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-				AEGfxTextureSet(tex_stone, 0.f, 0.f);
+				AEGfxTextureSet(stoneTexture, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
 			{
 				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-				AEGfxTextureSet(tex_dirt, 0.f, 0.f);
+				AEGfxTextureSet(dirtTexture, 0.f, 0.f);
 				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			//else
@@ -1122,6 +1151,7 @@ void GameStateLevel1Draw(void)
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 		AEGfxTextureSet(NULL, 0.0f, 0.0f);
+
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 		AEGfxSetTransparency(1.f);
@@ -1247,8 +1277,11 @@ void GameStateLevel1Unload(void)
 	}
 
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-	AEGfxTextureUnload(tex_stone);
-	tex_stone = nullptr;
-	AEGfxTextureUnload(tex_dirt);
-	tex_dirt = nullptr;
+	AEGfxTextureUnload(stoneTexture);
+	stoneTexture = nullptr;
+	AEGfxTextureUnload(dirtTexture);
+	dirtTexture = nullptr;
+	AEGfxTextureUnload(script1Texture);
+	script1Texture = nullptr;
+
 }

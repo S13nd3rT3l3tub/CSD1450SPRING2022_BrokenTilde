@@ -64,6 +64,9 @@ extern AEVec2		EMPTY_SCALE;// = { 1.0f, 1.0f };
 extern AEVec2		HEALTHBAR_MESHSIZE;// = { 0.1f, 0.75f };
 extern AEVec2		HEALTHBAR_SCALE;// = { 15.0f, 0.5f, };
 
+extern AEVec2		SCRIPTIMAGE_MESHSIZE;
+extern AEVec2		SCRIPTIMAGE_SCALE;
+
 
 //Gameplay related variables and values
 const float			GRAVITY = -9.8f;
@@ -114,6 +117,7 @@ enum TYPE
 	TYPE_SPLASH,
 	TYPE_BG,
 	TYPE_MOUSE,
+	TYPE_SCRIPT,
 	TYPE_NUM
 };
 
@@ -266,8 +270,8 @@ extern AEMtx33			MapTransform;
 	 Textures
  */
  /******************************************************************************/
-extern AEGfxTexture* tex_stone;
-extern AEGfxTexture* tex_dirt;
+extern AEGfxTexture* stoneTexture;
+extern AEGfxTexture* dirtTexture;
 
 // ---------------------------------------------------------------------------
 // functions to create/destroy a game object instance
