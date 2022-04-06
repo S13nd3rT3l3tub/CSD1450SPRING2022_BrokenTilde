@@ -279,8 +279,8 @@ void GameStateLevelsLoad(void)
 			AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_DOTTED object!!");
 
 			//Load textures
-			tex_stone = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
-			AE_ASSERT_MESG(tex_stone, "Failed to create texture1!!");
+			stoneTexture = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
+			AE_ASSERT_MESG(stoneTexture, "Failed to create texture1!!");
 		}
 
 		// =========================
@@ -675,6 +675,9 @@ void GameStateLevelsUpdate(void)
 			BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
 			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 			--ammoCount;
+
+			if (soundVolumeLevel)
+				fmodSys->playSound(playerShoot, nullptr, false, &soundChannel);
 		}
 
 		if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
@@ -1199,7 +1202,7 @@ void GameStateLevelsDraw(void)
 			if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 			{
 				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-				AEGfxTextureSet(tex_stone, 0.f, 0.f);
+				AEGfxTextureSet(stoneTexture, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			else if (GetCellValue(i, j - 1, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT) // remove -1 after adding dirt texture
@@ -1418,6 +1421,6 @@ void GameStateLevelsUnload(void)
 	}
 
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-	AEGfxTextureUnload(tex_stone);
-	tex_stone = nullptr;
+	AEGfxTextureUnload(stoneTexture);
+	stoneTexture = nullptr;
 }
