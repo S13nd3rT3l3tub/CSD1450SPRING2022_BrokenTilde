@@ -337,23 +337,8 @@ void GameStateLevel1Load(void)
 	if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 		gGameStateNext = GS_QUIT;
 
-	//PrintRetrievedInformation(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-	
-	//Computing the matrix which take a point out of the normalized coordinates system
-	//of the binary map
-	/***********
-	Compute a transformation matrix and save it in "MapTransform".
-	This transformation transforms any point from the normalized coordinates system of the binary map.
-	Later on, when rendering each object instance, we should concatenate "MapTransform" with the
-	object instance's own transformation matrix
-
-	Compute a translation matrix (-Grid width/2, -Grid height/2) and save it in "trans"
-	Compute a scaling matrix and save it in "scale". The scale must account for the window width and height.
-		Alpha engine has 2 helper functions to get the window width and height: AEGetWindowWidth() and AEGetWindowHeight()
-	Concatenate scale and translate and save the result in "MapTransform"
-	***********/
+	//Computing MapTransform Matrix
 	AEMtx33 scale, trans;
-
 	AEMtx33Trans(&trans, static_cast<f32>(-(BINARY_MAP_WIDTH / 2)), static_cast<f32>(-(BINARY_MAP_HEIGHT / 2)));
 	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / 40), static_cast<f32>(AEGetWindowHeight() / 20));
 	AEMtx33Concat(&MapTransform, &scale, &trans);
@@ -391,7 +376,7 @@ void GameStateLevel1Init(void)
 
 	srand(static_cast<unsigned int>(time(NULL))); // Seed random generator
 
-	// Initialise Binary map
+	// Initialise Binary map and create game objects
 	for (int row = 0; row < BINARY_MAP_HEIGHT; row++) {
 		for (int col = 0; col < BINARY_MAP_WIDTH; col++) {
 			Pos.x = col + 0.5f;
@@ -475,7 +460,7 @@ void GameStateLevel1Update(void)
 		{
 			playerdeathtimer -= g_dt;
 		}
-		else if (playerdeathtimer < 0)
+		else if (playerdeathtimer < 0) //restart level
 		{
 			currInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
@@ -643,28 +628,28 @@ void GameStateLevel1Update(void)
 
 				bool reflectedFlag{ false };
 				AEVec2 normal{};
-				if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {
+				if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) { // Collision with bottom of platform
 					normal = { 0, -1 };
 					if (++bounceCount < 3)
 						reflectedFlag = true;
 					else
 						break;
 				}
-				if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {
+				if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) { // Collision with top of platform
 					normal = { 0, 1 };
 					if (++bounceCount < 3)
 						reflectedFlag = true;
 					else
 						break;
 				}
-				if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {
+				if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) { // Collision with right side of platform
 					normal = { 1, 0 };
 					if (++bounceCount < 3)
 						reflectedFlag = true;
 					else
 						break;
 				}
-				if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {
+				if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) { // Collision with left side of platform
 					normal = { -1, 0 };
 					if (++bounceCount < 3)
 						reflectedFlag = true;
@@ -825,12 +810,9 @@ void GameStateLevel1Update(void)
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ -1, 0 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-					//std::cout << pInst->bulletbounce;6
 					reflectedFlag = true;
 					if (prevbounce == pInst->bulletbounce)
 						++(pInst->bulletbounce);
@@ -848,13 +830,10 @@ void GameStateLevel1Update(void)
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ 0, 1 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 					//Limit number of bullet bounces:
-					//std::cout << pInst->bulletbounce;
 					reflectedFlag = true;
 					if (prevbounce == pInst->bulletbounce)
 						++(pInst->bulletbounce);
@@ -1023,7 +1002,7 @@ void GameStateLevel1Update(void)
 
 /******************************************************************************/
 /*!
-
+	Render all game elements
 */
 /******************************************************************************/
 void GameStateLevel1Draw(void)
@@ -1089,6 +1068,8 @@ void GameStateLevel1Draw(void)
 		AEGfxTextureSet(NULL, 0.0f, 0.0f);
 		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 		AEGfxSetTransparency(0.8f);
+		
+		//Draw player health bar
 		AEGfxMeshDraw(PlayerHealthBar->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
@@ -1104,27 +1085,28 @@ void GameStateLevel1Draw(void)
 		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &pInst->transform);
 		AEGfxSetTransform(cellFinalTransformation.m);
 
-		if (pInst->pObject->type == TYPE_PARTICLE1) // Particle transparancy handler
+		// Particle transparancy handler
+		if (pInst->pObject->type == TYPE_PARTICLE1) 
 		{
 			AEGfxSetTransparency(pInst->dirCurr);
-			if (pInst->dirCurr <= 0)
+			if (pInst->dirCurr <= 0) //if fully transparent, destroy particle
 			{
 				gameObjInstDestroy(pInst);
 			}
 
-			if (pInst->state == STATE_ALERT)
+			if (pInst->state == STATE_ALERT) //Orange particles
 			{
 				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); 
 			}
 			pInst->dirCurr -= g_dt;
 		}
-		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
+		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)            
 		{
-			AEGfxSetTransparency(0.f);
+			AEGfxSetTransparency(0.f); //Make enemy line of sight detection invisible
 		}
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE)
 		{
-			AEGfxSetTransparency(0.4f);
+			AEGfxSetTransparency(0.4f); //Make projectile trajectory prediction translucent
 		}
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
@@ -1132,6 +1114,8 @@ void GameStateLevel1Draw(void)
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 		AEGfxSetTransparency(1.f);
+
+		//Destroy all dotted line objects everyframe after rendering
 		if (pInst->pObject->type == TYPE_DOTTED)
 		{
 			gameObjInstDestroy(pInst);
@@ -1161,10 +1145,12 @@ void GameStateLevel1Draw(void)
 		AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 	}
 
+	//Display number of enemies left in the level
 	sprintf_s(strBuffer, "Enemies Left : %d", totalEnemyCount);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.7f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
+	//Pause menu
 	if (currInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
