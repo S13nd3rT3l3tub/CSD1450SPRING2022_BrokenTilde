@@ -357,6 +357,9 @@ void GameStateLevel1Init(void)
 	// Set player's initial health
 	playerHealth = PLAYER_INITIAL_HEALTH;
 
+	//set level background color
+	AEGfxSetBackgroundColor(0.125f, 0.125f, 0.125f);
+
 	//create empty instance
 	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
@@ -403,7 +406,7 @@ void GameStateLevel1Init(void)
 	}
 
 	// Set ammoCount
-	ammoCount = static_cast<int>(totalEnemyCount * 3);
+	ammoCount = static_cast<int>(totalEnemyCount * 5.5f);
 }
 
 /******************************************************************************/
@@ -861,10 +864,8 @@ void GameStateLevel1Update(void)
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ 0, -1 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 					pInst->velCurr = newBulletVel;
 
 					//Limit number of bullet bounces:
@@ -1160,7 +1161,7 @@ void GameStateLevel1Draw(void)
 	{
 		sprintf_s(strBuffer, "Warning: Low Ammo");
 		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.9f - TextHeight / 2, 1.0f, 1.f, 0.f, 0.f);
 	}
 
 	//Display number of enemies left in the level

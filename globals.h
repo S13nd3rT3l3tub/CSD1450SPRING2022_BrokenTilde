@@ -76,7 +76,7 @@ const float			HOVER_VELOCITY = 7.0f;
 const float			MOVE_VELOCITY = 17.0f;
 const float			MOVE_VELOCITY_ENEMY = 2.5f;
 const double		ENEMY_IDLE_TIME = 2.0;
-const float			ENEMY_DETECTION_RANGE = 150.0f;
+const float			ENEMY_DETECTION_RANGE = 300.0f;
 const float			ENEMY_SHOOT_DELAY = 2.0f;
 
 
