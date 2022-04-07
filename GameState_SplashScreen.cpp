@@ -72,15 +72,27 @@ void GameStateSplashScreenInit(void) {
 	timer = 3.0f;
 }
 void GameStateSplashScreenUpdate(void) {
-	timer -= g_dt;
-	
-	if (AEInputCheckReleased(VK_LBUTTON) || AEInputCheckReleased(VK_RBUTTON) || AEInputCheckReleased(AEVK_RETURN) || AEInputCheckReleased(AEVK_SPACE) || AEInputCheckReleased(AEVK_ESCAPE))
-		timer = -1.0f;
+	switch (currInnerState) {
+	case GAME_PAUSE:
+		if (winFocused)
+			currInnerState = GAME_PLAY;
 
-	if (timer < 0.0f)
-		gGameStateNext = GS_MAINMENU;
+		break;
+	case GAME_PLAY:
+		if (winFocused == false)
+			currInnerState = GAME_PAUSE;
 
-	fmodSys->update();
+		timer -= g_dt;
+
+		if (AEInputCheckReleased(VK_LBUTTON) || AEInputCheckReleased(VK_RBUTTON) || AEInputCheckReleased(AEVK_RETURN) || AEInputCheckReleased(AEVK_SPACE) || AEInputCheckReleased(AEVK_ESCAPE))
+			timer = -1.0f;
+
+		if (timer < 0.0f)
+			gGameStateNext = GS_MAINMENU;
+
+		fmodSys->update();
+		break;
+	}
 }
 
 void GameStateSplashScreenDraw(void) {

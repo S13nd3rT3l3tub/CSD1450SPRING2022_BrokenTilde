@@ -234,7 +234,22 @@ void GameStateMainMenuUpdate() {
 
 	AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
 	switch (currInnerState) {
+	case GAME_PAUSE:
+		soundChannel->setPaused(true);
+
+		if (winFocused)
+			currInnerState = GAME_PLAY;
+
+		break;
 	case GAME_PLAY:
+		if (winFocused == false)
+			currInnerState = GAME_PAUSE;
+		
+		bool result;
+		soundChannel->getPaused(&result);
+		if (result)
+			soundChannel->setPaused(false);
+
 		//	if left mouse click
 		if (AEInputCheckReleased(VK_LBUTTON))
 		{

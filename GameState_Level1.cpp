@@ -418,14 +418,15 @@ void GameStateLevel1Update(void)
 {	
 	switch (currInnerState) {
 	case GAME_PAUSE:
-		soundChannel->stop();
-		if (AEInputCheckReleased(AEVK_ESCAPE))
+		soundChannel->setPaused(true);
+
+		if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
 			currInnerState = GAME_PLAY;
-		else if (AEInputCheckReleased(AEVK_R)) {
+		else if (AEInputCheckReleased(AEVK_R) && winFocused) {
 			gGameStateNext = GS_RESTART;
 			currInnerState = GAME_PLAY;
 		}
-		else if (AEInputCheckReleased(AEVK_M)) {
+		else if (AEInputCheckReleased(AEVK_M) && winFocused) {
 			gGameStateNext = GS_MAINMENU;
 			currInnerState = GAME_PLAY;
 		}
@@ -503,6 +504,14 @@ void GameStateLevel1Update(void)
 		break;
 	}
 	case GAME_PLAY:
+		if (winFocused == false)
+			currInnerState = GAME_PAUSE;
+
+		bool result;
+		soundChannel->getPaused(&result);
+		if (result)
+			soundChannel->setPaused(false);
+
 		// Update level time
 		levelTime += g_dt;
 
@@ -1204,10 +1213,10 @@ void GameStateLevel1Draw(void)
 
 	if (PlayerBody->posCurr.x >= 12.0f && PlayerBody->posCurr.x <= 18.0f &&
 		PlayerBody->posCurr.y >= 4.0f && PlayerBody->posCurr.y <= 12.0f) {
-		sprintf_s(strBuffer, "Left Click to Shoot");
+		sprintf_s(strBuffer, "Left Click to Shoot to Defeat");
 		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
 		AEGfxPrint(g_font20, strBuffer, -0.35f - TextWidth / 2, -0.28f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "& Defeat Enemies");
+		sprintf_s(strBuffer, "Enemies & Clear The Level!");
 		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
 		AEGfxPrint(g_font20, strBuffer, -0.35f - TextWidth / 2, -0.33f - TextHeight / 2, 0.85f, 0.f, 1.f, 1.f);
 	}
@@ -1228,12 +1237,6 @@ void GameStateLevel1Draw(void)
 
 	if (PlayerBody->posCurr.x >= 22.0f && PlayerBody->posCurr.x <= 29.0f &&
 		PlayerBody->posCurr.y >= 4.0f && PlayerBody->posCurr.y <= 12.0f) {
-		//sprintf_s(strBuffer, "Clear All The Enemies");
-		//AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
-		//AEGfxPrint(g_font20, strBuffer, -0.2f - TextWidth / 2, 0.0f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
-		//sprintf_s(strBuffer, "From The Level!");
-		//AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
-		//AEGfxPrint(g_font20, strBuffer, -0.2f - TextWidth / 2, 0.0f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "~Have Fun~ ^.^/");
 		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
 		AEGfxPrint(g_font20, strBuffer, -0.2f - TextWidth / 2, 0.0f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);

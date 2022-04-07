@@ -26,6 +26,8 @@ int		 g_mouseX;
 int		 g_mouseY;
 int		 g_chosenLevel{ 0 };
 
+bool	winFocused{ true };
+
 int winWidth{ 1280 };
 int winHeight{ 720 };
 

@@ -91,9 +91,9 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 
 			AEInputUpdate();
 
-			bool isFocused{ AESysGetWindowHandle() == GetFocus() };
-			ShowWindow(AESysGetWindowHandle(), isFocused == true ? SW_SHOW : SW_MINIMIZE);
-
+			winFocused = (AESysGetWindowHandle() == GetFocus());
+			ShowWindow(AESysGetWindowHandle(), winFocused ? SW_SHOW : SW_MINIMIZE);
+			
 			GameStateUpdate();
 
 			GameStateDraw();

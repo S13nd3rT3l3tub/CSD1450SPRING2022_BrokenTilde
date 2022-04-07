@@ -447,17 +447,18 @@ void GameStateLevelsUpdate(void)
 {
 	switch (currInnerState) {
 	case GAME_PAUSE:
-		if (AEInputCheckReleased(AEVK_ESCAPE))
+		soundChannel->setPaused(true);
+
+		if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
 			currInnerState = GAME_PLAY;
-		else if (AEInputCheckReleased(AEVK_R)) {
+		else if (AEInputCheckReleased(AEVK_R) && winFocused) {
 			gGameStateNext = GS_RESTART;
 			currInnerState = GAME_PLAY;
 		}
-		else if (AEInputCheckReleased(AEVK_M)) {
+		else if (AEInputCheckReleased(AEVK_M) && winFocused) {
 			gGameStateNext = GS_MAINMENU;
 			currInnerState = GAME_PLAY;
 		}
-
 		break;
 	case GAME_WIN:
 		gGameStateNext = GS_MAINMENU;
@@ -542,6 +543,14 @@ void GameStateLevelsUpdate(void)
 		break;
 	}
 	case GAME_PLAY:
+		if (winFocused == false)
+			currInnerState = GAME_PAUSE;
+
+		bool result;
+		soundChannel->getPaused(&result);
+		if (result)
+			soundChannel->setPaused(false);
+
 		// Update level time
 		levelTime += g_dt;
 

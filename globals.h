@@ -33,6 +33,8 @@ extern int		 g_mouseX;
 extern int		 g_mouseY;
 extern int		 g_chosenLevel;
 
+extern bool		winFocused;
+
 extern int winWidth;
 extern int winHeight;
 
