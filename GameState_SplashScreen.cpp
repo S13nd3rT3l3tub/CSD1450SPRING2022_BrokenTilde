@@ -65,26 +65,17 @@ void GameStateSplashScreenLoad(void) {
 
 	// Move camera to 0,0
 	AEGfxSetCamPosition(0.0f, 0.0f);
-
-	// Set fullscreen to true
-	AEToogleFullScreen(toFullScreen);
 }
 
 void GameStateSplashScreenInit(void) {
-	// Set fullscreen to true
-	AEToogleFullScreen(toFullScreen);
-
 	// Initialize timer
 	timer = 3.0f;
 }
 void GameStateSplashScreenUpdate(void) {
 	timer -= g_dt;
 	
-	if (AEInputCheckReleased(VK_LBUTTON) || AEInputCheckReleased(VK_RBUTTON))
+	if (AEInputCheckReleased(VK_LBUTTON) || AEInputCheckReleased(VK_RBUTTON) || AEInputCheckReleased(AEVK_RETURN) || AEInputCheckReleased(AEVK_SPACE) || AEInputCheckReleased(AEVK_ESCAPE))
 		timer = -1.0f;
-
-	if (AEInputCheckCurr(AEVK_LALT) || AEInputCheckCurr(AEVK_RALT))
-		std::cout << "Issue key\n";
 
 	if (timer < 0.0f)
 		gGameStateNext = GS_MAINMENU;

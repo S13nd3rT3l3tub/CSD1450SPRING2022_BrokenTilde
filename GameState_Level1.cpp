@@ -1227,6 +1227,12 @@ void GameStateLevel1Draw(void)
 
 	if (PlayerBody->posCurr.x >= 22.0f && PlayerBody->posCurr.x <= 29.0f &&
 		PlayerBody->posCurr.y >= 4.0f && PlayerBody->posCurr.y <= 12.0f) {
+		//sprintf_s(strBuffer, "Clear All The Enemies");
+		//AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		//AEGfxPrint(g_font20, strBuffer, -0.2f - TextWidth / 2, 0.0f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
+		//sprintf_s(strBuffer, "From The Level!");
+		//AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
+		//AEGfxPrint(g_font20, strBuffer, -0.2f - TextWidth / 2, 0.0f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "~Have Fun~ ^.^/");
 		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
 		AEGfxPrint(g_font20, strBuffer, -0.2f - TextWidth / 2, 0.0f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);

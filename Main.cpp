@@ -64,6 +64,8 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	fmodSys->createSound(".\\Resources\\Sounds\\CRITICAL_MASS_-_Corporate_MSCCRP1_31.wav", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
 	fmodSys->createSound(".\\Resources\\Sounds\\WhooshCartoon CTE02_88.6.wav", FMOD_DEFAULT, nullptr, &playerShoot);
 
+	// Set fullscreen to true
+	AEToogleFullScreen(toFullScreen);
 
 	while(gGameStateCurr != GS_QUIT)
 	{
