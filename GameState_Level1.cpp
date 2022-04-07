@@ -403,7 +403,7 @@ void GameStateLevel1Init(void)
 	}
 
 	// Set ammoCount
-	ammoCount = static_cast<int>(totalEnemyCount * 3);
+	ammoCount = static_cast<int>(totalEnemyCount * 5.5f);
 }
 
 /******************************************************************************/
