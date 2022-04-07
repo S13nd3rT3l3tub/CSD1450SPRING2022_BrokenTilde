@@ -357,6 +357,9 @@ void GameStateLevel1Init(void)
 	// Set player's initial health
 	playerHealth = PLAYER_INITIAL_HEALTH;
 
+	//set level background color
+	AEGfxSetBackgroundColor(0.125f, 0.125f, 0.125f);
+
 	//create empty instance
 	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
 	EmptyInstance->flag ^= FLAG_VISIBLE;
