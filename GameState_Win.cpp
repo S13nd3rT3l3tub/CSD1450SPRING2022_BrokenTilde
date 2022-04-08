@@ -181,17 +181,17 @@ void GameStateWinDraw() {
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
-	sprintf_s(strBuffer, "Mission completed!");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Mission %d completed!", g_chosenLevel - 1);
+	AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-	sprintf_s(strBuffer, "Time taken: %f", levelTime); // display how long taken to complete level.
+	sprintf_s(strBuffer, "Time taken: %.2f seconds", levelTime); // display how long taken to complete level.
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
 	sprintf_s(strBuffer, "Press spacebar to continue"); 
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.20f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.20f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/
