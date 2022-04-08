@@ -1,42 +1,29 @@
 /*!
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
-@file       BinaryMap.cpp
+@file       GameStateMgr.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
--------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Authored Functions
--------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		Authored Functions
--------------------------------------------------------------------------------
-@author		Desmond Too Wei Kang (d.too@digipen.edu)
-@role		Authored Functions
+@role		
 *//*_________________________________________________________________________*/
 
+// ----- Include Guard -----
 #ifndef GAME_STATE_MGR_H_
 #define GAME_STATE_MGR_H_
 
-// ---------------------------------------------------------------------------
-
+// ----- Include Files -----
 #include "AEEngine.h"
+#include "GameStateList.h"	// include the list of game states
 
 // ---------------------------------------------------------------------------
-// include the list of game states
-
-#include "GameStateList.h"
-
-// ---------------------------------------------------------------------------
-// externs
-
+// Game State Globals
 extern unsigned int gGameStateInit;
 extern unsigned int gGameStateCurr;
 extern unsigned int gGameStatePrev;
 extern unsigned int gGameStateNext;
+extern unsigned int gGameStateInnerState;
 
 // ---------------------------------------------------------------------------
-
+// Game State Function Pointers
 extern void (*GameStateLoad)();
 extern void (*GameStateInit)();
 extern void (*GameStateUpdate)();

@@ -3,12 +3,49 @@
 @file       Main.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Added font loading and free-ing for game usage
+@role	
+-------------------------------------------------------------------------------
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		
 *//*_________________________________________________________________________*/
 
+
+// ----- Include Files -----
 #include "Main.h"
 #include <memory>
 #include <iostream>
+
+/******************************************************************************/
+/*!
+	Main Globals
+*/
+/******************************************************************************/
+// ----- Time -----
+float	 g_dt{ 0.0f };			// Delta time
+double	 g_appTime{ 0.0 };		// Application time
+double	 levelTime{ 0.0 };		// Level time
+
+// ----- Font -----
+s8		 g_font12{};			// Font size 12
+s8		 g_font20{};			// Font size 20
+s8		 g_font30{};			// Font size 30
+
+// ----- Mouse -----
+int		 g_mouseX{ 0 };			// Mouse window pos X
+int		 g_mouseY{ 0 };			// Mouse window pos Y
+float	 worldMouseX{ 0.0f };	// World window pos X
+float	 worldMouseY{ 0.0f };	// World window pos Y
+
+// ----- Window -----
+bool winFocused{ true };		// Window focused flag variable
+bool toFullScreen{ true };		// Window fullscreen flag variable
+
+// ----- Sound -----
+bool			soundVolumeLevel{ true };	// Sound volume flag variable
+FMOD::System* fModSys{ nullptr };			// FMOD system
+FMOD::Sound* mainMenuBG{ nullptr };		// Background sound pointer
+FMOD::Sound* playerShoot{ nullptr };		// Projectile shooting sount pointer
+FMOD::Channel* soundChannel{ nullptr };	// FMOD sound channel pointer
 
 
 /******************************************************************************/
@@ -26,47 +63,55 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 		_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	#endif
 
-	//int * pi = new int;
-	////delete pi;
-
-
-	// Initialize the system
-	//AESysInit (instanceH, show, AEGetWindowWidth(), AEGetWindowHeight(), 1, 60, false, NULL);
+	// Initialize the system & window
 	AESysInit(instanceH, show, winWidth, winHeight, 1, 60, false, NULL);
 
 	// Changing the window title
 	AESysSetWindowTitle("Ricochet");
 
-	//set background color
+	// Set background color
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
-	// Load font
-	g_font12 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 12);
-	g_font20 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 20);
-	g_font30 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 30);
+	// ==============================
+	// Load font of different sizes
+	// ==============================
+	{
+		g_font12 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 12);
+		g_font20 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 20);
+		g_font30 = AEGfxCreateFont(".\\Resources\\Fonts\\Roboto-Regular.ttf", 30);
+	}
 
+	// Initialize chosenLevel to 0
 	g_chosenLevel = 0;
 
+	// Initialize game state manager and initialize to the given start state
 	GameStateMgrInit(GS_SPLASHSCREEN);
 
-	FMOD_RESULT result{};
-	result = FMOD::System_Create(&fmodSys);      // Create the main system object.
-	if (result != FMOD_OK){
+
+	// ==============================
+	// Create & initialize FMOD system
+	// =============================={
+	// Create
+	if (FMOD::System_Create(&fModSys) != FMOD_OK){
 		//printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
 		return -1;
 	}
-	result = fmodSys->init(5, FMOD_INIT_NORMAL, 0);    // Initialize FMOD.
-	if (result != FMOD_OK){
+	// Initialize 
+	if (fModSys->init(1, FMOD_INIT_NORMAL, 0) != FMOD_OK){
 		//printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
 		return -1;
 	}
 
-	fmodSys->createSound(".\\Resources\\Sounds\\CRITICAL_MASS_-_Corporate_MSCCRP1_31.wav", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
-	fmodSys->createSound(".\\Resources\\Sounds\\WhooshCartoon CTE02_88.6.wav", FMOD_DEFAULT, nullptr, &playerShoot);
+	// Initialize Sounds using FMOD
+	{
+		fModSys->createSound(".\\Resources\\Sounds\\CRITICAL_MASS_-_Corporate_MSCCRP1_31.wav", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
+		fModSys->createSound(".\\Resources\\Sounds\\WhooshCartoon CTE02_88.6.wav", FMOD_DEFAULT, nullptr, &playerShoot);
+	}
 
-	// Set fullscreen to true
+	// Set fullscreen mode
 	AEToogleFullScreen(toFullScreen);
 
+	// Program Loop
 	while(gGameStateCurr != GS_QUIT)
 	{
 		// reset the system modules
@@ -78,56 +123,74 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 			GameStateMgrUpdate();
 			GameStateLoad();
 		}
-		else
+		else    // Update game state variables
 			gGameStateNext = gGameStateCurr = gGameStatePrev;
 
 		// Initialize the gamestate
 		GameStateInit();
 
 		// Game State Loop
-		while(gGameStateCurr == gGameStateNext)
-		{
+		while(gGameStateCurr == gGameStateNext){
+			// Call frame start
 			AESysFrameStart();
 
+			// Update input
 			AEInputUpdate();
 
+			// Update window focused mode
 			winFocused = (AESysGetWindowHandle() == GetFocus());
+			// Decide whether to show window
 			ShowWindow(AESysGetWindowHandle(), winFocused ? SW_SHOW : SW_MINIMIZE);
 			
+			// Call game state's update
 			GameStateUpdate();
 
+			// Call game state's draw
 			GameStateDraw();
 			
+			// Call frame end
 			AESysFrameEnd();
 
 			// check if forcing the application to quit
 			if ((AESysDoesWindowExist() == false))
 				gGameStateNext = GS_QUIT;
 
+			// Update global delta time
 			g_dt = static_cast<float>(AEFrameRateControllerGetFrameTime()) < 1.0f / 60.0f ? static_cast<float>(AEFrameRateControllerGetFrameTime()) : 1.0f / 60.0f;
+			
+			// Update global mouse position
 			AEInputGetCursorPosition(&g_mouseX, &g_mouseY);
+
+			// Update application time
 			g_appTime += g_dt;
 
 
 		}
-		
+		// Call game state's free
 		GameStateFree();
 
 		if(gGameStateNext != GS_RESTART)
-			GameStateUnload();
+			GameStateUnload();	// Call game state's unlload
 
 		gGameStatePrev = gGameStateCurr;
 		gGameStateCurr = gGameStateNext;
 	}
 
-	// Free font
-	AEGfxDestroyFont(g_font12);
-	AEGfxDestroyFont(g_font20);
-	AEGfxDestroyFont(g_font30);
+	// ==============================
+	// Free fonts used
+	// ==============================
+	{
+		AEGfxDestroyFont(g_font12);
+		AEGfxDestroyFont(g_font20);
+		AEGfxDestroyFont(g_font30);
+	}
 
-	// Free the fMod Sys
-	fmodSys->release();
+	// Free created FMOD system
+	fModSys->release();
 
-	// free the system
+	// Free the system
 	AESysExit();
+
+	// Return 0
+	return 0;
 }

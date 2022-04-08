@@ -416,24 +416,24 @@ void GameStateLevel1Init(void)
 /******************************************************************************/
 void GameStateLevel1Update(void)
 {	
-	switch (currInnerState) {
+	switch (gGameStateInnerState) {
 	case GAME_PAUSE:
 		soundChannel->setPaused(true);
 
 		if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 		else if (AEInputCheckReleased(AEVK_R) && winFocused) {
 			gGameStateNext = GS_RESTART;
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 		}
 		else if (AEInputCheckReleased(AEVK_M) && winFocused) {
 			gGameStateNext = GS_MAINMENU;
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 		}
 		break;
 	case GAME_WIN:
 		gGameStateNext = GS_LEVELS;
-		currInnerState = GAME_PLAY;
+		gGameStateInnerState = GAME_PLAY;
 		g_chosenLevel = 2;
 		break;
 	case GAME_LOSE: {
@@ -467,7 +467,7 @@ void GameStateLevel1Update(void)
 		}
 		else if (playerdeathtimer < 0) //restart level
 		{
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
 			playerdeathtimer = 0;
 			std::string fileName{ "" };
@@ -505,7 +505,7 @@ void GameStateLevel1Update(void)
 	}
 	case GAME_PLAY:
 		if (winFocused == false)
-			currInnerState = GAME_PAUSE;
+			gGameStateInnerState = GAME_PAUSE;
 
 		bool result;
 		soundChannel->getPaused(&result);
@@ -517,13 +517,13 @@ void GameStateLevel1Update(void)
 
 		// Check win state
 		if (totalEnemyCount <= 0 && ammoCount > 1) {
-			currInnerState = GAME_WIN;
+			gGameStateInnerState = GAME_WIN;
 		}
 		// Check lose state
 		if (playerHealth <= 0.0f || ammoCount <= 0) {
 			playerHealth = 0;
 			playerdeathtimer = PLAYER_DEATH_ANIME_TIME;
-			currInnerState = GAME_LOSE;
+			gGameStateInnerState = GAME_LOSE;
 		}
 
 		// =========================
@@ -532,7 +532,7 @@ void GameStateLevel1Update(void)
 
 		//	if escape key is pressed
 		if (AEInputCheckReleased(AEVK_ESCAPE))
-			currInnerState = GAME_PAUSE;
+			gGameStateInnerState = GAME_PAUSE;
 
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the following input movement based on our player movement
@@ -619,7 +619,7 @@ void GameStateLevel1Update(void)
 			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 			--ammoCount; //deplete ammo
 			if (soundVolumeLevel)
-				fmodSys->playSound(playerShoot, nullptr, false, &soundChannel);
+				fModSys->playSound(playerShoot, nullptr, false, &soundChannel);
 		}
 
 		if (AEInputCheckCurr(VK_RBUTTON)) // aim with trajectory line
@@ -699,11 +699,11 @@ void GameStateLevel1Update(void)
 				continue;
 
 			//If bullet bounces more than 2 times, destroy bullet
-			if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
+			if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
 				gameObjInstDestroy(pInst);
 
 			//Prevent enemy bullets from bouncing
-			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bulletbounce >= 1)
+			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1)
 				gameObjInstDestroy(pInst);
 
 			//Apply gravity to enemies and player
@@ -764,7 +764,7 @@ void GameStateLevel1Update(void)
 		/**************************
 		 Update grid collision flag
 		***************************/
-		int prevbounce = pInst->bulletbounce;
+		int prevbounce = pInst->bounceCount;
 		if (pInst->pObject->type == TYPE_BULLET) //for bullets
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
@@ -809,8 +809,8 @@ void GameStateLevel1Update(void)
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
 					reflectedFlag = true;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -829,8 +829,8 @@ void GameStateLevel1Update(void)
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
 					reflectedFlag = true;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -850,8 +850,8 @@ void GameStateLevel1Update(void)
 					pInst->velCurr = newBulletVel;
 					//Limit number of bullet bounces:
 					reflectedFlag = true;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -878,9 +878,8 @@ void GameStateLevel1Update(void)
 					pInst->velCurr = newBulletVel;
 
 					//Limit number of bullet bounces:
-					//std::cout << pInst->bulletbounce;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -1001,6 +1000,7 @@ void GameStateLevel1Update(void)
 	//Camera follows the player around the level
 	float cameraX, cameraY;
 	AEGfxGetCamPosition(&cameraX, &cameraY);
+	
 	AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 	AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
 
@@ -1180,7 +1180,6 @@ void GameStateLevel1Draw(void)
 
 	// Tutorial text scripts
 	// A & D Key
-	std::cout << PlayerBody->posCurr.x << ", " << PlayerBody->posCurr.y << std::endl;
 	if (PlayerBody->posCurr.x >= 0.0f && PlayerBody->posCurr.x <= 7.0f &&
 		PlayerBody->posCurr.y >= 0.0f && PlayerBody->posCurr.y <= 10.0f) {
 		sprintf_s(strBuffer, "Use A & D Keys to");
@@ -1188,7 +1187,7 @@ void GameStateLevel1Draw(void)
 		AEGfxPrint(g_font20, strBuffer, -0.8f - TextWidth / 2, -0.6f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
 		sprintf_s(strBuffer, "Move Left & Right");
 		AEGfxGetPrintSize(g_font20, strBuffer, 0.85f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.8f - TextWidth / 2, -0.65f - TextHeight / 2, 0.85, 1.f, 1.f, 1.f);
+		AEGfxPrint(g_font20, strBuffer, -0.8f - TextWidth / 2, -0.65f - TextHeight / 2, 0.85f, 1.f, 1.f, 1.f);
 	}
 
 	if (PlayerBody->posCurr.x >= 5.0f && PlayerBody->posCurr.x <= 12.0f &&
@@ -1256,7 +1255,7 @@ void GameStateLevel1Draw(void)
 	}
 
 	//Pause menu
-	if (currInnerState == GAME_PAUSE) {
+	if (gGameStateInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);

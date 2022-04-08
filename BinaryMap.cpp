@@ -18,7 +18,7 @@ int ImportMapDataFromFile(std::string FileName, int*** _MapData, int*** _BinaryC
 	std::fstream fs(FileName, std::ios_base::in);
 	if (!fs)
 	{
-		std::cout << "File " << FileName << " not found.\n";
+		//std::cout << "File " << FileName << " not found.\n";
 		return 0;
 	}
 	std::string filler;
@@ -171,9 +171,6 @@ int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float
 	y2 = PosY - scaleY / 4;
 
 	// Check if any of the hotspot is colliding
-	//std::cout << "Left Check\n";
-	//std::cout << "hs1 : (" << x1 << ", " << y1 << ") = " << _BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] << " | ";
-	//std::cout << "hs2 : (" << x2 << ", " << y2 << ") = " << _BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)];
 	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
@@ -199,8 +196,7 @@ int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float
 		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x4), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
-	//std::cout << std::endl;
-
+	
 	// Return value of Flag
 	return Flag;
 }
@@ -268,9 +264,6 @@ int		CheckInstanceBinaryMapCollision_bullet(float PosX, float PosY, float scaleX
 	// - hotspot 2 (below center line)
 
 	// Check if any of the hotspot is colliding
-	//std::cout << "Left Check\n";
-	//std::cout << "hs1 : (" << x1 << ", " << y1 << ") = " << _BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] << " | ";
-	//std::cout << "hs2 : (" << x2 << ", " << y2 << ") = " << _BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)];
 	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
@@ -365,9 +358,6 @@ int		CheckInstanceBinaryMapCollision_dotted(float PosX, float PosY, float scaleX
 	// - hotspot 2 (below center line)
 
 	// Check if any of the hotspot is colliding
-	//std::cout << "Left Check\n";
-	//std::cout << "hs1 : (" << x1 << ", " << y1 << ") = " << _BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] << " | ";
-	//std::cout << "hs2 : (" << x2 << ", " << y2 << ") = " << _BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)];
 	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
 		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)

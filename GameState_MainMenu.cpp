@@ -10,6 +10,9 @@
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Desmond Too Wei Kang (d.too@digipen.edu)
+@role
 *//*_________________________________________________________________________*/
 
 #include "Main.h"
@@ -180,7 +183,7 @@ void GameStateMainMenuLoad() {
 	// Move camera to 0,0 in event menu is loaded after game
 	AEGfxSetCamPosition(0.0f, 0.0f);
 
-	fmodSys->playSound(mainMenuBG, nullptr, false, &soundChannel);
+	fModSys->playSound(mainMenuBG, nullptr, false, &soundChannel);
 	if (soundVolumeLevel)
 		soundChannel->setVolume(0.7f);
 	else
@@ -233,17 +236,17 @@ void GameStateMainMenuInit() {
 void GameStateMainMenuUpdate() {
 
 	AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
-	switch (currInnerState) {
+	switch (gGameStateInnerState) {
 	case GAME_PAUSE:
 		soundChannel->setPaused(true);
 
 		if (winFocused)
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 
 		break;
 	case GAME_PLAY:
 		if (winFocused == false)
-			currInnerState = GAME_PAUSE;
+			gGameStateInnerState = GAME_PAUSE;
 		
 		bool result;
 		soundChannel->getPaused(&result);
@@ -374,7 +377,7 @@ void GameStateMainMenuUpdate() {
 			}
 		}
 
-		fmodSys->update();
+		fModSys->update();
 
 		int i{};
 		GameObjInst* pInst;
@@ -472,8 +475,7 @@ void GameStateMainMenuUpdate() {
 		AEGfxGetCamPosition(&cameraX, &cameraY);
 		worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
 		worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
-		//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
-
+		
 		break;
 	}
 }

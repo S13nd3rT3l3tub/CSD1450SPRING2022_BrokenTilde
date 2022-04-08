@@ -3,19 +3,24 @@
 @file       GameStateMgr.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
+@role		
+-------------------------------------------------------------------------------
+@author     Leong Wai Kit (l.waikit@digipen.edu)
+@role		
 *//*_________________________________________________________________________*/
 
+// ----- Include Files -----
 #include "Main.h"
 
 // ---------------------------------------------------------------------------
-// globals
-
-// variables to keep track the current, previous and next game state
+// Game State Globals
+// 
+// variables to keep track the current, previous, next & inner game state
 unsigned int	gGameStateInit;
 unsigned int	gGameStateCurr;
 unsigned int	gGameStatePrev;
 unsigned int	gGameStateNext;
+unsigned int	gGameStateInnerState;
 
 // pointer to functions for game state life cycles functions
 void (*GameStateLoad)()		= 0;
@@ -27,10 +32,10 @@ void (*GameStateUnload)()	= 0;
 
 /******************************************************************************/
 /*!
-
+	Game State Manager Initialize Function
 */
 /******************************************************************************/
-void GameStateMgrInit(unsigned int gameStateInit)
+void GameStateMgrInit(unsigned int gameStateInit) 
 {
 	// set the initial game state
 	gGameStateInit = gameStateInit;
@@ -40,63 +45,80 @@ void GameStateMgrInit(unsigned int gameStateInit)
 	gGameStatePrev = 
 	gGameStateNext = gGameStateInit;
 
+	// Set the innerState to be play state
+	gGameStateInnerState = GAME_PLAY;
+
 	// call the update to set the function pointers
 	GameStateMgrUpdate();
 }
 
 /******************************************************************************/
 /*!
-
+	Game State Manager Update Function
 */
 /******************************************************************************/
-void GameStateMgrUpdate()
+void GameStateMgrUpdate() 
 {
+	// Check if current state is to restart or quit
 	if ((gGameStateCurr == GS_RESTART) || (gGameStateCurr == GS_QUIT))
 		return;
 
-	switch (gGameStateCurr)
-	{
-	case GS_SPLASHSCREEN:
-		GameStateLoad = GameStateSplashScreenLoad;
-		GameStateInit = GameStateSplashScreenInit;
-		GameStateUpdate = GameStateSplashScreenUpdate;
-		GameStateDraw = GameStateSplashScreenDraw;
-		GameStateFree = GameStateSplashScreenFree;
-		GameStateUnload = GameStateSplashScreenUnload;
-		break;
-	case GS_MAINMENU:
-		GameStateLoad = GameStateMainMenuLoad;
-		GameStateInit = GameStateMainMenuInit;
-		GameStateUpdate = GameStateMainMenuUpdate;
-		GameStateDraw = GameStateMainMenuDraw;
-		GameStateFree = GameStateMainMenuFree;
-		GameStateUnload = GameStateMainMenuUnload;
-		break;
-	case GS_WINSCREEN:
-		GameStateLoad = GameStateWinLoad;
-		GameStateInit = GameStateWinInit;
-		GameStateUpdate = GameStateWinUpdate;
-		GameStateDraw = GameStateWinDraw;
-		GameStateFree = GameStateWinFree;
-		GameStateUnload = GameStateWinUnload;
-		break;
-	case GS_LEVEL1:
-		GameStateLoad = GameStateLevel1Load;
-		GameStateInit = GameStateLevel1Init;
-		GameStateUpdate = GameStateLevel1Update;
-		GameStateDraw = GameStateLevel1Draw;
-		GameStateFree = GameStateLevel1Free;
-		GameStateUnload = GameStateLevel1Unload;
-		break;
-	case GS_LEVELS:
-		GameStateLoad = GameStateLevelsLoad;
-		GameStateInit = GameStateLevelsInit;
-		GameStateUpdate = GameStateLevelsUpdate;
-		GameStateDraw = GameStateLevelsDraw;
-		GameStateFree = GameStateLevelsFree;
-		GameStateUnload = GameStateLevelsUnload;
-		break;
-	default:
-		AE_FATAL_ERROR("invalid state!!");
+	// Switch assignment of function pointers based on current state
+	switch (gGameStateCurr){
+		// Splash Screen
+		case GS_SPLASHSCREEN:{
+			GameStateLoad = GameStateSplashScreenLoad;
+			GameStateInit = GameStateSplashScreenInit;
+			GameStateUpdate = GameStateSplashScreenUpdate;
+			GameStateDraw = GameStateSplashScreenDraw;
+			GameStateFree = GameStateSplashScreenFree;
+			GameStateUnload = GameStateSplashScreenUnload;
+			break;
+		}
+		// Main Menu
+		case GS_MAINMENU: {
+			GameStateLoad = GameStateMainMenuLoad;
+			GameStateInit = GameStateMainMenuInit;
+			GameStateUpdate = GameStateMainMenuUpdate;
+			GameStateDraw = GameStateMainMenuDraw;
+			GameStateFree = GameStateMainMenuFree;
+			GameStateUnload = GameStateMainMenuUnload;
+			break;
+		}
+		// Win Screen 
+		case GS_WINSCREEN: {
+			GameStateLoad = GameStateWinLoad;
+			GameStateInit = GameStateWinInit;
+			GameStateUpdate = GameStateWinUpdate;
+			GameStateDraw = GameStateWinDraw;
+			GameStateFree = GameStateWinFree;
+			GameStateUnload = GameStateWinUnload;
+			break;
+		}
+		// Tutorial/Introductory Level (Level 1)
+		case GS_LEVEL1: {
+			GameStateLoad = GameStateLevel1Load;
+			GameStateInit = GameStateLevel1Init;
+			GameStateUpdate = GameStateLevel1Update;
+			GameStateDraw = GameStateLevel1Draw;
+			GameStateFree = GameStateLevel1Free;
+			GameStateUnload = GameStateLevel1Unload;
+			break; 
+		}
+		// Any other level
+		case GS_LEVELS: {
+			GameStateLoad = GameStateLevelsLoad;
+			GameStateInit = GameStateLevelsInit;
+			GameStateUpdate = GameStateLevelsUpdate;
+			GameStateDraw = GameStateLevelsDraw;
+			GameStateFree = GameStateLevelsFree;
+			GameStateUnload = GameStateLevelsUnload;
+			break;
+		}
+		// None of the above
+		default: {
+			AE_FATAL_ERROR("invalid state!!");
+			break;
+		}
 	}
 }

@@ -4,6 +4,9 @@
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
 @role		Authored Functions
+-------------------------------------------------------------------------------
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Authored Functions
 *//*_________________________________________________________________________*/
 
 #include "Main.h"
@@ -72,15 +75,15 @@ void GameStateSplashScreenInit(void) {
 	timer = 3.0f;
 }
 void GameStateSplashScreenUpdate(void) {
-	switch (currInnerState) {
+	switch (gGameStateInnerState) {
 	case GAME_PAUSE:
 		if (winFocused)
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 
 		break;
 	case GAME_PLAY:
 		if (winFocused == false)
-			currInnerState = GAME_PAUSE;
+			gGameStateInnerState = GAME_PAUSE;
 
 		timer -= g_dt;
 
@@ -90,7 +93,7 @@ void GameStateSplashScreenUpdate(void) {
 		if (timer < 0.0f)
 			gGameStateNext = GS_MAINMENU;
 
-		fmodSys->update();
+		fModSys->update();
 		break;
 	}
 }

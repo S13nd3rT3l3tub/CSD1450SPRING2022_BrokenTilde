@@ -341,7 +341,6 @@ void GameStateLevelsLoad(void)
 	if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 		gGameStateNext = GS_QUIT;
 
-	//PrintRetrievedInformation(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 
 	//Computing the matrix which take a point out of the normalized coordinates system
 	//of the binary map
@@ -391,8 +390,7 @@ void GameStateLevelsInit(void)
 
 	srand(static_cast<unsigned int>(time(NULL))); // Seed random generator
 
-	//PrintRetrievedInformation();
-
+	
 	// Initialise Binary map
 	for (int row = 0; row < BINARY_MAP_HEIGHT; row++) {
 		for (int col = 0; col < BINARY_MAP_WIDTH; col++) {
@@ -445,24 +443,24 @@ void GameStateLevelsInit(void)
 /******************************************************************************/
 void GameStateLevelsUpdate(void)
 {
-	switch (currInnerState) {
+	switch (gGameStateInnerState) {
 	case GAME_PAUSE:
 		soundChannel->setPaused(true);
 
 		if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 		else if (AEInputCheckReleased(AEVK_R) && winFocused) {
 			gGameStateNext = GS_RESTART;
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 		}
 		else if (AEInputCheckReleased(AEVK_M) && winFocused) {
 			gGameStateNext = GS_MAINMENU;
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 		}
 		break;
 	case GAME_WIN:
 		gGameStateNext = GS_MAINMENU;
-		currInnerState = GAME_PLAY;
+		gGameStateInnerState = GAME_PLAY;
 		break;
 	case GAME_LOSE: {
 		if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
@@ -493,7 +491,7 @@ void GameStateLevelsUpdate(void)
 		{
 			//GameStateLevel1Load();
 			//GameStateLevel1Init();
-			currInnerState = GAME_PLAY;
+			gGameStateInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
 			playerdeathtimer = 0;
 			
@@ -544,7 +542,7 @@ void GameStateLevelsUpdate(void)
 	}
 	case GAME_PLAY:
 		if (winFocused == false)
-			currInnerState = GAME_PAUSE;
+			gGameStateInnerState = GAME_PAUSE;
 
 		bool result;
 		soundChannel->getPaused(&result);
@@ -560,7 +558,7 @@ void GameStateLevelsUpdate(void)
 
 		// Check win state
 		if (totalEnemyCount <= 0 && ammoCount > 1) {
-			currInnerState = GAME_WIN;
+			gGameStateInnerState = GAME_WIN;
 		}
 		// Check lose state
 		if (playerHealth <= 0.0f || ammoCount <= 0) {
@@ -568,7 +566,7 @@ void GameStateLevelsUpdate(void)
 			//gameObjInstDestroy(PlayerGun);
 			//gameObjInstDestroy(PlayerBody);
 			playerdeathtimer = PLAYER_DEATH_ANIME_TIME;
-			currInnerState = GAME_LOSE;
+			gGameStateInnerState = GAME_LOSE;
 
 			//AEVec2 particleVel;
 			//for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
@@ -593,7 +591,7 @@ void GameStateLevelsUpdate(void)
 		// 
 		//	if escape key is pressed
 		if (AEInputCheckReleased(AEVK_ESCAPE))
-			currInnerState = GAME_PAUSE;
+			gGameStateInnerState = GAME_PAUSE;
 
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the following input movement based on our player movement
@@ -679,14 +677,13 @@ void GameStateLevelsUpdate(void)
 			// 
 			// Create an instance
 
-			//std::cout << "Gun Pos: (" << PlayerGun->posCurr.x << ", " << PlayerGun->posCurr.y << ") | Direction: " << PlayerGun->dirCurr << std::endl;
 			BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
 			BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
 			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
 			--ammoCount;
 
 			if (soundVolumeLevel)
-				fmodSys->playSound(playerShoot, nullptr, false, &soundChannel);
+				fModSys->playSound(playerShoot, nullptr, false, &soundChannel);
 		}
 
 		if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
@@ -772,10 +769,10 @@ void GameStateLevelsUpdate(void)
 			If object instance is an enemy
 				Apply enemy state machine
 			****************/
-			if (pInst->pObject->type == TYPE_BULLET && pInst->bulletbounce >= 3)
+			if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
 				gameObjInstDestroy(pInst);
 
-			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bulletbounce >= 1) // enemy bullet
+			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1) // enemy bullet
 				gameObjInstDestroy(pInst);
 
 			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
@@ -817,8 +814,7 @@ void GameStateLevelsUpdate(void)
 
 		AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 		AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-		//std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
-
+		
 		float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
 		PlayerGun->dirCurr = dotProduct;
 
@@ -860,7 +856,7 @@ void GameStateLevelsUpdate(void)
 			Snap to cell on X axis
 			Velocity X = 0
 		*************/
-		int prevbounce = pInst->bulletbounce;
+		int prevbounce = pInst->bounceCount;
 		if (pInst->pObject->type == TYPE_BULLET)
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
@@ -879,7 +875,6 @@ void GameStateLevelsUpdate(void)
 			hold.x = hold.x / 6;
 			hold.y = hold.y / 6;
 			AEVec2 particlepos = { static_cast<float>(static_cast<int>(pInst->posCurr.x + hold.x)),  static_cast<float>(static_cast<int>(pInst->posCurr.y + hold.y)) + 0.65f };
-			//std::cout << particlepos.x << " " << particlepos.y << std::endl;
 			for (int innerI{}; innerI < 7; ++innerI)
 			{
 				particlevel.y = static_cast<float>(rand() % 7 + 2) / -3.5f;
@@ -897,16 +892,13 @@ void GameStateLevelsUpdate(void)
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ 1, 0 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 					//Limit number of bullet bounces:
-					//std::cout << pInst->bulletbounce;
 					reflectedFlag = true;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -920,15 +912,12 @@ void GameStateLevelsUpdate(void)
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ -1, 0 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-					//std::cout << pInst->bulletbounce;6
 					reflectedFlag = true;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -942,16 +931,13 @@ void GameStateLevelsUpdate(void)
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ 0, 1 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 					//Limit number of bullet bounces:
-					//std::cout << pInst->bulletbounce;
 					reflectedFlag = true;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -972,16 +958,13 @@ void GameStateLevelsUpdate(void)
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
 					AEVec2 normal{ 0, -1 }, newBulletVel{};
-					//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-					//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
 					pInst->velCurr = newBulletVel;
 
 					//Limit number of bullet bounces:
-					//std::cout << pInst->bulletbounce;
-					if (prevbounce == pInst->bulletbounce)
-						++(pInst->bulletbounce);
+					if (prevbounce == pInst->bounceCount)
+						++(pInst->bounceCount);
 				}
 			}
 			else {
@@ -1018,26 +1001,6 @@ void GameStateLevelsUpdate(void)
 					continue;
 
 				switch (pOtherInst->pObject->type) {
-					//case TYPE_PLATFORM:
-					//	if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-					//		std::cout << "Collided";
-					//		AEVec2 normal{}, newBulletVel{};
-					//		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM ||
-					//			(pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP)
-					//			normal = { 0, 1 };
-					//		else if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT || 
-					//			(pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT)
-					//			normal = { 1, 0 };
-					//		//std::cout << "Old vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << " | ";
-					//		newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
-					//		newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
-					//		pInst->velCurr = newBulletVel;
-					//		//std::cout << "New vector: " << pInst->velCurr.x << ", " << pInst->velCurr.y << "\n";
-
-					//		// Increment bullet bounces
-					//		++(pInst->bulletbounce);
-					//	}
-					//	break;
 				case TYPE_PLAYER:
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player is hit
 						if (pInst->state == STATE::STATE_GOING_LEFT || pInst->state == STATE::STATE_NONE)
@@ -1119,19 +1082,9 @@ void GameStateLevelsUpdate(void)
 		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
 
-	// Update Camera position, for Level2
-		// To follow the player's position
-		// To clamp the position at the level's borders, between (0,0) and and maximum camera position
-			// You may use an alpha engine helper function to clamp the camera position: AEClamp()
-	//f32 clampedx = PlayerBody->posCurr.x * BINARY_MAP_WIDTH - AEGetWindowWidth() - 500;
-	////clampedx = AEClamp(clampedx, -400, 400); // clamp x axis
-	//f32 clampedy = PlayerBody->posCurr.y * static_cast<f32>(BINARY_MAP_HEIGHT) / 2.5f - AEGetWindowHeight();
-	////clampedy = AEClamp(clampedy, -200, 270); // clamp y axis
-	//AEGfxSetCamPosition(clampedx, clampedy); // set camera to pHero clamped to map
-
+	// Update Camera position, for Levels
 	float cameraX, cameraY;
 	AEGfxGetCamPosition(&cameraX, &cameraY);
-	//std::cout << "Camera Pos: (" << cameraX << ", " << cameraY << ")\n";
 
 	AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 	AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
@@ -1142,21 +1095,9 @@ void GameStateLevelsUpdate(void)
 	if (playerdeathtimer == 0)
 		AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 
-
-	//std::cout << "Mouse Window Pos: (" << g_mouseX << ", " << g_mouseY << ")\n";
-	//worldMouseX = static_cast<float>(g_mouseX) / (static_cast<float>(AEGetWindowWidth()) / static_cast<float>(40));
-	//worldMouseY = (static_cast<float>(AEGetWindowHeight()) - static_cast<float>(g_mouseY)) / (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(20));
 	// Mouse in world coordinates
 	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
 	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
-	//std::cout << "Mouse World Pos: (" << worldMouseX << ", " << worldMouseY << ")\n";
-
-	//AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-	//AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-	////std::cout << "Player World Pos : (" << playerWorldPos.x << ", " << playerWorldPos.y << ")\n";
-
-	//float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
-	//PlayerGun->dirCurr = dotProduct;
 }
 
 /******************************************************************************/
@@ -1166,7 +1107,6 @@ void GameStateLevelsUpdate(void)
 /******************************************************************************/
 void GameStateLevelsDraw(void)
 {
-	//char strBuffer[1024];
 
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);
@@ -1269,7 +1209,6 @@ void GameStateLevelsDraw(void)
 		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
 		//if (pInst->pObject->type == TYPE_DIRT && pInst->state == STATE_ALERT) // particles for dirt destroy
 		//{
-		//	std::cout << "HERE";
 		//	AEGfxSetTransparency(pInst->dirCurr);
 		//	if (pInst->dirCurr <= 0)
 		//	{
@@ -1347,7 +1286,7 @@ void GameStateLevelsDraw(void)
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.7f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-	if (currInnerState == GAME_PAUSE) {
+	if (gGameStateInnerState == GAME_PAUSE) {
 		sprintf_s(strBuffer, "GAME PAUSED");
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
