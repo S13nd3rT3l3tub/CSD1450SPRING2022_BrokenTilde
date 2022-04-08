@@ -3,13 +3,13 @@
 @file       GameState_MainMenu.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
+@role		
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Authored Functions
+@role		
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		Authored Functions
+@role		
 -------------------------------------------------------------------------------
 @author		Desmond Too Wei Kang (d.too@digipen.edu)
 @role

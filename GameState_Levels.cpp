@@ -700,7 +700,7 @@ void GameStateLevelsUpdate(void)
 				currPos.x += bulletDir.x * g_dt;
 				currPos.y += bulletDir.y * g_dt;
 
-				int collisionFlag = CheckInstanceBinaryMapCollision_dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+				int collisionFlag = CheckInstanceBinaryMapCollision_Dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 
 				if ((collisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
 					break;
@@ -859,7 +859,7 @@ void GameStateLevelsUpdate(void)
 		int prevbounce = pInst->bounceCount;
 		if (pInst->pObject->type == TYPE_BULLET)
 		{
-			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_Bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
 		}
 		else //if(pInst->pObject->type != TYPE_PARTICLE1 && pInst->state != STATE_ALERT)
 		{

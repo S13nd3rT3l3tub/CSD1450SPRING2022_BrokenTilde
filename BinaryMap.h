@@ -3,39 +3,80 @@
 @file       BinaryMap.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
+@role		
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Authored Functions
+@role		
 -------------------------------------------------------------------------------
-@author		Desmond Too Wei Kang (d.too@digipen.edu)
-@role		Authored Functions
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		
 *//*_________________________________________________________________________*/
-#pragma once
 
+// ----- Include Guard -----
 #ifndef BINARY_MAP_H_
 #define BINARY_MAP_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <vector>
-#include <fstream>
-#include <iostream>
+/******************************************************************************/
+/*!
+	Import Map Data From File to Given MapData & BinaryCollisionArray
+*/
+/******************************************************************************/
+int		ImportMapDataFromFile(std::string FileName, int*** __MapData, int*** __BinaryCollisionArray, 
+							  int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
 
-extern const unsigned int	COLLISION_LEFT;// = 0x00000001;	//0001
-extern const unsigned int	COLLISION_RIGHT;// = 0x00000002;	//0010
-extern const unsigned int	COLLISION_TOP;// = 0x00000004;	//0100
-extern const unsigned int	COLLISION_BOTTOM;// = 0x00000008;	//1000
-extern const unsigned int	COLLISION_Destructable;// = 0x00000016;	//10000
+/******************************************************************************/
+/*!
+	Obtain Grid Value at Index
+*/
+/******************************************************************************/
+int		GetCellValue(int X, int Y, int*** _MapData, 
+					 int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
 
-int		ImportMapDataFromFile(std::string FileName, int*** __MapData, int*** __BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
-int		GetCellValue(int X, int Y, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
+/******************************************************************************/
+/*!
+	Snap Coordinate To Grid
+*/
+/******************************************************************************/
 void	SnapToCell(float* Coordinate);
-void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
-int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
+
+/******************************************************************************/
+/*!
+	Print Retrieved Information of Given MapData & BinaryCollisionData
+*/
+/******************************************************************************/
+void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, 
+								  int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
+
+/******************************************************************************/
+/*!
+	Check Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
+int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, 
+										int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
+
+/******************************************************************************/
+/*!
+	Check Bullet Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
+int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX, float scaleY, 
+											   int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT, int*** _BinaryCollisionArray);
+
+/******************************************************************************/
+/*!
+	Check Dotted Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
+int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX, float scaleY, 
+											   int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
+
+/******************************************************************************/
+/*!
+	Free Allocated Map Data
+*/
+/******************************************************************************/
 void	FreeMapData(int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
-int		CheckInstanceBinaryMapCollision_bullet(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT, int*** _BinaryCollisionArray);
-int		CheckInstanceBinaryMapCollision_dotted(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT);
+
 
 #endif // BINARY_MAP_H_

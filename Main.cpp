@@ -170,7 +170,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 		GameStateFree();
 
 		if(gGameStateNext != GS_RESTART)
-			GameStateUnload();	// Call game state's unlload
+			GameStateUnload();	// Call game state's unload
 
 		gGameStatePrev = gGameStateCurr;
 		gGameStateCurr = gGameStateNext;

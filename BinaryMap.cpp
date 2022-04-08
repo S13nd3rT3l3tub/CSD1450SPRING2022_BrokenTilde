@@ -3,73 +3,85 @@
 @file       BinaryMap.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
+@role
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Authored Functions
+@role
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		Authored Functions
+@role
 *//*_________________________________________________________________________*/
+
+// ----- Include File -----
 #include "Main.h"
 
+/******************************************************************************/
+/*!
+	Import Map Data From File to Given MapData & BinaryCollisionArray
+*/
+/******************************************************************************/
 int ImportMapDataFromFile(std::string FileName, int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
+	// Attempt to open file
 	std::fstream fs(FileName, std::ios_base::in);
-	if (!fs)
-	{
+	// Check if file was unsuccessfully opened
+	if (!fs){
+		// Print out debug and return 0
 		//std::cout << "File " << FileName << " not found.\n";
 		return 0;
 	}
-	std::string filler;
+
+	// Variable declaration
+	std::string filler{};
+	int hold{};
+
 	fs >> filler >> _BINARY_MAP_WIDTH; // Read width
 	fs >> filler >> _BINARY_MAP_HEIGHT; // Read height
 
-	//Allocate memory for _MapData
+	// Allocate memory for _MapData
 	(*_MapData) = new int* [_BINARY_MAP_HEIGHT];
-	for (int i = 0; i < _BINARY_MAP_HEIGHT; ++i)
-	{
-		(*_MapData)[i] = new int[_BINARY_MAP_WIDTH];
-	}
+	for (int r = 0; r < _BINARY_MAP_HEIGHT; ++r)
+		(*_MapData)[r] = new int[_BINARY_MAP_WIDTH];
 
-	//Allocate memory for _BinaryCollisionArray
+	// Allocate memory for _BinaryCollisionArray
 	(*_BinaryCollisionArray) = new int* [_BINARY_MAP_HEIGHT];
-	for (int i = 0; i < _BINARY_MAP_HEIGHT; ++i)
-	{
-		(*_BinaryCollisionArray)[i] = new int[_BINARY_MAP_WIDTH];
-	}
+	for (int r = 0; r < _BINARY_MAP_HEIGHT; ++r)
+		(*_BinaryCollisionArray)[r] = new int[_BINARY_MAP_WIDTH];
 
-	int hold{};
-	for (int i = 0; i < _BINARY_MAP_HEIGHT; ++i)
-	{
-		for (int u = 0; u < _BINARY_MAP_WIDTH; ++u)
-		{
-			fs >> hold; // Read ints from file
-			(*_MapData)[i][u] = hold;
+	// Loop for the size of the grid
+	for (int r = 0; r < _BINARY_MAP_HEIGHT; ++r) {
+		for (int c = 0; c < _BINARY_MAP_WIDTH; ++c) {
+			// Read ints from file
+			fs >> hold; 
+
+			// Assign value to MapData
+			(*_MapData)[r][c] = hold;
+
+			// ----- Check value and assign to binary map data -----
+			// Check if value is 0
 			if (hold == 0)
-			{
-				(*_BinaryCollisionArray)[i][u] = 0; // if int is more than 1
-			}
-			else if(hold == 1)
-			{
-				(*_BinaryCollisionArray)[i][u] = 1;
-			}
-			else if (hold == 8)
-			{
-				(*_BinaryCollisionArray)[i][u] = 8;
-			}
-			else
-			{
-				(*_BinaryCollisionArray)[i][u] = 0; // if int is more than 1
-			}
+				(*_BinaryCollisionArray)[r][c] = 0; 
+			else if(hold == 1)	// Check if value is 1
+				(*_BinaryCollisionArray)[r][c] = 1;
+			else if (hold == 8)	// Check if value is 8
+				(*_BinaryCollisionArray)[r][c] = 8;
+			else    // value is more than 1
+				(*_BinaryCollisionArray)[r][c] = 0; 
 		}
 	}
 
+	// Close the file
 	fs.close();
 
+	// Return 1
 	return 1;
 }
 
+/******************************************************************************/
+/*!
+	Obtain Grid Value at Index
+*/
+/******************************************************************************/
 int	GetCellValue(int X, int Y, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
 	//	Check if value is outside of binary map grid
@@ -77,9 +89,15 @@ int	GetCellValue(int X, int Y, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BI
 		Y < 0 || Y >= _BINARY_MAP_HEIGHT)
 		return 0;
 
+	// Return value at index in MapData
 	return (*_MapData)[Y][X];
 }
 
+/******************************************************************************/
+/*!
+	Snap Coordinate To Grid
+*/
+/******************************************************************************/
 void	SnapToCell(float* Coordinate)
 {
 	// Snap by casting it to integer and adding 0.5f
@@ -87,8 +105,14 @@ void	SnapToCell(float* Coordinate)
 	*Coordinate = static_cast<int>(*Coordinate) + 0.5f;
 }
 
+/******************************************************************************/
+/*!
+	Print Retrieved Information of Given MapData & BinaryCollisionData
+*/
+/******************************************************************************/
 void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
+	// Print out the width & height of the data
 	std::cout << "WIDTH: " << _BINARY_MAP_WIDTH << "\nHEIGHT: " << _BINARY_MAP_HEIGHT << std::endl;
 
 	// ----- Map Data -----
@@ -114,7 +138,9 @@ void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, in
 	}
 }
 
-int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
+
+int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, 
+										int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
 	//At the end of this function, "Flag" will be used to determine which sides
 	//of the object instance are colliding. 2 hot spots will be placed on each side.
@@ -201,7 +227,8 @@ int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float
 	return Flag;
 }
 
-int		CheckInstanceBinaryMapCollision_bullet(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT, int*** _BinaryCollisionArray)
+int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX, float scaleY, 
+											   int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT, int*** _BinaryCollisionArray)
 {
 	//At the end of this function, "Flag" will be used to determine which sides
 	//of the object instance are colliding. 2 hot spots will be placed on each side.
@@ -299,7 +326,7 @@ int		CheckInstanceBinaryMapCollision_bullet(float PosX, float PosY, float scaleX
 	return Flag;
 }
 
-int		CheckInstanceBinaryMapCollision_dotted(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
+int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
 	//At the end of this function, "Flag" will be used to determine which sides
 	//of the object instance are colliding. 2 hot spots will be placed on each side.
@@ -389,16 +416,23 @@ int		CheckInstanceBinaryMapCollision_dotted(float PosX, float PosY, float scaleX
 	return Flag;
 }
 
+/******************************************************************************/
+/*!
+	Free Allocated Map Data
+*/
+/******************************************************************************/
 void	FreeMapData(int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
+	// Inform Intellisense of unused parameter
 	UNREFERENCED_PARAMETER(_BINARY_MAP_WIDTH);
 
-	for (int i = 0; i < _BINARY_MAP_HEIGHT; i++)
-	{
-		delete[](*_MapData)[i];
-		delete[](*_BinaryCollisionArray)[i];
+	// Loop through the rows in MapData & BinaryCollisionArray
+	for (int i = 0; i < _BINARY_MAP_HEIGHT; i++) {
+		delete[](*_MapData)[i];					// Free allocated row to MapData
+		delete[](*_BinaryCollisionArray)[i];	// Free allocated row to BinaryCollisionArray
 	}
 
-	delete[] * _MapData;
-	delete[] * _BinaryCollisionArray;
+	// Free memory allocated to MapData & BinaryCollisionArray
+	delete[] *_MapData;
+	delete[] *_BinaryCollisionArray;
 }
