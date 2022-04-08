@@ -432,7 +432,7 @@ void GameStateLevel1Update(void)
 		}
 		break;
 	case GAME_WIN:
-		gGameStateNext = GS_LEVELS;
+		gGameStateNext = GS_WINSCREEN;
 		gGameStateInnerState = GAME_PLAY;
 		g_chosenLevel = 2;
 		break;

@@ -56,7 +56,10 @@ void GameStateWinUpdate() {
 	// =========================
 	// update according to input
 	// =========================
-
+	if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel == 2)
+		gGameStateNext = GS_LEVELS;
+	else if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel > 2)
+		gGameStateNext = GS_MAINMENU;
 
 	int i{};
 	GameObjInst* pInst;
@@ -118,8 +121,6 @@ void GameStateWinUpdate() {
 			break;
 		}*/
 	}
-	
-	gGameStateNext = GS_LEVELS;
 
 	// =====================================
 	// calculate the matrix for all objects
@@ -129,10 +130,6 @@ void GameStateWinUpdate() {
 	{
 		pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
-
-		//UNREFERENCED_PARAMETER(trans);
-		//UNREFERENCED_PARAMETER(rot);
-		//UNREFERENCED_PARAMETER(scale);
 
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
@@ -162,7 +159,6 @@ void GameStateWinDraw() {
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);
 
-
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
@@ -185,13 +181,17 @@ void GameStateWinDraw() {
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
-	sprintf_s(strBuffer, "Mission completed");
+	sprintf_s(strBuffer, "Mission completed!");
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-	//sprintf_s(strBuffer, "Time taken: %i", leveltime); // display how long taken to complete level.
-	//AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	//AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Time taken: %f", levelTime); // display how long taken to complete level.
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Press spacebar to continue"); 
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.20f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/

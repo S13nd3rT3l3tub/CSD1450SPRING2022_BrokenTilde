@@ -459,8 +459,9 @@ void GameStateLevelsUpdate(void)
 		}
 		break;
 	case GAME_WIN:
-		gGameStateNext = GS_MAINMENU;
+		gGameStateNext = GS_WINSCREEN;
 		gGameStateInnerState = GAME_PLAY;
+		++g_chosenLevel;
 		break;
 	case GAME_LOSE: {
 		if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
