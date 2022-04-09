@@ -671,7 +671,7 @@ void GameStateLevelsUpdate(void)
 							else
 								break;
 						}
-						if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {
+						if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {	// Collision with bottom of platform
 							// Set normal of surface
 							normal = { 0, 1 };
 							// Increment bounceCount and check if less than or equal to 3
@@ -680,7 +680,7 @@ void GameStateLevelsUpdate(void)
 							else
 								break;
 						}
-						if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {
+						if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {	// Collision with left side of platform
 							// Set normal of surface
 							normal = { 1, 0 };
 							// Increment bounceCount and check if less than or equal to 3
@@ -689,7 +689,7 @@ void GameStateLevelsUpdate(void)
 							else
 								break;
 						}
-						if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {
+						if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {	// Collision with right side of platform
 							// Set normal of surface
 							normal = { -1, 0 };
 							// Increment bounceCount and check if less than or equal to 3
@@ -699,21 +699,27 @@ void GameStateLevelsUpdate(void)
 								break;
 						}
 
+						// To reflect trajectory
 						if (reflectedFlag) {
+							// Calculate new direction after ricochet (newVel = currVel - 2(currVel . normal) * normal)
 							AEVec2 newVel{ dirBullet.x - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.x,  dirBullet.y - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.y };
 							AEVec2Normalize(&newVel, &newVel);
+							// Assign it to the bullet
 							dirBullet = newVel;
+							
+							// Move by 1 frame
 							currPos.x += dirBullet.x * g_dt;
 							currPos.y += dirBullet.y * g_dt;
 						}
 
+						// Check if current iteration of i is a multiple of 30
 						if (i % 30 == 0)
-							gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_NONE);
+							gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_NONE);	// Create a dotted instance of it
 					}
-
 				}
 			}
 
+			// Variable declaration
 			int i{};
 			GameObjInst* pInst;
 
@@ -734,17 +740,17 @@ void GameStateLevelsUpdate(void)
 				if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1)
 					gameObjInstDestroy(pInst);
 
-				// Enable gravity for player and enemies
+				// Apply gravity to enemies and player
 				if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 					pInst->velCurr.y += GRAVITY * g_dt;
 
-				// Enemy AI
+				// Apply enemy state machine to enemy AI.
 				if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
 					EnemyStateMachine(pInst);
 				}
 			}
 
-			//Update object instances positions
+			// Update object instances positions
 			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 			{
 				pInst = sGameObjInstList + i;
@@ -752,10 +758,6 @@ void GameStateLevelsUpdate(void)
 				// skip non-active object
 				if (0 == (pInst->flag & FLAG_ACTIVE))
 					continue;
-
-				/********************************
-				update the position of instances
-				********************************/
 
 				// ----- Update Position -----
 				pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -769,43 +771,60 @@ void GameStateLevelsUpdate(void)
 				pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
 			}
 
-			AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-			AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-
-			float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
-			PlayerGun->dirCurr = dotProduct;
-
-			break;
+			// Calculate the direction of the player's barrel based on the mouse position
+			{
+				AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+				// Calculate mouse position in world coordinates
+				AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
+				// Find the direction
+				float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
+				// Set it to player gun
+				PlayerGun->dirCurr = dotProduct;
 			}
+			break;
 		}
+	}
 
+	// Variable declaration 
 	int i{};
 	GameObjInst* pInst;
-	//Check for grid collision
+
+	// ====================
+	// Check for grid collision
+	// ====================
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
 		pInst = sGameObjInstList + i;
 
-		// skip non-active object instances
+		// Skip non-active object instances
 		if (0 == (pInst->flag & FLAG_ACTIVE))
 			continue;
 
+		// Skip if object is the player gun, the platforms, the dirt, dotted or empty
 		if (pInst->pObject->type == TYPE_PLAYERGUN || pInst->pObject->type == TYPE_PLATFORM
 			|| pInst->pObject->type == TYPE_EMPTY || pInst->pObject->type == TYPE_DIRT || pInst->pObject->type == TYPE_DOTTED)
 			continue;
 
 
-		/*************************
-		Update grid collision flag
-		**************************/
-		int prevbounce = pInst->bounceCount;
+		// **************************
+		// Update grid collision flag
+		// **************************
+
+		// Variable declaration
+		int prevbounce{ pInst->bounceCount };
+		bool reflectedFlag{ false };
+
+		// Check if current object is a bullet
 		if (pInst->pObject->type == TYPE_BULLET) // Check map collision for bullets
 		{
-			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_Bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
+			// Call bullet type binary map collision check
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_Bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, 
+																			  &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
 		}
 		else // Check map collision for all other dynamic objects
 		{
-			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, 
+																	   &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 		}
 
 		// Simulate particles when destructible block gets destroyed
@@ -827,94 +846,126 @@ void GameStateLevelsUpdate(void)
 				particlepos.x += 0.13f;
 				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_GOING_LEFT);
 			}
-			gameObjInstDestroy(pInst); //destroy bullet
+			// Destroy the projectile
+			gameObjInstDestroy(pInst); 
 		}
 
-		bool reflectedFlag = false;
-
-		// If dynamic game objects collides with left side of level object
+		// Check if dynamic game objects collides with left side of level object
 		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
+			// Current object is a bullet
 			if (pInst->pObject->type == TYPE_BULLET) {
+				// Not reflected yet
 				if (reflectedFlag == false) {
+					// Variable declaration
 					AEVec2 normal{ 1, 0 }, newBulletVel{};
+					// Calculate new direction (newVel = currVel - 2 * (velCurr . normal) * normal)
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+					// Set the vel to the calculated direction
 					pInst->velCurr = newBulletVel;
-
-					//Limit number of bullet bounces:
+					// Set flag variable to true
 					reflectedFlag = true;
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
 			}
 			else {
+				// Set x-axis velocity to 0
 				pInst->velCurr.x = 0;
+				// Snap to grid
 				SnapToCell(&pInst->posCurr.x);
+				// Increment by 0.3f
 				pInst->posCurr.x += 0.3f;
 			}
 		}
 
+		// Check if dynamic game objects collides with right side of level object
 		if ((pInst->gridCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT) {
+			// Current object is a bullet
 			if (pInst->pObject->type == TYPE_BULLET) {
+				// Not reflected yet
 				if (reflectedFlag == false) {
+					// Variable declaration
 					AEVec2 normal{ -1, 0 }, newBulletVel{};
+					// Calculate new direction (newVel = currVel - 2 * (velCurr . normal) * normal)
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+					// Set the vel to the calculated direction
 					pInst->velCurr = newBulletVel;
+					// Set flag variable to true
 					reflectedFlag = true;
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
 			}
 			else {
+				// Set x-axis velocity to 0
 				pInst->velCurr.x = 0;
+				// Snap to grid
 				SnapToCell(&pInst->posCurr.x);
+				// Increment by 0.3f
 				pInst->posCurr.x -= 0.3f;
 			}
 		}
 
+		// Check if dynamic game objects collides with bottom side of level object
 		if ((pInst->gridCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM) {
+			// Current object is a bullet
 			if (pInst->pObject->type == TYPE_BULLET) {
+				// Not reflected yet
 				if (reflectedFlag == false) {
+					// Variable declaration
 					AEVec2 normal{ 0, 1 }, newBulletVel{};
+					// Calculate new direction (newVel = currVel - 2 * (velCurr . normal) * normal)
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+					// Set the vel to the calculated direction
 					pInst->velCurr = newBulletVel;
-					//Limit number of bullet bounces:
+					// Set flag variable to true
 					reflectedFlag = true;
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
 			}
 			else {
+				// Set y-axis velocity to 0
 				pInst->velCurr.y = 0;
+				// Snap to grid
 				SnapToCell(&pInst->posCurr.y);
+				// Check if object is a particle
 				if (pInst->pObject->type == TYPE_PARTICLE1)
-				{
-					pInst->posCurr.y -= 0.25f; // offset for particles
-				}
+					pInst->posCurr.y -= 0.25f;	// Decrement by 0.25f
+				// Check if object is the player
 				if (pInst->pObject->type == TYPE_PLAYER)
-				{
-					jumpFuel = 1.5f; // refuel jumpfuel
-				}
+					jumpFuel = FUEL_MAX_VALUE;	// Set its jump fuel
 			}
 		}
 
+		// Check if dynamic game objects collides with top side of level object
 		if ((pInst->gridCollisionFlag & COLLISION_TOP) == COLLISION_TOP) {
+			// Current object is a bullet
 			if (pInst->pObject->type == TYPE_BULLET) {
+				// Not reflected yet
 				if (reflectedFlag == false) {
+					// Variable declaration
 					AEVec2 normal{ 0, -1 }, newBulletVel{};
+					// Calculate new direction (newVel = currVel - 2 * (velCurr . normal) * normal)
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
+					// Set the vel to the calculated direction
 					pInst->velCurr = newBulletVel;
-
-					//Limit number of bullet bounces:
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
 			}
 			else {
+				// Set y-axis velocity to 0
 				pInst->velCurr.y = 0;
+				// Snap to grid
 				SnapToCell(&pInst->posCurr.y);
 			}
 		}
@@ -924,9 +975,8 @@ void GameStateLevelsUpdate(void)
 	PlayerGun->posCurr = PlayerBody->posCurr;
 
 	// ====================
-	// check for collision
+	// Check for object collision
 	// ====================
-
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
 		pInst = sGameObjInstList + i;

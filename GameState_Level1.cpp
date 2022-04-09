@@ -670,7 +670,7 @@ void GameStateLevel1Update(void)
 							else
 								break;
 						}
-						if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) { // Collision with right side of platform
+						if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) { // Collision with left side of platform
 							// Set normal of surface
 							normal = { 1, 0 };
 							// Increment bounceCount and check if less than or equal to 3
@@ -679,7 +679,7 @@ void GameStateLevel1Update(void)
 							else
 								break;
 						}
-						if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) { // Collision with left side of platform
+						if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) { // Collision with right side of platform
 							// Set normal of surface
 							normal = { -1, 0 };
 							// Increment bounceCount and check if less than or equal to 3
@@ -694,8 +694,10 @@ void GameStateLevel1Update(void)
 							// Calculate new direction after ricochet (newVel = currVel - 2(currVel . normal) * normal)
 							AEVec2 newVel{ dirBullet.x - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.x,  dirBullet.y - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.y };
 							AEVec2Normalize(&newVel, &newVel);
+							
 							// Assign it to the bullet
 							dirBullet = newVel;
+							
 							// Move by 1 frame
 							currPos.x += dirBullet.x * g_dt;
 							currPos.y += dirBullet.y * g_dt;
@@ -721,11 +723,11 @@ void GameStateLevel1Update(void)
 				if (0 == (pInst->flag & FLAG_ACTIVE))
 					continue;
 
-				// If bullet bounces more than 2 times, destroy bullet
+				// Destory player shot bullet after 3 bounces
 				if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
 					gameObjInstDestroy(pInst);
 
-				// Prevent enemy bullets from bouncing
+				// Destory enemy shot bullet after it collides with environment
 				if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1)
 					gameObjInstDestroy(pInst);
 
@@ -800,7 +802,8 @@ void GameStateLevel1Update(void)
 	
 		// Variable declaration
 		int prevbounce{ pInst->bounceCount };
-		bool reflectedFlag = false;
+		bool reflectedFlag{ false };
+
 		// Check if current object is a bullet
 		if (pInst->pObject->type == TYPE_BULLET) 
 		{
@@ -808,7 +811,7 @@ void GameStateLevel1Update(void)
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_Bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, 
 																			  &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
 		}
-		else //for everything else
+		else // Check map collision for all other dynamic objects
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, 
 																	   &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
@@ -817,13 +820,13 @@ void GameStateLevel1Update(void)
 		// Check if projectile hit destructable wall
 		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable) // dirt destroy particles
 		{
+			// Simulate/Create particles upon destruction of destructable wall
 			AEVec2 particlevel{ 0,0 }, hold{}, particlescale{ 0.85f, 0.85f };
 			AEVec2Normalize(&hold, &pInst->velCurr);
 			hold.x = hold.x / 6;
 			hold.y = hold.y / 6;
 			AEVec2 particlepos = { static_cast<float>(static_cast<int>(pInst->posCurr.x + hold.x)),  static_cast<float>(static_cast<int>(pInst->posCurr.y + hold.y)) + 0.65f };
 
-			// Simulate/Create particles upon destruction of destructable wall
 			for (int innerI{}; innerI < 7; ++innerI)
 			{
 				particlevel.y = static_cast<float>(rand() % 7 + 2) / -3.5f;
@@ -852,7 +855,7 @@ void GameStateLevel1Update(void)
 					pInst->velCurr = newBulletVel;
 					// Set flag variable to true
 					reflectedFlag = true;
-					//Limit number of bullet bounces:
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
@@ -882,7 +885,7 @@ void GameStateLevel1Update(void)
 					pInst->velCurr = newBulletVel;
 					// Set flag variable to true
 					reflectedFlag = true;
-					//Limit number of bullet bounces:
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
@@ -912,7 +915,7 @@ void GameStateLevel1Update(void)
 					pInst->velCurr = newBulletVel;
 					// Set flag variable to true
 					reflectedFlag = true;
-					//Limit number of bullet bounces:
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
@@ -944,7 +947,7 @@ void GameStateLevel1Update(void)
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					// Set the vel to the calculated direction
 					pInst->velCurr = newBulletVel;
-					//Limit number of bullet bounces:
+					//Limit number of bullet bounces
 					if (prevbounce == pInst->bounceCount)
 						++(pInst->bounceCount);
 				}
