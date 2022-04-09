@@ -67,7 +67,7 @@ void GameStateWinLoad() {
 
 /******************************************************************************/
 /*!
-	"InIt" function of this state
+	"Init" function of this state
 */
 /******************************************************************************/
 void GameStateWinInit() {
@@ -181,18 +181,6 @@ void GameStateWinUpdate() {
 		int i{};
 		GameObjInst* pInst;
 
-		//Update object instances physics and behavior
-		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-		{
-			pInst = sGameObjInstList + i;
-
-			// skip non-active object
-			if (0 == (pInst->flag & FLAG_ACTIVE))
-				continue;
-
-
-		}
-
 		//Update object instances positions
 		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 		{
@@ -210,25 +198,12 @@ void GameStateWinUpdate() {
 			pInst->posCurr.x += pInst->velCurr.x * g_dt;
 			pInst->posCurr.y += pInst->velCurr.y * g_dt;
 
-			// ----- Update Bounding Box -----
-			pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-			pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+			//// ----- Update Bounding Box -----
+			//pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			//pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
 
-			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-		}
-
-		// ====================
-		// check for collision
-		// ====================
-
-		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
-		{
-			pInst = sGameObjInstList + i;
-
-			// skip non-active object
-			if ((pInst->flag & FLAG_ACTIVE) == 0)
-				continue;
+			//pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			//pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
 		}
 
 		// =====================================
