@@ -379,7 +379,7 @@ void GameStateLevel1Init(void)
 	}
 
 	// Set ammo capacity based on the number of enemies in the level
-	ammoCount = static_cast<int>(totalEnemyCount * 5.5f);
+	ammoCount = static_cast<int>(totalEnemyCount * 5.0f);
 }
 
 /******************************************************************************/
@@ -507,7 +507,7 @@ void GameStateLevel1Update(void)
 			levelTime += g_dt;
 
 			// Check win condition
-			if (totalEnemyCount <= 0 && ammoCount > 1)
+			if (totalEnemyCount <= 0 && ammoCount > 0)
 				gGameStateInnerState = GAME_WIN;	// Update innerState to win state
 
 			// Check lose condition
