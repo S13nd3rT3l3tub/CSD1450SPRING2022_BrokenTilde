@@ -6,7 +6,7 @@
 @role
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role
+@role		Authored functions.
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role
@@ -107,7 +107,8 @@ void	SnapToCell(float* Coordinate)
 
 /******************************************************************************/
 /*!
-	Print Retrieved Information of Given MapData & BinaryCollisionData
+	Print Retrieved Information of Given MapData & BinaryCollisionData 
+	(for debug use)
 */
 /******************************************************************************/
 void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
@@ -142,46 +143,31 @@ void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, in
 int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, 
 										int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
-	//At the end of this function, "Flag" will be used to determine which sides
-	//of the object instance are colliding. 2 hot spots will be placed on each side.
-
-	//UNREFERENCED_PARAMETER(PosX);
-	//UNREFERENCED_PARAMETER(PosY);
-	//UNREFERENCED_PARAMETER(scaleX);
-	//UNREFERENCED_PARAMETER(scaleY);
-	//return 0;
+	//At the end of this function, "Flag" will be used to determine which sides of the object instance are colliding.
 
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
 	float x1{ 0 }, y1{ 0 }, x2{ 0 }, y2{ 0 }, x3{}, x4{};
 
-	// Right side hotspots
-	// - hotspot 1 (above center line)
+	// Right side hotspots (2)
 	x1 = PosX + scaleX / 2;
 	y1 = PosY + scaleY / 4;
-	// - hotspot 2 (below center line)
 	y2 = PosY - scaleY / 4;
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
-	// Top side hotspots
-	// - hotspot 1 (left of center line)
+	// Top side hotspots (4)
 	x1 = PosX - scaleX / 4;
 	y1 = PosY + scaleY / 2;
-	// - hotspot 2 (right of center line)
 	x2 = PosX + scaleX / 4;
 	x3 = PosX + scaleX / 32 * 15;
 	x4 = PosX - scaleX / 32 * 15;
 
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM
 		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x4), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT
@@ -189,33 +175,25 @@ int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
 
-	// Left side hotspots
-	// - hotspot 1 (above center line)
+	// Left side hotspots (2)
 	x1 = PosX - scaleX / 2;
 	y1 = PosY + scaleY / 4;
-	// - hotspot 2 (below center line)
 	y2 = PosY - scaleY / 4;
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
 
-	// Bottom side hotspots
-	// - hotspot 1 (left of center line)
+	// Bottom side hotspots (4)
 	x1 = PosX - scaleX / 4;
 	y1 = PosY - scaleY / 2;
-	// - hotspot 2 (right of center line)
 	x2 = PosX + scaleX / 4;
 	x3 = PosX + scaleX / 32 * 15;
 	x4 = PosX - scaleX / 32 * 15;
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM
 		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x4), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT
@@ -230,31 +208,21 @@ int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float
 int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX, float scaleY, 
 											   int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT, int*** _BinaryCollisionArray)
 {
-	//At the end of this function, "Flag" will be used to determine which sides
-	//of the object instance are colliding. 2 hot spots will be placed on each side.
-
-	//UNREFERENCED_PARAMETER(PosX);
-	//UNREFERENCED_PARAMETER(PosY);
-	//UNREFERENCED_PARAMETER(scaleX);
-	//UNREFERENCED_PARAMETER(scaleY);
-	//return 0;
+	//At the end of this function, "Flag" will be used to determine which sides of the bullet instance are colliding.
 
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
 	float x1{ 0 }, y1{ 0 };// , x2{ 0 }, y2{ 0 }, x3{}, x4{};
 
-	// Right side hotspots
-	// - hotspot 1 (above center line)
+	// Right side hotspot (1)
 	x1 = PosX + scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
 
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
+	//if collision with destructible block, delete it from MapData and BinaryCollisionArray.
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
@@ -262,20 +230,15 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 		(*_MapData)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 	}
 
-
-	// Top side hotspots
-	// - hotspot 1 (left of center line)
+	// Top side hotspot (1)
 	x1 = PosX;
 	y1 = PosY + scaleY / 2 + 0.1f;
-	// - hotspot 2 (right of center line)
 
-
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
+	//if collision with destructible block, delete it from MapData and BinaryCollisionArray.
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
@@ -283,19 +246,15 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 		(*_MapData)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 	}
 
-
-	// Left side hotspots
-	// - hotspot 1 (above center line)
+	// Left side hotspot (1)
 	x1 = PosX - scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
 
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
+	//if collision with destructible block, delete it from MapData and BinaryCollisionArray.
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
@@ -303,18 +262,15 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 		(*_MapData)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 	}
 
-	// Bottom side hotspots
-	// - hotspot 1 (left of center line)
+	// Bottom side hotspot (1)
 	x1 = PosX;
 	y1 = PosY - scaleY / 2 - 0.1f;
-	// - hotspot 2 (right of center line)
 
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
+	//if collision with destructible block, delete it from MapData and BinaryCollisionArray.
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
@@ -329,84 +285,64 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
 	//At the end of this function, "Flag" will be used to determine which sides
-	//of the object instance are colliding. 2 hot spots will be placed on each side.
-
-	//UNREFERENCED_PARAMETER(PosX);
-	//UNREFERENCED_PARAMETER(PosY);
-	//UNREFERENCED_PARAMETER(scaleX);
-	//UNREFERENCED_PARAMETER(scaleY);
-	//return 0;
+	//of the dotted instance are colliding. 2 hot spots will be placed on each side.
 
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
 	float x1{ 0 }, y1{ 0 };// , x2{ 0 }, y2{ 0 }, x3{}, x4{};
 
-	// Right side hotspots
-	// - hotspot 1 (above center line)
+	// Right side hotspot (1)
 	x1 = PosX + scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
 
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
+	// Check if the hotspot is colliding with destructable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
 	}
 
-
-	// Top side hotspots
-	// - hotspot 1 (left of center line)
+	// Top side hotspot (1)
 	x1 = PosX;
 	y1 = PosY + scaleY / 2 + 0.1f;
-	// - hotspot 2 (right of center line)
 
-
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
+	// Check if the hotspot is colliding with destructable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
 	}
 
 
-	// Left side hotspots
-	// - hotspot 1 (above center line)
+	// Left side hotspot (1)
 	x1 = PosX - scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
 
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
+	// Check if the hotspot is colliding with destructable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
 	}
 
-	// Bottom side hotspots
-	// - hotspot 1 (left of center line)
+	// Bottom side hotspot (1)
 	x1 = PosX;
 	y1 = PosY - scaleY / 2 - 0.1f;
-	// - hotspot 2 (right of center line)
 
-	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
+	// Check if the hotspot is colliding with collidable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
+	// Check if the hotspot is colliding with destructable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
