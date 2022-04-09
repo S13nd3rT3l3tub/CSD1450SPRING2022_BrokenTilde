@@ -606,7 +606,7 @@ void GameStateLevelsUpdate(void)
 			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 		}
 
-		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); \
+		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); 
 
 
 		// ------------------------------------------------------------------------------------
@@ -905,8 +905,6 @@ void GameStateLevelsUpdate(void)
 				SnapToCell(&pInst->posCurr.y);
 			}
 		}
-
-
 	}
 
 	// Attach gun to player after grid collision checks
@@ -1059,14 +1057,17 @@ void GameStateLevelsDraw(void)
 			AEGfxSetBlendMode(AE_GFX_BM_NONE);
 			AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 
+			
 			if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 			{
+				//Draw platform texture (stone)
 				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 				AEGfxTextureSet(stoneTexture, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
 			{
+				//Draw destructable bllock texture (dirt)
 				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 				AEGfxTextureSet(dirtTexture, 0.f, 0.f);
 				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
