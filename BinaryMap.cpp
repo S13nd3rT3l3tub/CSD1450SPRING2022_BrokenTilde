@@ -138,185 +138,151 @@ void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, in
 	}
 }
 
-
+/******************************************************************************/
+/*!
+	Check Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
 int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, 
 										int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
-	//At the end of this function, "Flag" will be used to determine which sides
-	//of the object instance are colliding. 2 hot spots will be placed on each side.
-
-	//UNREFERENCED_PARAMETER(PosX);
-	//UNREFERENCED_PARAMETER(PosY);
-	//UNREFERENCED_PARAMETER(scaleX);
-	//UNREFERENCED_PARAMETER(scaleY);
-	//return 0;
-
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
 	float x1{ 0 }, y1{ 0 }, x2{ 0 }, y2{ 0 }, x3{}, x4{};
 
-	// Right side hotspots
-	// - hotspot 1 (above center line)
+	// ----- Right Side Hotspots  ----- 
+	// Hotspot 1 (above center line)
 	x1 = PosX + scaleX / 2;
 	y1 = PosY + scaleY / 4;
-	// - hotspot 2 (below center line)
+	// Hotspot 2 (below center line)
 	y2 = PosY - scaleY / 4;
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
-	// Top side hotspots
-	// - hotspot 1 (left of center line)
+	// ----- Top Side Hotspots ------
+	// Hotspot 1 (left of center line)
 	x1 = PosX - scaleX / 4;
 	y1 = PosY + scaleY / 2;
-	// - hotspot 2 (right of center line)
+	// Hotspot 2 (right of center line)
 	x2 = PosX + scaleX / 4;
+	// Hotspot 3
 	x3 = PosX + scaleX / 32 * 15;
+	// Hotspot 4
 	x4 = PosX - scaleX / 32 * 15;
 
-
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM
 		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x4), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT
 		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x4), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
-
-	// Left side hotspots
-	// - hotspot 1 (above center line)
+	// ----- Left Side Hotspots -----
+	// Hotspot 1 (above center line)
 	x1 = PosX - scaleX / 2;
 	y1 = PosY + scaleY / 4;
-	// - hotspot 2 (below center line)
+	// Hotspot 2 (below center line)
 	y2 = PosY - scaleY / 4;
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x1), static_cast<int>(y2), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
-
-	// Bottom side hotspots
-	// - hotspot 1 (left of center line)
+	// ----- Bottom Side Hotspots -----
+	// Hotspot 1 (left of center line)
 	x1 = PosX - scaleX / 4;
 	y1 = PosY - scaleY / 2;
-	// - hotspot 2 (right of center line)
+	// Hotspot 2 (right of center line)
 	x2 = PosX + scaleX / 4;
 	x3 = PosX + scaleX / 32 * 15;
 	x4 = PosX - scaleX / 32 * 15;
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM
 		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM || GetCellValue(static_cast<int>(x4), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM ||
 		GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x2), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT
 		|| GetCellValue(static_cast<int>(x3), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT || GetCellValue(static_cast<int>(x4), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
-	
 	// Return value of Flag
 	return Flag;
 }
 
+/******************************************************************************/
+/*!
+	Check Bullet Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
 int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX, float scaleY, 
 											   int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT, int*** _BinaryCollisionArray)
 {
-	//At the end of this function, "Flag" will be used to determine which sides
-	//of the object instance are colliding. 2 hot spots will be placed on each side.
-
-	//UNREFERENCED_PARAMETER(PosX);
-	//UNREFERENCED_PARAMETER(PosY);
-	//UNREFERENCED_PARAMETER(scaleX);
-	//UNREFERENCED_PARAMETER(scaleY);
-	//return 0;
-
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
-	float x1{ 0 }, y1{ 0 };// , x2{ 0 }, y2{ 0 }, x3{}, x4{};
+	float x1{ 0 }, y1{ 0 };
 
-	// Right side hotspots
-	// - hotspot 1 (above center line)
+	// ----- Right Side Hotspots -----
+	// Hotspot 1 (above center line)
 	x1 = PosX + scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
-
+	
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
-	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
+	// Check if instance is colliding with destructable wall
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT) {
 		Flag = (Flag | COLLISION_Destructable);
 		(*_BinaryCollisionArray)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 		(*_MapData)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 	}
 
-
-	// Top side hotspots
-	// - hotspot 1 (left of center line)
+	// ----- Top Side Hotspots -----
+	// Hotspot 1 (left of center line)
 	x1 = PosX;
 	y1 = PosY + scaleY / 2 + 0.1f;
-	// - hotspot 2 (right of center line)
-
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
-	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
+	// Check if instancce is colliding with destructable wall
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT) {
 		Flag = (Flag | COLLISION_Destructable);
 		(*_BinaryCollisionArray)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 		(*_MapData)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 	}
 
-
-	// Left side hotspots
-	// - hotspot 1 (above center line)
+	// ----- Left Side Hotspots -----
+	// Hotspot 1 (above center line)
 	x1 = PosX - scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
-	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
+	// Check if instance is colliding with destructable wall
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT) {
 		Flag = (Flag | COLLISION_Destructable);
 		(*_BinaryCollisionArray)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 		(*_MapData)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 	}
 
-	// Bottom side hotspots
-	// - hotspot 1 (left of center line)
+	// ----- Bottom Side Hotspots ------
+	// Hotspot 1 (left of center line)
 	x1 = PosX;
 	y1 = PosY - scaleY / 2 - 0.1f;
-	// - hotspot 2 (right of center line)
-
+	
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
-	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
+	// Check if instance is colliding with destructable wall
+	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT) {
 		Flag = (Flag | COLLISION_Destructable);
 		(*_BinaryCollisionArray)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
 		(*_MapData)[static_cast<int>(y1)][static_cast<int>(x1)] = 0;
@@ -326,91 +292,69 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 	return Flag;
 }
 
+/******************************************************************************/
+/*!
+	Check Dotted Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
 int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
-	//At the end of this function, "Flag" will be used to determine which sides
-	//of the object instance are colliding. 2 hot spots will be placed on each side.
-
-	//UNREFERENCED_PARAMETER(PosX);
-	//UNREFERENCED_PARAMETER(PosY);
-	//UNREFERENCED_PARAMETER(scaleX);
-	//UNREFERENCED_PARAMETER(scaleY);
-	//return 0;
-
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
-	float x1{ 0 }, y1{ 0 };// , x2{ 0 }, y2{ 0 }, x3{}, x4{};
+	float x1{ 0 }, y1{ 0 };
 
-	// Right side hotspots
-	// - hotspot 1 (above center line)
+	// ----- Right Side Hotspots -----
+	// Hotspot 1 (above center line)
 	x1 = PosX + scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
-
+	
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_RIGHT);	// Case is true: OR the Flag variable with the COLLISION_RIGHT const
 
+	// Check if instance is colliding with a destructable wall
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
 		Flag = (Flag | COLLISION_Destructable);
-	}
 
-
-	// Top side hotspots
-	// - hotspot 1 (left of center line)
+	// ----- Top Side Hotspots -----
+	// Hotspot 1 (left of center line)
 	x1 = PosX;
 	y1 = PosY + scaleY / 2 + 0.1f;
-	// - hotspot 2 (right of center line)
-
+	// Hotspot 2 (right of center line)
 
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_TOP);	// Case is true: OR the Flag variable with the COLLISION_TOP const
 
+	// Check if instance is colliding with a destructable wall
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
 		Flag = (Flag | COLLISION_Destructable);
-	}
 
-
-	// Left side hotspots
-	// - hotspot 1 (above center line)
+	// ----- Left Side Hotspots ----- 
+	// Hotspot 1 (above center line)
 	x1 = PosX - scaleX / 2;
 	y1 = PosY;
-	// - hotspot 2 (below center line)
-
+	
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
+	// Check if instance is colliding with a destructable wall
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
 		Flag = (Flag | COLLISION_Destructable);
-	}
 
-	// Bottom side hotspots
-	// - hotspot 1 (left of center line)
+	// ----- Bottom Side Hotspots ----- 
+	// Hotspot 1 (left of center line)
 	x1 = PosX;
 	y1 = PosY - scaleY / 2 - 0.1f;
-	// - hotspot 2 (right of center line)
-
+	
 	// Check if any of the hotspot is colliding
-	//if (_BinaryCollisionArray[static_cast<int>(y1)][static_cast<int>(x1)] ||
-		//_BinaryCollisionArray[static_cast<int>(y2)][static_cast<int>(x2)])
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
+	// Check if instance is colliding with a destructable wall
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
 		Flag = (Flag | COLLISION_Destructable);
-	}
 
 	// Return value of Flag
 	return Flag;
