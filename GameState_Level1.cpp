@@ -402,6 +402,10 @@ void GameStateLevel1Update(void)
 		else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
 			gGameStateNext = GS_RESTART;		// Update nextState to restart
 			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			// Reload level data
+			if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+				gGameStateNext = GS_QUIT;
+
 		}
 		else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
 			gGameStateNext = GS_MAINMENU;		// Update next state to main menu
@@ -451,6 +455,8 @@ void GameStateLevel1Update(void)
 			// Check if timer is less than 0
 			if (playerdeathtimer < 0.0f) //restart level
 			{
+				// Set playerdeathtimer to 0 for camera
+				playerdeathtimer = 0.0f;
 				// Update innerState to play state
 				gGameStateInnerState = GAME_PLAY;
 				// Restart the level
@@ -458,7 +464,6 @@ void GameStateLevel1Update(void)
 				// Reload level data
 				if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 					gGameStateNext = GS_QUIT;
-
 				break;
 			}
 
@@ -1084,10 +1089,11 @@ void GameStateLevel1Update(void)
 	// Clamp the values 
 	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
 	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
-	
-	if (playerdeathtimer == 0)
+	// Reset camera upon level reset
+	if (playerdeathtimer == 0.0f)
 		AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 
+	// Calculate mouse position in world coordinates
 	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
 	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
 }
@@ -1099,12 +1105,13 @@ void GameStateLevel1Update(void)
 /******************************************************************************/
 void GameStateLevel1Draw(void)
 {
+	// Set render settings
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);	
 	AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 	AEGfxSetTransparency(1.0f);
 
-	//Drawing the tile map (the grid)
+	// ----- Draw the tile map (the grid) -----
 	AEMtx33 cellTranslation, cellFinalTransformation;
 
 	//Drawing the tile map
