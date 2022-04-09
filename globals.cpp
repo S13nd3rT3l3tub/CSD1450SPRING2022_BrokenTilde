@@ -21,21 +21,21 @@
 */
 /******************************************************************************/
 // ----- Mesh Sizes & Scales -----
-AEVec2		PLAYER_MESHSIZE{ 0.8f, 1.0f };			// Player mesh size	
-AEVec2		PLAYER_SCALE{ 2.0f, 1.0f };				// Player scale size
-AEVec2		GUN_MESHSIZE{ 0.5f, 0.5f };				// Gun barrel mesh size
-AEVec2		GUN_SCALE{ 2.6f, 0.7f };				// Gun barrel scale size
+AEVec2		PLAYER_MESHSIZE	{ 0.8f, 1.0f };			// Player mesh size	
+AEVec2		PLAYER_SCALE	{ 2.0f, 1.0f };			// Player scale size
+AEVec2		GUN_MESHSIZE	{ 0.5f, 0.5f };			// Gun barrel mesh size
+AEVec2		GUN_SCALE		{ 2.6f, 0.7f };			// Gun barrel scale size
 
-AEVec2		BULLET_MESHSIZE{ 1.0f, 1.0f };			// Bullet mesh size
-AEVec2		BULLET_SCALE{ 0.25f, 0.25f };			// Bullet scale size
+AEVec2		BULLET_MESHSIZE	{ 1.0f, 1.0f };			// Bullet mesh size
+AEVec2		BULLET_SCALE	{ 0.25f, 0.25f };		// Bullet scale size
 
-AEVec2		PLATFORM_MESHSIZE = { 1.0f, 1.0f };		// Platform mesh size
-AEVec2		PLATFORM_SCALE = { 5.0f, 5.0f };		// Platform scale size
-AEVec2		EMPTY_MESHSIZE = { 1.0f, 1.0f };		// Void mesh size
-AEVec2		EMPTY_SCALE = { 1.0f, 1.0f };			// Void scale size
+AEVec2		PLATFORM_MESHSIZE	{ 1.0f, 1.0f };		// Platform mesh size
+AEVec2		PLATFORM_SCALE		{ 5.0f, 5.0f };		// Platform scale size
+AEVec2		EMPTY_MESHSIZE		{ 1.0f, 1.0f };		// Void mesh size
+AEVec2		EMPTY_SCALE			{ 1.0f, 1.0f };		// Void scale size
 
-AEVec2		HEALTHBAR_MESHSIZE = { 0.1f, 0.75f };	// Health bar mesh size
-AEVec2		HEALTHBAR_SCALE = { 15.0f, 0.5f, };		// Health bar scale size
+AEVec2		HEALTHBAR_MESHSIZE	{ 0.1f, 0.75f };	// Health bar mesh size
+AEVec2		HEALTHBAR_SCALE		{ 15.0f, 0.5f, };	// Health bar scale size
 
 /******************************************************************************/
 /*!
@@ -96,8 +96,8 @@ int		g_chosenLevel{ 0 };	// Chosen level number
 	Textures
 */
 /******************************************************************************/
-AEGfxTexture* stoneTexture{ nullptr };	// Stone texture
-AEGfxTexture* dirtTexture{ nullptr };	// Dirt texture
+AEGfxTexture* stoneTexture	{ nullptr };	// Stone texture
+AEGfxTexture* dirtTexture	{ nullptr };	// Dirt texture
 
 /******************************************************************************/
 /*!

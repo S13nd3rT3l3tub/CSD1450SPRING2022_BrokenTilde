@@ -1,11 +1,12 @@
 /*!
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
-@file       BinaryMap.cpp
+@file       GameState_MainMenu.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
+@role		
 *//*_________________________________________________________________________*/
 
+// ----- Include Guard ------
 #ifndef GAME_STATE_MAINMENU_H_
 #define GAME_STATE_MAINMENU_H_
 
@@ -17,11 +18,6 @@ void GameStateMainMenuUpdate(void);
 void GameStateMainMenuDraw(void);
 void GameStateMainMenuFree(void);
 void GameStateMainMenuUnload(void);
-
-enum overlay
-{
-	main = 0
-};
 
 // ---------------------------------------------------------------------------
 
