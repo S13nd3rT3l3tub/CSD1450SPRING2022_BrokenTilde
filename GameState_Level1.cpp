@@ -279,7 +279,7 @@ void GameStateLevel1Load(void)
 			//Load textures
 			stoneTexture = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
 			AE_ASSERT_MESG(stoneTexture, "Failed to create texture1!!");
-			dirtTexture = AEGfxTextureLoad(".\\Resources\\Assets\\dirt.png"); // Load stone texture
+			dirtTexture = AEGfxTextureLoad(".\\Resources\\Assets\\dirt.png"); // Load dirt texture
 			AE_ASSERT_MESG(dirtTexture, "Failed to create texture1!!");
 		}
 

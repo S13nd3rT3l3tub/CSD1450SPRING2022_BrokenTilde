@@ -281,6 +281,8 @@ void GameStateLevelsLoad(void)
 			//Load textures
 			stoneTexture = AEGfxTextureLoad(".\\Resources\\Assets\\stone.png"); // Load stone texture
 			AE_ASSERT_MESG(stoneTexture, "Failed to create texture1!!");
+			dirtTexture = AEGfxTextureLoad(".\\Resources\\Assets\\dirt.png"); // Load dirt texture
+			AE_ASSERT_MESG(dirtTexture, "Failed to create texture1!!");
 		}
 
 		// =========================
@@ -456,7 +458,8 @@ void GameStateLevelsUpdate(void)
 			}
 		}
 
-		if (playerdeathtimer > 0) // post player death control
+		// post player death control
+		if (playerdeathtimer > 0) 
 		{
 			playerdeathtimer -= g_dt;
 		}
@@ -474,6 +477,7 @@ void GameStateLevelsUpdate(void)
 			default:
 				break;
 			}
+			// reload map data
 			if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 				gGameStateNext = GS_QUIT;
 		}
@@ -530,7 +534,7 @@ void GameStateLevelsUpdate(void)
 		// =========================
 		// update according to input
 		// =========================
-		// 
+		
 		//	if escape key is pressed
 		if (AEInputCheckReleased(AEVK_ESCAPE))
 			gGameStateInnerState = GAME_PAUSE;
@@ -538,23 +542,29 @@ void GameStateLevelsUpdate(void)
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
 		// Change the following input movement based on our player movement
 		// ----------------------------------------------------------------------------------------------------------------------------------------------
-		//cheatcode to go next level		
+		
+		// cheatcode to go next level		
 		if (AEInputCheckReleased(AEVK_DOWN))
 			totalEnemyCount = 0;
 
-		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to hover (experimental) 
+		if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to thrust upward
 		{
 			AEVec2 added;
 			AEVec2Set(&added, 0.f, 1.f);
 
 			// Find the velocity according to the acceleration
-			added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
-			added.y *= 20 * g_dt; //500
+			added.x *= 1;
+			added.y *= 20 * g_dt; 
 
 			AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-			// Limit your speed over here
+
+			// Limit your velocity
 			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+
+			// Deplete jumpfuel
 			jumpFuel -= g_dt;
+
+			// Create particles when thrusting upward
 			AEVec2 particleVel = { 0, -1.5f };
 			for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
 			{
@@ -564,7 +574,7 @@ void GameStateLevelsUpdate(void)
 					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
 				}
 				else {
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orangy red color
+					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orange color
 				}
 			}
 		}
@@ -578,10 +588,11 @@ void GameStateLevelsUpdate(void)
 			added.x *= -MOVE_VELOCITY * g_dt;
 			added.y *= -MOVE_VELOCITY * g_dt;
 			AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-			// Limit your speed over here
+
+			// Limit velocity
 			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 		}
-		else if (AEInputCheckCurr(AEVK_D))
+		else if (AEInputCheckCurr(AEVK_D)) // Move right
 		{
 			AEVec2 added;
 			AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
@@ -590,41 +601,44 @@ void GameStateLevelsUpdate(void)
 			added.x *= MOVE_VELOCITY * g_dt;
 			added.y *= MOVE_VELOCITY * g_dt;
 			AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-			// Limit your speed over here
+
+			// Limit velocity
 			AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 		}
 
 		AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f); \
 
 
-			// ----------------------------------------------------------------------------------------------------------------------------------------------
-			// Change to bullet spawning on mouse click in direction
-			// ----------------------------------------------------------------------------------------------------------------------------------------------
+		// ------------------------------------------------------------------------------------
+		// Change to bullet spawning on mouse click in direction
+		// ------------------------------------------------------------------------------------
 			AEVec2 BarrelEnd;
 		// Shoot a bullet if left mouse button is triggered (Create a new object instance)
 		if (AEInputCheckReleased(VK_LBUTTON) && ammoCount > 0)
 		{
 			AEVec2 dirBullet;
+
 			// Get the bullet's direction according to the player's direction
 			AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+
 			// Set the velocity
 			dirBullet.x *= BULLET_SPEED;
 			dirBullet.y *= BULLET_SPEED;
-			// Calculate end of gun barrel position
-			// 
-			// 
-			// Create an instance
 
+			// Calculate end of gun barrel position
 			BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
 			BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
-			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
-			--ammoCount;
 
-			if (soundVolumeLevel)
+			// Create bullet instance
+			gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
+			--ammoCount; // Deplete ammoCount
+
+			// Play shooting sound
+			if (soundVolumeLevel) 
 				fModSys->playSound(playerShoot, nullptr, false, &soundChannel);
 		}
 
-		if (AEInputCheckCurr(VK_RBUTTON)) // TRAJECTORY PREDICTION DOTTED LINE
+		if (AEInputCheckCurr(VK_RBUTTON)) // Aim with trajectory dotted line
 		{
 			AEVec2 bulletDir{};
 			AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
@@ -696,20 +710,23 @@ void GameStateLevelsUpdate(void)
 		{
 			pInst = sGameObjInstList + i;
 
-			// skip non-active object
+			// Skip non-active object
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
 
+			// Destory player shot bullet after 3 bounces
 			if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
 				gameObjInstDestroy(pInst);
 
-			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1) // enemy bullet
+			// Destory enemy shot bullet after it collides with game
+			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1)
 				gameObjInstDestroy(pInst);
 
+			// Enable gravity for player and enemies
 			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
 				pInst->velCurr.y += GRAVITY * g_dt;
 
-
+			// Enemy AI
 			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
 				EnemyStateMachine(pInst);
 			}
@@ -769,16 +786,17 @@ void GameStateLevelsUpdate(void)
 		Update grid collision flag
 		**************************/
 		int prevbounce = pInst->bounceCount;
-		if (pInst->pObject->type == TYPE_BULLET)
+		if (pInst->pObject->type == TYPE_BULLET) // Check map collision for bullets
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_Bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
 		}
-		else //if(pInst->pObject->type != TYPE_PARTICLE1 && pInst->state != STATE_ALERT)
+		else // Check map collision for all other dynamic objects
 		{
 			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 		}
 
-		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable) // dirt destroy particles
+		// Simulate particles when destructible block gets destroyed
+		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable) 
 		{
 			AEVec2 particlevel{ 0,0 };
 			AEVec2 hold;
@@ -796,10 +814,12 @@ void GameStateLevelsUpdate(void)
 				particlepos.x += 0.13f;
 				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
 			}
-			gameObjInstDestroy(pInst);
+			gameObjInstDestroy(pInst); //destroy bullet
 		}
 
 		bool reflectedFlag = false;
+
+		// If dynamic game objects collides with left side of level object
 		if ((pInst->gridCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT) {
 			if (pInst->pObject->type == TYPE_BULLET) {
 				if (reflectedFlag == false) {
@@ -807,6 +827,7 @@ void GameStateLevelsUpdate(void)
 					newBulletVel.x = pInst->velCurr.x - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.x;
 					newBulletVel.y = pInst->velCurr.y - 2 * (AEVec2DotProduct(&pInst->velCurr, &normal)) * normal.y;
 					pInst->velCurr = newBulletVel;
+
 					//Limit number of bullet bounces:
 					reflectedFlag = true;
 					if (prevbounce == pInst->bounceCount)
@@ -857,11 +878,11 @@ void GameStateLevelsUpdate(void)
 				SnapToCell(&pInst->posCurr.y);
 				if (pInst->pObject->type == TYPE_PARTICLE1)
 				{
-					pInst->posCurr.y -= 0.25f;
+					pInst->posCurr.y -= 0.25f; // offset for particles
 				}
 				if (pInst->pObject->type == TYPE_PLAYER)
 				{
-					jumpFuel = 1.5f;
+					jumpFuel = 1.5f; // refuel jumpfuel
 				}
 			}
 		}
@@ -913,23 +934,25 @@ void GameStateLevelsUpdate(void)
 					continue;
 
 				switch (pOtherInst->pObject->type) {
-				case TYPE_PLAYER:
-					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player is hit
+				case TYPE_PLAYER: // If player gets hit by bullet
+					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 						if (pInst->state == STATE::STATE_GOING_LEFT || pInst->state == STATE::STATE_NONE)
-							playerHealth -= 10.0f;
-						gameObjInstDestroy(pInst);
+							playerHealth -= 10.0f; // Deplete playerhealth
+						gameObjInstDestroy(pInst); // Destroy bullet
 					}
 					break;
-				case TYPE_ENEMY1:
+				case TYPE_ENEMY1: // If enemy gets hit by bullet 
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst);
-						gameObjInstDestroy(pOtherInst);
-						--totalEnemyCount;
+						gameObjInstDestroy(pInst); // Destroy bullet
+						gameObjInstDestroy(pOtherInst); // Destory enemey
+						--totalEnemyCount; // Deplete enemy count
+
+						// Simulate particles upon enemy death
 						AEVec2 particleVel;
 						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
 							AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y };
-							if (rand() % 2) // randomize polarity of particleVel.x
+							if (rand() % 2) // Randomize polarity of particleVel.x
 							{
 								particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
 								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
@@ -942,21 +965,21 @@ void GameStateLevelsUpdate(void)
 						}
 					}
 					break;
-				case TYPE_BULLET:
+				case TYPE_BULLET: // If a bullet collides with another bullet
 					if (pInst->posCurr.x == pOtherInst->posCurr.x && pInst->posCurr.y == pOtherInst->posCurr.y) // Don't check the same bullet to itself
 					{
 						break;
 					}
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst);
-						gameObjInstDestroy(pOtherInst);
+						gameObjInstDestroy(pInst); // destory bullet
+						gameObjInstDestroy(pOtherInst); // destory bullet
 					}
 				}
 			}
 			break;
-		case TYPE_ENEMY1:
+		case TYPE_ENEMY1: // If player collides with enemy
 			if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
-				playerHealth = 0; // player dies if collide with enemy
+				playerHealth = 0; // Player dies if collide with enemy
 			}
 		}
 	}
@@ -996,11 +1019,11 @@ void GameStateLevelsUpdate(void)
 	AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 	AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
 
-	// 128x54
+	// Clamp camera within the level frame
 	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
 	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
 	if (playerdeathtimer == 0)
-		AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
+		AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y); // reset camera upon level reset
 
 	// Mouse in world coordinates
 	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
@@ -1009,7 +1032,7 @@ void GameStateLevelsUpdate(void)
 
 /******************************************************************************/
 /*!
-
+	Render game objects
 */
 /******************************************************************************/
 void GameStateLevelsDraw(void)
@@ -1084,27 +1107,29 @@ void GameStateLevelsDraw(void)
 
 		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &pInst->transform);
 		AEGfxSetTransform(cellFinalTransformation.m);
-		if (pInst->pObject->type == TYPE_PARTICLE1) // Particle transparancy handler
+
+		// Particle transparancy handler
+		if (pInst->pObject->type == TYPE_PARTICLE1) 
 		{
-			AEGfxSetTransparency(pInst->dirCurr);
+			AEGfxSetTransparency(pInst->dirCurr); // Set transparancy of particle
 			if (pInst->dirCurr <= 0)
 			{
-				gameObjInstDestroy(pInst);
+				gameObjInstDestroy(pInst); // Destory particle if it is fully transparent
 			}
 
 			if (pInst->state == STATE_ALERT)
 			{
-				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f);
+				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); // Orange color for particle
 			}
-			pInst->dirCurr -= g_dt;
+			pInst->dirCurr -= g_dt; // Deplete transparancy of particles
 		}
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)           
 		{
-			AEGfxSetTransparency(0.f);
+			AEGfxSetTransparency(0.f); // Set enemy line of sight to be invisible
 		}
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE)
 		{
-			AEGfxSetTransparency(0.4f);
+			AEGfxSetTransparency(0.4f); // Set trajectory dotted line to be translucent
 		}
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 		AEGfxSetRenderMode(AE_GFX_RM_COLOR);
@@ -1114,7 +1139,7 @@ void GameStateLevelsDraw(void)
 		AEGfxSetTransparency(1.f);
 		if (pInst->pObject->type == TYPE_DOTTED)
 		{
-			gameObjInstDestroy(pInst);
+			gameObjInstDestroy(pInst); // Destory all dotted line instances every frame
 		}
 	}
 
@@ -1195,4 +1220,6 @@ void GameStateLevelsUnload(void)
 	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 	AEGfxTextureUnload(stoneTexture);
 	stoneTexture = nullptr;
+	AEGfxTextureUnload(dirtTexture);
+	dirtTexture = nullptr;
 }
