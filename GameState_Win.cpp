@@ -71,7 +71,8 @@ void GameStateWinLoad() {
 */
 /******************************************************************************/
 void GameStateWinInit() {
-	AEGfxSetCamPosition(-1550.f, -630.f);		
+	// Set camera to local origin
+	AEGfxSetCamPosition(BINARY_MAP_WIDTH * -12, BINARY_MAP_HEIGHT * -12);
 }
 
 /******************************************************************************/
@@ -108,13 +109,13 @@ void GameStateWinUpdate() {
 		else if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel > 2)
 			gGameStateNext = GS_MAINMENU;
 
-
+		// Simulate firework particles
 		if (fireworktimer < 0)
 		{
 			AEVec2 particleVel;
 			for (double x = -1.0f; x < 20.0f; x += ((1.f + rand() % 50) / 100.f)) // spawn particles on left side of screen
 			{
-				AEVec2 particlespawn = { 2.f, static_cast<float>(x) };
+				AEVec2 particlespawn = { 3.f, static_cast<float>(x) };
 				if (rand() % 2) // randomize polarity of particleVel.x
 				{
 					particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
