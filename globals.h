@@ -194,6 +194,7 @@ extern GameObjInst* Enemydetection;		// Enemy LoS check object instance
 
 // Game specific variables
 extern float		playerHealth;		// The amount of health left
+extern float		playerDeathTimer;	// Timer for player defeat
 extern double		jumpFuel;			// Hover fuel
 extern int			totalEnemyCount;	// Total enemy count in current level
 extern int			ammoCount;			// Total ammo count in current level

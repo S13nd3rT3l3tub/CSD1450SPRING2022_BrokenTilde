@@ -1,18 +1,15 @@
 /*!
-@Copyright	Copyright � 2022 DigiPen, All rights reserved.
+@Copyright	Copyright © 2022 DigiPen, All rights reserved.
 @file       GameState_Level1.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
+@role		
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Authored Functions
+@role		
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		Authored Functions
--------------------------------------------------------------------------------
-@author		Desmond Too Wei Kang (d.too@digipen.edu)
-@role		Authored Functions
+@role		
 *//*_________________________________________________________________________*/
 
 // ----- Include Files -----
@@ -32,12 +29,13 @@ static const std::string fileName{ ".\\Resources\\Level Data\\Level1.txt" };
 */
 /******************************************************************************/
 
+
 /******************************************************************************/
 /*!
 	(Static) Variables
 */
 /******************************************************************************/
-static float playerdeathtimer{};
+
 
 /******************************************************************************/
 /*!
@@ -299,6 +297,7 @@ void GameStateLevel1Load(void)
 	AEMtx33Trans(&trans, static_cast<f32>(-(BINARY_MAP_WIDTH / 2)), static_cast<f32>(-(BINARY_MAP_HEIGHT / 2)));
 	AEMtx33Scale(&scale, static_cast<f32>(AEGetWindowWidth() / 40), static_cast<f32>(AEGetWindowHeight() / 20));
 	AEMtx33Concat(&MapTransform, &scale, &trans);
+
 }
 
 /******************************************************************************/
@@ -311,10 +310,8 @@ void GameStateLevel1Init(void)
 	// ----- Set gameplay variables to initial value -----
 	levelTime		= 0.0;						// Time in level
 	totalEnemyCount = 0;						// Total enemies in level
+	playerDeathTimer = 0.0f;					// Timer for player defeat
 	playerHealth	= PLAYER_INITIAL_HEALTH;	// Player health
-
-	//set level background color
-	AEGfxSetBackgroundColor(0.125f, 0.125f, 0.125f);
 
 	//----- Create empty instance ------
 	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
@@ -393,26 +390,26 @@ void GameStateLevel1Update(void)
 	switch (gGameStateInnerState) {
 		// Pause State
 		case GAME_PAUSE: {
-		// Pause sound channel
-		soundChannel->setPaused(true);
+			// Pause sound channel
+			soundChannel->setPaused(true);
 
-		// Check if game is to be unpaused
-		if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
-			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-		else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
-			gGameStateNext = GS_RESTART;		// Update nextState to restart
-			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-			// Reload level data
-			if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
-				gGameStateNext = GS_QUIT;
+			// Check if game is to be unpaused
+			if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
+				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
+				gGameStateNext = GS_RESTART;		// Update nextState to restart
+				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+				// Reload level data
+				if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+					gGameStateNext = GS_QUIT;
 
+			}
+			else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
+				gGameStateNext = GS_MAINMENU;		// Update next state to main menu
+				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			}
+			break;
 		}
-		else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
-			gGameStateNext = GS_MAINMENU;		// Update next state to main menu
-			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-		}
-		break;
-	}
 		// Win State
 		case GAME_WIN: {
 			// Update next state to win screen state
@@ -426,7 +423,7 @@ void GameStateLevel1Update(void)
 		// Lose State
 		case GAME_LOSE: {
 			// Check if it is the first time we are entering this innerState
-			if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
+			if (playerDeathTimer == PLAYER_DEATH_ANIME_TIME) {
 				// Simulate/Create particles upon player death
 				AEVec2 particleVel;
 				for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
@@ -451,12 +448,10 @@ void GameStateLevel1Update(void)
 
 			// ----- Post player death control ------
 			// Decrement timer
-			playerdeathtimer -= g_dt;
+			playerDeathTimer -= g_dt;
 			// Check if timer is less than 0
-			if (playerdeathtimer < 0.0f) //restart level
+			if (playerDeathTimer < 0.0f) // Restart level
 			{
-				// Set playerdeathtimer to 0 for camera
-				playerdeathtimer = 0.0f;
 				// Update innerState to play state
 				gGameStateInnerState = GAME_PLAY;
 				// Restart the level
@@ -467,8 +462,10 @@ void GameStateLevel1Update(void)
 				break;
 			}
 
+			// Variable declaration
 			int i{};
 			GameObjInst* pInst;
+
 			// Update object instances positions
 			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 			{
@@ -512,12 +509,12 @@ void GameStateLevel1Update(void)
 
 			// Check lose condition
 			if (playerHealth <= 0.0f || ammoCount <= 0) {
-				playerdeathtimer = PLAYER_DEATH_ANIME_TIME;	// Set timer to defined const
+				playerDeathTimer = PLAYER_DEATH_ANIME_TIME;	// Set timer to defined const
 				gGameStateInnerState = GAME_LOSE;			// Update innerState to lose state
 			}
 
 			// =========================
-			// update according to input
+			// Update according to input
 			// =========================
 			{
 				// Check if escape key is pressed
@@ -544,9 +541,11 @@ void GameStateLevel1Update(void)
 						added.y *= 20 * g_dt;
 						AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 
-						// Limit speed
+						// Limit velocity
 						AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
-						jumpFuel -= g_dt; //deplete jump fuel
+						
+						// Deplete jumpfuel
+						jumpFuel -= g_dt;
 
 						// Simulate/Create particles when thrust is active
 						AEVec2 particleVel = { 0, -1.5f };
@@ -574,7 +573,8 @@ void GameStateLevel1Update(void)
 						added.x *= -MOVE_VELOCITY * g_dt;
 						added.y *= -MOVE_VELOCITY * g_dt;
 						AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-						// Limit your speed over here
+						
+						// Limit velocity
 						AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 					}
 					else if (AEInputCheckCurr(AEVK_D)) // Move right
@@ -587,11 +587,12 @@ void GameStateLevel1Update(void)
 						added.x *= MOVE_VELOCITY * g_dt;
 						added.y *= MOVE_VELOCITY * g_dt;
 						AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-						// Limit your speed over here
+						
+						// Limit velocity
 						AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 					}
 
-					//limit player movement velocity
+					// Limit player movement velocity
 					AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 				}
 
@@ -599,23 +600,24 @@ void GameStateLevel1Update(void)
 				// Change to bullet spawning on mouse click in direction
 				// ----------------------------------------------------------------------------------------------------------------------------------------------
 				// Variable declaration
-				AEVec2 BarrelEnd;
+				AEVec2 BarrelEnd{}, dirBullet{};
 				// Shoot a bullet if left mouse button is triggered & there is still ammo (Create a new object instance)
 				if (AEInputCheckReleased(VK_LBUTTON) && ammoCount > 0) {
-					// Variable declaration
-					AEVec2 dirBullet;
-
 					// Get the bullet's direction according to the player's direction
 					AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
 					// Set the velocity
 					dirBullet.x *= BULLET_SPEED;
 					dirBullet.y *= BULLET_SPEED;
+					
+					// Calculate end of gun barrel position
 					BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
 					BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
-					//create projectile instance
+					
+					// Create projectile instance
 					gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
+					// Deplete ammoCount
+					--ammoCount; 
 
-					--ammoCount; //deplete ammo
 					// Check soundVolume flag variable
 					if (soundVolumeLevel)
 						fModSys->playSound(playerShoot, nullptr, false, &soundChannel);	// Play sound on projectile spawned
@@ -623,19 +625,23 @@ void GameStateLevel1Update(void)
 
 				// Projectile trajectory prediction (Aim with trajectory line)
 				if (AEInputCheckCurr(VK_RBUTTON)) {
-					// Variable declaration
-					AEVec2 bulletDir{};
-					// Get direction of the barrel
-					AEVec2Set(&bulletDir, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-					BarrelEnd.x = PlayerGun->posCurr.x + bulletDir.x * BULLET_SPEED * 0.11f;
-					BarrelEnd.y = PlayerGun->posCurr.y + bulletDir.y * BULLET_SPEED * 0.11f;
+					// Get the bullet's direction according to the player's direction
+					AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+					
+					// Calculate end of gun barrel position
+					BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * BULLET_SPEED * 0.11f;
+					BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * BULLET_SPEED * 0.11f;
 
-					// Loop through calculated trajectory of the projectile
+					// Variable declaration
 					AEVec2 currPos{ BarrelEnd };
 					int bounceCount{ 0 };
+
+					// Loop through calculated trajectory of the projectile
 					for (int i{ 1 }; i < 1000; ++i) {
-						currPos.x += bulletDir.x * g_dt;
-						currPos.y += bulletDir.y * g_dt;
+						// Move current position
+						currPos.x += dirBullet.x * g_dt;
+						currPos.y += dirBullet.y * g_dt;
+						
 						// Call to find for collision with environment
 						int collisionFlag = CheckInstanceBinaryMapCollision_Dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 
@@ -646,7 +652,7 @@ void GameStateLevel1Update(void)
 						// Check which side is the collision coming from
 						bool reflectedFlag{ false };
 						AEVec2 normal{};
-						if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) { // Collision with bottom of platform
+						if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) { // Collision with top of platform
 							// Set normal of surface
 							normal = { 0, -1 };
 							// Increment bounceCount and check if less than or equal to 3
@@ -655,7 +661,7 @@ void GameStateLevel1Update(void)
 							else
 								break;
 						}
-						if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) { // Collision with top of platform
+						if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) { // Collision with bottom of platform
 							// Set normal of surface
 							normal = { 0, 1 };
 							// Increment bounceCount and check if less than or equal to 3
@@ -686,13 +692,13 @@ void GameStateLevel1Update(void)
 						// To reflect trajectory
 						if (reflectedFlag) {
 							// Calculate new direction after ricochet (newVel = currVel - 2(currVel . normal) * normal)
-							AEVec2 newVel{ bulletDir.x - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.x,  bulletDir.y - 2 * (AEVec2DotProduct(&bulletDir, &normal)) * normal.y };
+							AEVec2 newVel{ dirBullet.x - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.x,  dirBullet.y - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.y };
 							AEVec2Normalize(&newVel, &newVel);
 							// Assign it to the bullet
-							bulletDir = newVel;
+							dirBullet = newVel;
 							// Move by 1 frame
-							currPos.x += bulletDir.x * g_dt;
-							currPos.y += bulletDir.y * g_dt;
+							currPos.x += dirBullet.x * g_dt;
+							currPos.y += dirBullet.y * g_dt;
 						}
 
 						// Check if current iteration of i is a multiple of 30
@@ -1091,7 +1097,7 @@ void GameStateLevel1Update(void)
 		NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
 		NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
 		// Reset camera upon level reset
-		if (playerdeathtimer == 0.0f)
+		if (playerDeathTimer == 0.0f)
 			AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 
 		// Calculate mouse position in world coordinates based on camera
@@ -1113,10 +1119,10 @@ void GameStateLevel1Draw(void)
 	AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 	AEGfxSetTransparency(1.0f);
 
-	// ----- Draw the tile map (the grid) -----
+	// Variable declaration
 	AEMtx33 cellTranslation, cellFinalTransformation;
 
-	// Drawing the tile map
+	// ----- Draw the tile map (the grid) -----
 	for (int i = 0; i < BINARY_MAP_WIDTH; ++i) {
 		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j) {
 			// Calculate transform matrix
@@ -1192,7 +1198,7 @@ void GameStateLevel1Draw(void)
 	// Set render settings
 	AEGfxSetTransparency(1.0f);
 
-	// Draw all object instances in the list
+	// ----- Draw all object instances in the list -----
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
 		GameObjInst* pInst = sGameObjInstList + i;
 
@@ -1208,26 +1214,31 @@ void GameStateLevel1Draw(void)
 		if (pInst->pObject->type == TYPE_PARTICLE1) 
 		{
 			AEGfxSetTransparency(pInst->dirCurr);
-			if (pInst->dirCurr <= 0) //if fully transparent, destroy particle
+
+			// Destory particle if it is fully transparent
+			if (pInst->dirCurr <= 0) 
 			{
 				gameObjInstDestroy(pInst);
 			}
 
-			if (pInst->state == STATE_ALERT) //Orange particles
+			//Orange particles
+			if (pInst->state == STATE_ALERT) 
 			{
 				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); 
 			}
-			if (pInst->state == STATE_GOING_LEFT) // Brown particles
+
+			// Brown particles
+			if (pInst->state == STATE_GOING_LEFT) 
 			{
 				AEGfxSetBlendColor(0.627f, 0.321f, 0.176f, 1.f);
 			}
-
+			// Deplete transparancy of particles
 			pInst->dirCurr -= g_dt;
 		}
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)	// Enemy LoS object instance      
-			AEGfxSetTransparency(0.f); //Make enemy line of sight detection invisible
+			AEGfxSetTransparency(0.f); // Make enemy line of sight detection invisible
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE)	// Projectile trajectory prediction object instance
-			AEGfxSetTransparency(0.4f); //Make projectile trajectory prediction translucent
+			AEGfxSetTransparency(0.4f); // Make projectile trajectory prediction translucent
 		
 		// Set render settings
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
@@ -1240,7 +1251,7 @@ void GameStateLevel1Draw(void)
 		AEGfxSetBlendColor(0.f, 0.f, 0.f, 0.f);
 		AEGfxSetTransparency(1.f);
 
-		//Destroy all dotted line objects everyframe after rendering
+		//Destroy all dotted line objects every frame after rendering
 		if (pInst->pObject->type == TYPE_DOTTED)
 			gameObjInstDestroy(pInst);
 	}
@@ -1257,16 +1268,19 @@ void GameStateLevel1Draw(void)
 	sprintf_s(strBuffer, "Current Time : %.2f", levelTime);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	
 	// Display ammo capacity
 	sprintf_s(strBuffer, "Current Ammo : %d", ammoCount);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.8f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	
 	// Warning for low ammo
 	if (ammoCount < 8) {
 		sprintf_s(strBuffer, "Warning: Low Ammo");
 		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.9f - TextHeight / 2, 1.0f, 1.f, 0.f, 0.f);
 	}
+	
 	// Display number of enemies left in the level
 	sprintf_s(strBuffer, "Enemies Left : %d", totalEnemyCount);
 	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
@@ -1356,14 +1370,17 @@ void GameStateLevel1Draw(void)
 		sprintf_s(strBuffer, "GAME PAUSED");
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		
 		// Inform player of key press to continue game
 		sprintf_s(strBuffer, "Press 'Esc' to Continue Game");
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		
 		// Inform player of key press to restart game
 		sprintf_s(strBuffer, "Press 'R' to Restart Level");
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		
 		// Inform player of key press to return to main menu
 		sprintf_s(strBuffer, "Press 'M' to Return to Main Menu");
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
@@ -1399,6 +1416,7 @@ void GameStateLevel1Unload(void)
 	// Free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {
 		GameObj* pObj = sGameObjList + i;
+		// Check if object mesh is not a nullptr
 		if (pObj->pMesh != nullptr)
 			AEGfxMeshFree(pObj->pMesh);
 	}

@@ -63,6 +63,7 @@ GameObjInst*	Enemydetection;		// Enemy LoS check object instance
 
 // Game specific variables
 float			playerHealth{};			// The amount of health left
+float			playerDeathTimer{};		// Timer for player defeat
 double			jumpFuel{};				// Hover fuel
 int				totalEnemyCount{};		// Total enemy count in current level
 int				ammoCount{};			// Total ammo count in current level
