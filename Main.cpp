@@ -105,7 +105,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	// Initialize Sounds using FMOD
 	{
 		fModSys->createSound(".\\Resources\\Sounds\\CRITICAL_MASS_-_Corporate_MSCCRP1_31.wav", FMOD_LOOP_NORMAL, nullptr, &mainMenuBG);
-		fModSys->createSound(".\\Resources\\Sounds\\WhooshCartoon CTE02_88.6.wav", FMOD_DEFAULT, nullptr, &playerShoot);
+		fModSys->createSound(".\\Resources\\Sounds\\GunCartoon_CTE01_62.2.wav", FMOD_DEFAULT, nullptr, &playerShoot);
 	}
 
 	// Set fullscreen mode
