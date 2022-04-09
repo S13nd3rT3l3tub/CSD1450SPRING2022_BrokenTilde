@@ -139,7 +139,11 @@ void	PrintRetrievedInformation(int*** _MapData, int*** _BinaryCollisionArray, in
 	}
 }
 
-
+/******************************************************************************/
+/*!
+	Check Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
 int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY, 
 										int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
@@ -205,6 +209,11 @@ int		CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float
 	return Flag;
 }
 
+/******************************************************************************/
+/*!
+	Check Bullet Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
 int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX, float scaleY, 
 											   int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT, int*** _BinaryCollisionArray)
 {
@@ -212,7 +221,7 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
-	float x1{ 0 }, y1{ 0 };// , x2{ 0 }, y2{ 0 }, x3{}, x4{};
+	float x1{ 0 }, y1{ 0 };
 
 	// Right side hotspot (1)
 	x1 = PosX + scaleX / 2;
@@ -254,7 +263,7 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_LEFT);	// Case is true: OR the Flag variable with the COLLISION_LEFT const
 
-	//if collision with destructible block, delete it from MapData and BinaryCollisionArray.
+	// If collision with destructible block, delete it from MapData and BinaryCollisionArray.
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
@@ -270,7 +279,7 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_PLATFORM)
 		Flag = (Flag | COLLISION_BOTTOM);	// Case is true: OR the Flag variable with the COLLISION_BOTTOM const
 
-	//if collision with destructible block, delete it from MapData and BinaryCollisionArray.
+	// If collision with destructible block, delete it from MapData and BinaryCollisionArray.
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
 	{
 		Flag = (Flag | COLLISION_Destructable);
@@ -282,6 +291,11 @@ int		CheckInstanceBinaryMapCollision_Bullet(float PosX, float PosY, float scaleX
 	return Flag;
 }
 
+/******************************************************************************/
+/*!
+	Check Dotted Instance Collision w/ Binary Map
+*/
+/******************************************************************************/
 int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX, float scaleY, int*** _MapData, int& _BINARY_MAP_WIDTH, int& _BINARY_MAP_HEIGHT)
 {
 	//At the end of this function, "Flag" will be used to determine which sides
@@ -289,7 +303,7 @@ int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX
 
 	// Variable declaration and initialization to 0
 	int Flag{ 0 };
-	float x1{ 0 }, y1{ 0 };// , x2{ 0 }, y2{ 0 }, x3{}, x4{};
+	float x1{ 0 }, y1{ 0 };
 
 	// Right side hotspot (1)
 	x1 = PosX + scaleX / 2;
@@ -315,9 +329,7 @@ int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX
 
 	// Check if the hotspot is colliding with destructable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
 		Flag = (Flag | COLLISION_Destructable);
-	}
 
 
 	// Left side hotspot (1)
@@ -330,9 +342,7 @@ int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX
 
 	// Check if the hotspot is colliding with destructable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
 		Flag = (Flag | COLLISION_Destructable);
-	}
 
 	// Bottom side hotspot (1)
 	x1 = PosX;
@@ -344,9 +354,7 @@ int		CheckInstanceBinaryMapCollision_Dotted(float PosX, float PosY, float scaleX
 
 	// Check if the hotspot is colliding with destructable block
 	if (GetCellValue(static_cast<int>(x1), static_cast<int>(y1), _MapData, _BINARY_MAP_WIDTH, _BINARY_MAP_HEIGHT) == TYPE_DIRT)
-	{
 		Flag = (Flag | COLLISION_Destructable);
-	}
 
 	// Return value of Flag
 	return Flag;
