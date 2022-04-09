@@ -812,7 +812,7 @@ void GameStateLevelsUpdate(void)
 				else { particlevel.x = static_cast<float>(rand() % 10) / 9.0f; }
 
 				particlepos.x += 0.13f;
-				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_ALERT);
+				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_GOING_LEFT);
 			}
 			gameObjInstDestroy(pInst); //destroy bullet
 		}
@@ -1120,6 +1120,10 @@ void GameStateLevelsDraw(void)
 			if (pInst->state == STATE_ALERT)
 			{
 				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); // Orange color for particle
+			}
+			if (pInst->state == STATE_GOING_LEFT) // Brown particles
+			{
+				AEGfxSetBlendColor(0.627f, 0.321f, 0.176f, 1.f);
 			}
 			pInst->dirCurr -= g_dt; // Deplete transparancy of particles
 		}
