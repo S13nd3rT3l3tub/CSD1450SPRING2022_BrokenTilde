@@ -39,6 +39,7 @@ enum BUTTON_TYPE {
 	TOGGLE_SOUND,
 	YES,
 	NO,
+	BG
 };
 
 enum SCREEN_TYPE {
@@ -197,7 +198,7 @@ void GameStateMainMenuLoad()
 		soundChannel->setVolume(0.0f);	// Mute volume
 		
 	// Set screen variable to main menu display
-	screen = MAIN_SCREEN;
+	screen = SCREEN_TYPE::MAIN_SCREEN;
 }
 
 /******************************************************************************/
@@ -212,32 +213,33 @@ void GameStateMainMenuInit()
 
 	// Create an instance of the background 
 	AEVec2 scaling{ 1.0f, 1.0f }, pos{0.0f, 0.0f};
-	gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos,0, 0.0f, STATE_NONE);
+	GameObjInst* bg{ gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos,0, 0.0f, STATE_NONE) };
+	bg->sub_type = BUTTON_TYPE::BG;
 
 	// ----- Create the 4 main menu buttons -----
 	// Start Game button
 	scaling = { 1.0f, 1.0f };
 	pos = { 0.0f, 0.0f };
 	ButtonInstance_START = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-	ButtonInstance_START->sub_type = START_GAME;
+	ButtonInstance_START->sub_type = BUTTON_TYPE::START_GAME;
 
 	// Options button
 	scaling = { 1.0f, 1.0f };
 	pos = { 0.0f, -100.0f };
 	ButtonInstance_OPTIONS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-	ButtonInstance_OPTIONS->sub_type = OPTIONS;
+	ButtonInstance_OPTIONS->sub_type = BUTTON_TYPE::OPTIONS;
 
 	// Credits button
 	scaling = { 1.0f, 1.0f };
 	pos = { 0.0f, -200.0f };
 	ButtonInstance_CREDITS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-	ButtonInstance_CREDITS->sub_type = CREDITS;
+	ButtonInstance_CREDITS->sub_type = BUTTON_TYPE::CREDITS;
 
 	// Exit game button
 	scaling = { 1.0f, 1.0f };
 	pos = { 0,-300.0F };
 	ButtonInstance_QUIT = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-	ButtonInstance_QUIT->sub_type = EXIT_GAME;
+	ButtonInstance_QUIT->sub_type = BUTTON_TYPE::EXIT_GAME;
 }
 
 /******************************************************************************/
@@ -250,21 +252,21 @@ void GameStateMainMenuUpdate()
 	// Switch logic based on the innerState of the game state
 	switch (gGameStateInnerState) {
 		// Pause State
-		case GAME_PAUSE: {
+		case INNER_GAME_STATE::GAME_PAUSE: {
 			// Pause the sound channel
 			soundChannel->setPaused(true);
 
 			// Check if window was focused
 			if (winFocused)
-				gGameStateInnerState = GAME_PLAY;	// Update innerState back to play state
+				gGameStateInnerState = INNER_GAME_STATE::GAME_PLAY;	// Update innerState back to play state
 
 			break;
 		}
 		// Play State
-		case GAME_PLAY: {
+		case INNER_GAME_STATE::GAME_PLAY: {
 			// Check if window was unfocused
 			if (winFocused == false)
-				gGameStateInnerState = GAME_PAUSE;	// Update innerState to pause state
+				gGameStateInnerState = INNER_GAME_STATE::GAME_PAUSE;	// Update innerState to pause state
 
 			// Find out if sound channel was paused; If so, unpause it
 			bool result;
@@ -280,7 +282,7 @@ void GameStateMainMenuUpdate()
 				// Switch logic based on the current display screen
 				switch (screen) {
 					// Main Menu
-					case MAIN_SCREEN: {
+					case SCREEN_TYPE::MAIN_SCREEN: {
 						// Check if mouse clicked on Start Game button
 						if ( CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_START->boundingBox) ) {
 							//	Load level 1
@@ -291,70 +293,72 @@ void GameStateMainMenuUpdate()
 						// Check if mouse clicked on Options button
 						if ( CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_OPTIONS->boundingBox) ) {
 							//	Update current display screen to Options
-							screen = OPTION_SCREEN;
+							screen = SCREEN_TYPE::OPTION_SCREEN;
 
 							// Create instance of background to overlay over the main menu
-							gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE);
+							GameObjInst* bg{ gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE) };
+							bg->sub_type = BUTTON_TYPE::BG;
 
 							// Create Toggle Fullscreen button
 							scaling = { 1.0f, 1.0f };
 							pos = { 0.0f, 0.0f };
 							ButtonInstance_TOGGLE_FS = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-							ButtonInstance_TOGGLE_FS->sub_type = TOGGLE_FS;
+							ButtonInstance_TOGGLE_FS->sub_type = BUTTON_TYPE::TOGGLE_FS;
 
 							// Create Toggle Sound button
 							scaling = { 1.0f, 1.0f };
 							pos = { 0.0f, -130.0f };
 							ButtonInstance_TOGGLE_SOUND = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-							ButtonInstance_TOGGLE_SOUND->sub_type = TOGGLE_SOUND;
+							ButtonInstance_TOGGLE_SOUND->sub_type = BUTTON_TYPE::TOGGLE_SOUND;
 
 							// Create Return button
 							scaling = { 1.0f, 1.0f };
 							pos = { 0,-300.0f };
 							ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-							ButtonInstance_RETURN->sub_type = RETURN;
+							ButtonInstance_RETURN->sub_type = BUTTON_TYPE::RETURN;
 						}
 
 						// Check if mosue was clicked on Credits button
 						if ( CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_CREDITS->boundingBox) ) {
 							// Update current display screen to credits
-							screen = CREDIT_SCREEN;
+							screen = SCREEN_TYPE::CREDIT_SCREEN;
 
 							// Create instance of background to overlay over the main menu
-							gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE);
+							GameObjInst* bg{ gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE) };
+							bg->sub_type = BUTTON_TYPE::BG;
 
 							// Create Return button
 							scaling = { 1.0f, 1.0f };
 							pos = { 0,-280.0f };
 							ButtonInstance_RETURN = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-							ButtonInstance_RETURN->sub_type = RETURN;
+							ButtonInstance_RETURN->sub_type = BUTTON_TYPE::RETURN;
 						}
 
 						// Check if mosue was clicked on Credits button
-						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox))
-						{
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox)) {
 							// Update current display screen to exit confirmation
-							screen = EXIT_SCREEN;
+							screen = SCREEN_TYPE::EXIT_SCREEN;
 							
 							// Create instance of background to overlay over the main menu
-							gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE);
+							GameObjInst* bg{ gameObjInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE) };
+							bg->sub_type = BUTTON_TYPE::BG;
 
 							// Create Yes button
 							scaling = { 0.5f, 0.5f };
 							pos = { -300.0f,-300.0f };
 							ButtonInstance_YES = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-							ButtonInstance_YES->sub_type = YES;
+							ButtonInstance_YES->sub_type = BUTTON_TYPE::YES;
 
 							// Create No button
 							scaling = { 0.5f, 0.5f };
 							pos = { 300.0f ,-300.0f };
 							ButtonInstance_NO = gameObjInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-							ButtonInstance_NO->sub_type = NO;
+							ButtonInstance_NO->sub_type = BUTTON_TYPE::NO;
 						}
 						break;
 					}
 					// Options
-					case OPTION_SCREEN: {
+					case SCREEN_TYPE::OPTION_SCREEN: {
 						//	Check if mouse was clicked on Toggle Fullscreen button
 						if ( CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_FS->boundingBox) ) {
 							// Invert flag variable's current value
@@ -377,7 +381,7 @@ void GameStateMainMenuUpdate()
 						//	Check if mouse was clicked on Return button
 						if ( CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox) ) {
 							// Update screen display to main menu
-							screen = MAIN_SCREEN;
+							screen = SCREEN_TYPE::MAIN_SCREEN;
 							// Restart the state 
 							gGameStateNext = GS_RESTART;
 						}
@@ -388,7 +392,7 @@ void GameStateMainMenuUpdate()
 						//	Check if mouse was clicked on Return button
 						if ( CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox) ) {
 							// Update display screen to be main menu
-							screen = MAIN_SCREEN;
+							screen = SCREEN_TYPE::MAIN_SCREEN;
 							// Restart state
 							gGameStateNext = GS_RESTART;
 						}
@@ -403,7 +407,7 @@ void GameStateMainMenuUpdate()
 						// Check if mouse was clicked on No button
 						if ( CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_NO->boundingBox) ) {
 							// Update display screen to be main menu
-							screen = MAIN_SCREEN;
+							screen = SCREEN_TYPE::MAIN_SCREEN;
 							// Restart state
 							gGameStateNext = GS_RESTART;
 						}
@@ -533,52 +537,52 @@ void GameStateMainMenuDraw() {
 		// Switch texture based on the button type
 		switch (pInst->sub_type) {
 			// Start Game
-			case START_GAME: {
+			case BUTTON_TYPE::START_GAME: {
 				AEGfxTextureSet(buttonTexture_START, 0.0f, 0.0f);
 				break;
 			}
 			// Exit game
-			case EXIT_GAME: {
+			case BUTTON_TYPE::EXIT_GAME: {
 				AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
 				break;
 			}
 			// Options
-			case OPTIONS: {
+			case BUTTON_TYPE::OPTIONS: {
 				AEGfxTextureSet(buttonTexture_OPTIONS, 0.0f, 0.0f);
 				break;
 			}
 			// Credits
-			case CREDITS: {
+			case BUTTON_TYPE::CREDITS: {
 				AEGfxTextureSet(buttonTexture_CREDITS, 0.0f, 0.0f);
 				break;
 			}
 			// Toggle Fullscreen
-			case TOGGLE_FS: {
+			case BUTTON_TYPE::TOGGLE_FS: {
 				AEGfxTextureSet(buttonTexture_TOGGLE_FS, 0.0f, 0.0f);
 				break;
 			}
 			// Toggle Sound
-			case TOGGLE_SOUND: {
+			case BUTTON_TYPE::TOGGLE_SOUND: {
 				AEGfxTextureSet(buttonTexture_TOGGLE_SOUND, 0.0f, 0.0f);
 				break;
 			}
 			// Return
-			case RETURN: {
+			case BUTTON_TYPE::RETURN: {
 				AEGfxTextureSet(buttonTexture_RETURN, 0.0f, 0.0f);
 				break;
 			}
 			// Yes
-			case YES: {
+			case BUTTON_TYPE::YES: {
 				AEGfxTextureSet(buttonTexture_YES, 0.0f, 0.0f);
 				break;
 			}
 			// No
-			case NO: {
+			case BUTTON_TYPE::NO: {
 				AEGfxTextureSet(buttonTexture_NO, 0.0f, 0.0f);
 				break;
 			}
 			// Background
-			case TYPE_BG: {
+			case BUTTON_TYPE::BG: {
 				AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
 				break;
 			}
@@ -594,140 +598,158 @@ void GameStateMainMenuDraw() {
 	// Set render mode
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
-	// Switch logic based on which screen
-	switch (screen)
-	{
-	case CREDIT_SCREEN:
-		sprintf_s(strBuffer, "Created at ");
-		AEGfxGetPrintSize(g_font30, strBuffer, 0.8f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, -0.35f - TextWidth / 2, 0.27f - TextHeight / 2, 0.8f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "DigiPen Institute of Technology Singapore");
-		AEGfxGetPrintSize(g_font30, strBuffer, 0.8f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, -0.35f - TextWidth / 2, 0.2f - TextHeight / 2, 0.8f, 1.f, 1.f, 1.f);
+	// Switch logic based on which screen is the current display
+	switch (screen) {
+		// Credits
+		case SCREEN_TYPE::CREDIT_SCREEN: {
+			// ----- Created at DigiPen -----
+			{
+				sprintf_s(strBuffer, "Created at ");
+				AEGfxGetPrintSize(g_font30, strBuffer, 0.8f, TextWidth, TextHeight);
+				AEGfxPrint(g_font30, strBuffer, -0.35f - TextWidth / 2, 0.27f - TextHeight / 2, 0.8f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "DigiPen Institute of Technology Singapore");
+				AEGfxGetPrintSize(g_font30, strBuffer, 0.8f, TextWidth, TextHeight);
+				AEGfxPrint(g_font30, strBuffer, -0.35f - TextWidth / 2, 0.2f - TextHeight / 2, 0.8f, 1.f, 1.f, 1.f);
+			}
+			// ----- Team Composition -----
+			{
+				// Team Name
+				sprintf_s(strBuffer, "By Broken Tilde");
+				AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font20, strBuffer, -0.6f - TextWidth / 2, 0.10f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				// Team Members
+				sprintf_s(strBuffer, "Mohamed Zafir");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, 0.02f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Lee Hsien Wei, Joachim");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Leong Wai Kit");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.12f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Desmond Too Wei Kang");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.19f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			}
+			// ----- Oversee-ers ------
+			{
+				// Instructors
+				sprintf_s(strBuffer, "Instructors");
+				AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font20, strBuffer, -0.6f - TextWidth / 2, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				// Instructor's Names
+				sprintf_s(strBuffer, "Cheng Ding Xiang");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.43f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Gerald Wong Han Feng");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			}
+			// ----- Softwares Used -----
+			{
+				// Software
+				sprintf_s(strBuffer, "Softwares Used");
+				AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font20, strBuffer, -0.15f - TextWidth / 2, 0.10f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				// Name of softwares
+				sprintf_s(strBuffer, "Visual Studio 2019");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, 0.03f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Alpha Engine");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.04f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "FMOD Sound System");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.11f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "by FireLight Technologies Pty Ltd (1998 - 2020)");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.14f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Paint 3D");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.21f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "OBS Studio");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.28f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "DaVinci Resolve");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			}
+			// ----- DigiPen Executives -----
+			{
+				sprintf_s(strBuffer, "President");
+				AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font20, strBuffer, 0.45f - TextWidth / 2, 0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Claude COMAIR");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, 0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
+				sprintf_s(strBuffer, "Executives");
+				AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font20, strBuffer, 0.45f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "By Broken Tilde");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.6f - TextWidth / 2, 0.10f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		
-		sprintf_s(strBuffer, "Mohamed Zafir");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, 0.02f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Lee Hsien Wei, Joachim");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Leong Wai Kit");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.12f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Desmond Too Wei Kang");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.19f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Jason CHU");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Christopher COMAIR");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Michael GATS");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "Instructors");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.6f - TextWidth / 2, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Cheng Ding Xiang");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.43f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Gerald Wong Han Feng");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.6f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Michele COMAIR");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Raymond YAN");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Samir ABOU SAMRA");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "Softwares Used");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, -0.15f - TextWidth / 2, 0.10f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Visual Studio 2019");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, 0.03f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Alpha Engine");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.04f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "FMOD Sound System");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.11f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "by FireLight Technologies Pty Ltd (1998 - 2020)");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.14f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Paint 3D");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.21f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "OBS Studio");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.28f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "DaVinci Resolve");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, -0.15f - TextWidth / 2, -0.35f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Prasanna GHALI");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "John BAUER");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Dr. Erik MOHRMANN");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
+				sprintf_s(strBuffer, "Melvin GONSALVEZ");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Angela KUGLER");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Dr Charles DUBA");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-		sprintf_s(strBuffer, "President");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, 0.45f -TextWidth / 2, 0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Claude COMAIR");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, 0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "Executives");
-		AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font20, strBuffer, 0.45f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "Jason CHU");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Christopher COMAIR");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Michael GATS");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.1f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "Michele COMAIR");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Raymond YAN");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Samir ABOU SAMRA");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		
-		sprintf_s(strBuffer, "Prasanna GHALI");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "John BAUER");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Dr. Erik MOHRMANN");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.3f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "Melvin GONSALVEZ");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.25f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Angela KUGLER");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.45f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Dr Charles DUBA");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.65f - TextWidth / 2, -0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "Ben ELLINGER");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.35f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		sprintf_s(strBuffer, "Johnny DEEK");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.55f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		sprintf_s(strBuffer, "All Content Copyright 2022 DigiPen Institute of Technology Singapore, All Rights Reserved.");
-		AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font12, strBuffer, 0.0f - TextWidth / 2, -0.95f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-		break;
-
-	case EXIT_SCREEN:
-		sprintf_s(strBuffer, "Are you sure you want to exit?");
-		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-		break;
+				sprintf_s(strBuffer, "Ben ELLINGER");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.35f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				sprintf_s(strBuffer, "Johnny DEEK");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.55f - TextWidth / 2, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			}
+			// ----- Copyright to DigiPen -----
+			{
+				sprintf_s(strBuffer, "All Content Copyright 2022 DigiPen Institute of Technology Singapore, All Rights Reserved.");
+				AEGfxGetPrintSize(g_font12, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font12, strBuffer, 0.0f - TextWidth / 2, -0.95f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			}
+			break;
+		}
+		// Exit Confirmation
+		case SCREEN_TYPE::EXIT_SCREEN: {
+			// Inform user of exit confirmation
+			sprintf_s(strBuffer, "Are you sure you want to exit?");
+			AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+			AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+			break;
+		}
 	}
 }
 
