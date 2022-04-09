@@ -56,6 +56,12 @@ void GameStateWinLoad() {
 	pObj->pMesh = AEGfxMeshEnd();
 	pObj->meshSize = AEVec2{ PLAYER_MESHSIZE.x / 5, PLAYER_MESHSIZE.y / 5 };
 	AE_ASSERT_MESG(pObj->pMesh, "fail to create TYPE_PARTICLE1 object!!");
+
+	fModSys->playSound(mainMenuBG, nullptr, false, &soundChannel);
+	if (soundVolumeLevel)
+		soundChannel->setVolume(0.7f);
+	else
+		soundChannel->setVolume(0.0f);
 	
 }
 
@@ -76,161 +82,180 @@ void GameStateWinInit() {
 /******************************************************************************/
 void GameStateWinUpdate() {
 
+	switch (gGameStateInnerState) {
+	case GAME_PAUSE:
+		soundChannel->setPaused(true);
 
-	// =========================
-	// update according to input
-	// =========================
-	if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel == 2)
-		gGameStateNext = GS_LEVELS;
-	else if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel > 2)
-		gGameStateNext = GS_MAINMENU;
+		if (winFocused)
+			gGameStateInnerState = GAME_PLAY;
+
+		break;
+	case GAME_PLAY:
+		if (winFocused == false)
+			gGameStateInnerState = GAME_PAUSE;
+
+		bool result;
+		soundChannel->getPaused(&result);
+		if (result)
+			soundChannel->setPaused(false);
+
+		fModSys->update();
+
+		// =========================
+		// update according to input
+		// =========================
+		if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel == 2)
+			gGameStateNext = GS_LEVELS;
+		else if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel > 2)
+			gGameStateNext = GS_MAINMENU;
 
 
-	if (fireworktimer < 0)
-	{
-		AEVec2 particleVel;
-		for (double x = -1.0f; x < 20.0f; x += ((1.f + rand() % 50) / 100.f)) // spawn particles on left side of screen
+		if (fireworktimer < 0)
 		{
-			AEVec2 particlespawn = { 10.f, static_cast<float>(x)};
-			if (rand() % 2) // randomize polarity of particleVel.x
+			AEVec2 particleVel;
+			for (double x = -1.0f; x < 20.0f; x += ((1.f + rand() % 50) / 100.f)) // spawn particles on left side of screen
 			{
-				particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-				if (rand() % 2)
+				AEVec2 particlespawn = { 10.f, static_cast<float>(x) };
+				if (rand() % 2) // randomize polarity of particleVel.x
 				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particles
-				}
-				else
-				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // orange particles
-				}
+					particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+					if (rand() % 2)
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particles
+					}
+					else
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // orange particles
+					}
 
-			}
-			else
-			{
-				particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-				if (rand() % 2)
-				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particles
 				}
 				else
 				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // oraange particles
+					particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+					if (rand() % 2)
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particles
+					}
+					else
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // oraange particles
+					}
 				}
 			}
+			for (double x = -1.0f; x < 20.0f; x += ((1.f + rand() % 50) / 100.f)) // spawn particles on right side of screen
+			{
+				AEVec2 particlespawn = { 30.f, static_cast<float>(x) };
+				if (rand() % 2) // randomize polarity of particleVel.x
+				{
+					particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+					if (rand() % 2)
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particle
+					}
+					else
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); //orange particle
+					}
+
+				}
+				else
+				{
+					particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+					if (rand() % 2)
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particle
+					}
+					else
+					{
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // orange particle
+					}
+				}
+			}
+			fireworktimer = 0.2f; //set firework period
 		}
-		for (double x = -1.0f; x < 20.0f; x += ((1.f + rand() % 50) / 100.f)) // spawn particles on right side of screen
+		else
 		{
-			AEVec2 particlespawn = { 30.f, static_cast<float>(x) };
-			if (rand() % 2) // randomize polarity of particleVel.x
-			{
-				particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-				if (rand() % 2)
-				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particle
-				}
-				else
-				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); //orange particle
-				}
-
-			}
-			else
-			{
-				particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-				if (rand() % 2)
-				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // red particle
-				}
-				else
-				{
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // orange particle
-				}
-			}
+			fireworktimer -= g_dt;
 		}
-		fireworktimer = 0.2f; //set firework period
+
+		int i{};
+		GameObjInst* pInst;
+
+		//Update object instances physics and behavior
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+
+		}
+
+		//Update object instances positions
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+			/*******************************
+			update the position of instances
+			*******************************/
+
+			// ----- Update Position -----
+			pInst->posCurr.x += pInst->velCurr.x * g_dt;
+			pInst->posCurr.y += pInst->velCurr.y * g_dt;
+
+			// ----- Update Bounding Box -----
+			pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+
+			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+		}
+
+		// ====================
+		// check for collision
+		// ====================
+
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if ((pInst->flag & FLAG_ACTIVE) == 0)
+				continue;
+		}
+
+		// =====================================
+		// calculate the matrix for all objects
+		// =====================================
+
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+		{
+			pInst = sGameObjInstList + i;
+			AEMtx33		 trans, rot, scale;
+
+			// skip non-active object
+			if ((pInst->flag & FLAG_ACTIVE) == 0)
+				continue;
+
+			// Compute the scaling matrix
+			AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
+			// Compute the rotation matrix 	
+			AEMtx33Rot(&rot, pInst->dirCurr);
+			// Compute the translation matrix
+			AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
+			// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
+			AEMtx33Concat(&pInst->transform, &trans, &rot);
+			AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
+		}
+		break;
 	}
-	else
-	{
-		fireworktimer -= g_dt;
-	}
-
-	int i{};
-	GameObjInst* pInst;
-
-	//Update object instances physics and behavior
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if (0 == (pInst->flag & FLAG_ACTIVE))
-			continue;
-
-
-	}
-
-	//Update object instances positions
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if (0 == (pInst->flag & FLAG_ACTIVE))
-			continue;
-
-		/*******************************
-		update the position of instances
-		*******************************/
-
-		// ----- Update Position -----
-		pInst->posCurr.x += pInst->velCurr.x * g_dt;
-		pInst->posCurr.y += pInst->velCurr.y * g_dt;
-
-		// ----- Update Bounding Box -----
-		pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-		pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-
-		pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-		pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-	}
-
-	// ====================
-	// check for collision
-	// ====================
-
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
-	{
-		pInst = sGameObjInstList + i;
-
-		// skip non-active object
-		if ((pInst->flag & FLAG_ACTIVE) == 0)
-			continue;
-	}
-
-	// =====================================
-	// calculate the matrix for all objects
-	// =====================================
-
-	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
-	{
-		pInst = sGameObjInstList + i;
-		AEMtx33		 trans, rot, scale;
-
-		// skip non-active object
-		if ((pInst->flag & FLAG_ACTIVE) == 0)
-			continue;
-
-		// Compute the scaling matrix
-		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
-		// Compute the rotation matrix 	
-		AEMtx33Rot(&rot, pInst->dirCurr);
-		// Compute the translation matrix
-		AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
-		// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
-		AEMtx33Concat(&pInst->transform, &trans, &rot);
-		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
-	}
-
 }
 
 /******************************************************************************/
@@ -341,5 +366,5 @@ void GameStateWinFree() {
 */
 /******************************************************************************/
 void GameStateWinUnload() {
-
+	soundChannel->stop(); //stop background music
 }
