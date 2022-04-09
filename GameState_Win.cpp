@@ -85,12 +85,9 @@ void GameStateWinUpdate() {
 		if (0 == (pInst->flag & FLAG_ACTIVE))
 			continue;
 
-		/**********
-		update the position using: P1 = V1*dt + P0
-		Get the bouding rectangle of every active instance:
-			boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-		**********/
+		/*******************************
+		update the position of instances
+		*******************************/
 
 		// ----- Update Position -----
 		pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -115,11 +112,6 @@ void GameStateWinUpdate() {
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
-
-		/*switch (pInst->pObject->type) {
-		default:
-			break;
-		}*/
 	}
 
 	// =====================================
@@ -174,7 +166,7 @@ void GameStateWinDraw() {
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
-	//	Text for Win Screen
+	//	Render text for Win Screen
 	f32 TextWidth = 1.0f;
 	f32 TextHeight = 1.0f;
 	char strBuffer[100];
