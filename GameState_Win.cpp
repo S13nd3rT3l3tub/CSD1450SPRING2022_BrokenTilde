@@ -56,7 +56,10 @@ void GameStateWinUpdate() {
 	// =========================
 	// update according to input
 	// =========================
-
+	if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel == 2)
+		gGameStateNext = GS_LEVELS;
+	else if (AEInputCheckCurr(VK_SPACE) && g_chosenLevel > 2)
+		gGameStateNext = GS_MAINMENU;
 
 	int i{};
 	GameObjInst* pInst;
@@ -82,12 +85,9 @@ void GameStateWinUpdate() {
 		if (0 == (pInst->flag & FLAG_ACTIVE))
 			continue;
 
-		/**********
-		update the position using: P1 = V1*dt + P0
-		Get the bouding rectangle of every active instance:
-			boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-		**********/
+		/*******************************
+		update the position of instances
+		*******************************/
 
 		// ----- Update Position -----
 		pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -112,14 +112,7 @@ void GameStateWinUpdate() {
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
-
-		/*switch (pInst->pObject->type) {
-		default:
-			break;
-		}*/
 	}
-	
-	gGameStateNext = GS_LEVELS;
 
 	// =====================================
 	// calculate the matrix for all objects
@@ -129,10 +122,6 @@ void GameStateWinUpdate() {
 	{
 		pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
-
-		//UNREFERENCED_PARAMETER(trans);
-		//UNREFERENCED_PARAMETER(rot);
-		//UNREFERENCED_PARAMETER(scale);
 
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
@@ -162,7 +151,6 @@ void GameStateWinDraw() {
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
 	AEGfxTextureSet(NULL, 0, 0);
 
-
 	// draw all object instances in the list
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
@@ -178,20 +166,24 @@ void GameStateWinDraw() {
 		AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 	}
 
-	//	Text for Win Screen
+	//	Render text for Win Screen
 	f32 TextWidth = 1.0f;
 	f32 TextHeight = 1.0f;
 	char strBuffer[100];
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
-	sprintf_s(strBuffer, "Mission completed");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.55f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Mission %d completed!", g_chosenLevel - 1);
+	AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 
-	//sprintf_s(strBuffer, "Time taken: %i", leveltime); // display how long taken to complete level.
-	//AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	//AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+	sprintf_s(strBuffer, "Time taken: %.2f seconds", levelTime); // display how long taken to complete level.
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, 0.05f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+
+	sprintf_s(strBuffer, "Press spacebar to continue"); 
+	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
+	AEGfxPrint(g_font20, strBuffer, 0.0f - TextWidth / 2, -0.20f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
 }
 
 /******************************************************************************/

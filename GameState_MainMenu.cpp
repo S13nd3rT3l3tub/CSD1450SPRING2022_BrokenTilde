@@ -199,7 +199,6 @@ void GameStateMainMenuLoad() {
 */
 /******************************************************************************/
 void GameStateMainMenuInit() {
-	//g_chosenLevel = 0;
 
 	AEGfxSetBackgroundColor(0.2f, 0.2f, 0.2f);
 
@@ -402,12 +401,9 @@ void GameStateMainMenuUpdate() {
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
 
-			/**********
-			update the position using: P1 = V1*dt + P0
-			Get the bouding rectangle of every active instance:
-				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			**********/
+			/********************************
+			update the positions of instances
+			********************************/
 
 			// ----- Update Position -----
 			pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -432,11 +428,6 @@ void GameStateMainMenuUpdate() {
 			// skip non-active object
 			if ((pInst->flag & FLAG_ACTIVE) == 0)
 				continue;
-
-			/*switch (pInst->pObject->type) {
-			default:
-				break;
-			}*/
 		}
 
 
@@ -448,10 +439,6 @@ void GameStateMainMenuUpdate() {
 		{
 			pInst = sGameObjInstList + i;
 			AEMtx33		 trans, rot, scale;
-
-			//UNREFERENCED_PARAMETER(trans);
-			//UNREFERENCED_PARAMETER(rot);
-			//UNREFERENCED_PARAMETER(scale);
 
 			// skip non-active object
 			if ((pInst->flag & FLAG_ACTIVE) == 0)
@@ -486,10 +473,8 @@ void GameStateMainMenuUpdate() {
 */
 /******************************************************************************/
 void GameStateMainMenuDraw() {
-	//char strBuffer[1024];
 
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
-
 
 	// =====================================
 	//		DRAW BACKGROUND
@@ -588,9 +573,6 @@ void GameStateMainMenuDraw() {
 	memset(strBuffer, 0, 100 * sizeof(char));
 	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
 
-	/*sprintf_s(strBuffer, "Current Time : %.2f", levelTime);
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.8f - TextWidth / 2, 0.9f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);*/
 	switch (screen)
 	{
 	case CREDIT_SCREEN:
@@ -757,7 +739,7 @@ void GameStateMainMenuUnload() {
 	AEGfxTextureUnload(buttonTexture_YES);
 	AEGfxTextureUnload(buttonTexture_NO);
 
-	soundChannel->stop();
+	soundChannel->stop(); //stop background music
 		
 	// free all mesh data (shapes) of each object using "AEGfxTriFree"
 	for (unsigned long i = 0; i < sGameObjNum; i++) {

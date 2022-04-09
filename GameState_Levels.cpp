@@ -342,19 +342,7 @@ void GameStateLevelsLoad(void)
 		gGameStateNext = GS_QUIT;
 
 
-	//Computing the matrix which take a point out of the normalized coordinates system
-	//of the binary map
-	/***********
-	Compute a transformation matrix and save it in "MapTransform".
-	This transformation transforms any point from the normalized coordinates system of the binary map.
-	Later on, when rendering each object instance, we should concatenate "MapTransform" with the
-	object instance's own transformation matrix
-
-	Compute a translation matrix (-Grid width/2, -Grid height/2) and save it in "trans"
-	Compute a scaling matrix and save it in "scale". The scale must account for the window width and height.
-		Alpha engine has 2 helper functions to get the window width and height: AEGetWindowWidth() and AEGetWindowHeight()
-	Concatenate scale and translate and save the result in "MapTransform"
-	***********/
+	//Computing the matrix which take a point out of the normalized coordinates system of the binary map
 	AEMtx33 scale, trans;
 
 	AEMtx33Trans(&trans, static_cast<f32>(-(BINARY_MAP_WIDTH / 2)), static_cast<f32>(-(BINARY_MAP_HEIGHT / 2)));
@@ -398,22 +386,6 @@ void GameStateLevelsInit(void)
 			Pos.y = row + 0.5f;
 
 			switch (GetCellValue(col, row, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT)) {
-				//	Boundary walls - Top and Bottom
-				//case 1:
-				//	platScale = { 150, 50 };
-				//	platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
-				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
-				//	break;
-				////	Platforms
-				//case 2:
-				//	platScale = { 150, 25 };
-				//	platPos = { AEGfxGetWinMinX() + (col * 120), AEGfxGetWinMaxY() - (row * 120) };
-				//	gameObjInstCreate(TYPE_PLATFORM, &platScale, &platPos, nullptr, 0);
-				//	break;
-
-			//case TYPE_PLATFORM:
-			//	gameObjInstCreate(TYPE_PLATFORM, &PLATFORM_SCALE, &Pos, nullptr, 0.0f, STATE::STATE_NONE);
-			//	break;
 			case TYPE_PLAYER:
 				PlayerBody = gameObjInstCreate(&sGameObjList[playerObjIndex], &PLAYER_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
 				PlayerGun = gameObjInstCreate(&sGameObjList[playerGunObjIndex], &GUN_SCALE, &Pos, nullptr, 0.0f, STATE_NONE);
@@ -459,8 +431,9 @@ void GameStateLevelsUpdate(void)
 		}
 		break;
 	case GAME_WIN:
-		gGameStateNext = GS_MAINMENU;
+		gGameStateNext = GS_WINSCREEN;
 		gGameStateInnerState = GAME_PLAY;
+		++g_chosenLevel;
 		break;
 	case GAME_LOSE: {
 		if (playerdeathtimer == PLAYER_DEATH_ANIME_TIME) {
@@ -489,8 +462,6 @@ void GameStateLevelsUpdate(void)
 		}
 		else if (playerdeathtimer < 0)
 		{
-			//GameStateLevel1Load();
-			//GameStateLevel1Init();
 			gGameStateInnerState = GAME_PLAY;
 			gGameStateNext = GS_RESTART;
 			playerdeathtimer = 0;
@@ -517,13 +488,6 @@ void GameStateLevelsUpdate(void)
 			// skip non-active object
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
-
-			/**********
-			update the position using: P1 = V1*dt + P0
-			Get the bouding rectangle of every active instance:
-				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			**********/
 
 			// ----- Update Position -----
 			pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -552,10 +516,6 @@ void GameStateLevelsUpdate(void)
 		// Update level time
 		levelTime += g_dt;
 
-		/*if (scriptTimer1 > 0.0f) {
-			scriptTimer1 -= g_dt;
-		}*/
-
 		// Check win state
 		if (totalEnemyCount <= 0 && ammoCount > 1) {
 			gGameStateInnerState = GAME_WIN;
@@ -563,26 +523,8 @@ void GameStateLevelsUpdate(void)
 		// Check lose state
 		if (playerHealth <= 0.0f || ammoCount <= 0) {
 			playerHealth = 0;
-			//gameObjInstDestroy(PlayerGun);
-			//gameObjInstDestroy(PlayerBody);
 			playerdeathtimer = PLAYER_DEATH_ANIME_TIME;
 			gGameStateInnerState = GAME_LOSE;
-
-			//AEVec2 particleVel;
-			//for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
-			//{
-			//	AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
-			//	if (rand() % 2) // randomize polarity of particleVel.x
-			//	{
-			//		particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-			//		gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
-			//	}
-			//	else
-			//	{
-			//		particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-			//		gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
-			//	}
-			//}
 		}
 
 		// =========================
@@ -604,12 +546,8 @@ void GameStateLevelsUpdate(void)
 		{
 			AEVec2 added;
 			AEVec2Set(&added, 0.f, 1.f);
-			//if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0 && playerdeathtimer == 0) //Jump
-			//{									
-			//	AEVec2 added;
-			//	AEVec2Set(&added, 0.f, 1.f);
 
-				// Find the velocity according to the acceleration
+			// Find the velocity according to the acceleration
 			added.x *= 1;//PLAYER_ACCEL_FORWARD * g_dt;
 			added.y *= 20 * g_dt; //500
 
@@ -762,13 +700,6 @@ void GameStateLevelsUpdate(void)
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
 
-			/****************
-			Apply gravity
-				Velocity Y = Gravity * Frame Time + Velocity Y
-
-			If object instance is an enemy
-				Apply enemy state machine
-			****************/
 			if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
 				gameObjInstDestroy(pInst);
 
@@ -793,12 +724,9 @@ void GameStateLevelsUpdate(void)
 			if (0 == (pInst->flag & FLAG_ACTIVE))
 				continue;
 
-			/**********
-			update the position using: P1 = V1*dt + P0
-			Get the bouding rectangle of every active instance:
-				boundingRect_min = -BOUNDING_RECT_SIZE * instance->scale + instance->pos
-				boundingRect_max = BOUNDING_RECT_SIZE * instance->scale + instance->pos
-			**********/
+			/********************************
+			update the position of instances
+			********************************/
 
 			// ----- Update Position -----
 			pInst->posCurr.x += pInst->velCurr.x * g_dt;
@@ -837,25 +765,9 @@ void GameStateLevelsUpdate(void)
 			continue;
 
 
-		/*************
+		/*************************
 		Update grid collision flag
-
-		if collision from bottom
-			Snap to cell on Y axis
-			Velocity Y = 0
-
-		if collision from top
-			Snap to cell on Y axis
-			Velocity Y = 0
-
-		if collision from left
-			Snap to cell on X axis
-			Velocity X = 0
-
-		if collision from right
-			Snap to cell on X axis
-			Velocity X = 0
-		*************/
+		**************************/
 		int prevbounce = pInst->bounceCount;
 		if (pInst->pObject->type == TYPE_BULLET)
 		{
@@ -1059,18 +971,13 @@ void GameStateLevelsUpdate(void)
 		pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
 
-		//UNREFERENCED_PARAMETER(trans);
-		//UNREFERENCED_PARAMETER(rot);
-		//UNREFERENCED_PARAMETER(scale);
-
 		// skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
 
 		// Compute the scaling matrix
 		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
-		// Compute the rotation matrix 
-		//if (pInst->pObject->type == TYPE_BULLET || pInst->pObject->type == TYPE_PLATFORM) 
+
 		if (pInst->pObject->type == TYPE_BULLET)
 			AEMtx33Rot(&rot, 0);
 		else
@@ -1116,31 +1023,12 @@ void GameStateLevelsDraw(void)
 	//Drawing the tile map (the grid)
 	AEMtx33 cellTranslation, cellFinalTransformation;
 
-	//Drawing the tile map
-
-	/******REMINDER*****
-	You need to concatenate MapTransform with the transformation matrix
-	of any object you want to draw. MapTransform transform the instance
-	from the normalized coordinates system of the binary map
-	*******************/
-	/*********
-	for each array element in BinaryCollisionArray (2 loops)
-		Compute the cell's translation matrix acoording to its
-		X and Y coordinates and save it in "cellTranslation"
-		Concatenate MapTransform with the cell's transformation
-		and save the result in "cellFinalTransformation"
-		Send the resultant matrix to the graphics manager using "AEGfxSetTransform"
-
-		Draw the instance's shape depending on the cell's value using "AEGfxMeshDraw"
-			Use the black instance in case the cell's value is TYPE_OBJECT_EMPTY
-			Use the white instance in case the cell's value is TYPE_OBJECT_COLLISION
-	*********/
 	for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
 		for (int j = 0; j < BINARY_MAP_HEIGHT; ++j)
 		{
 			AEMtx33Trans(&cellTranslation, static_cast<f32>(AEGetWindowWidth() / BINARY_MAP_WIDTH * i), static_cast<f32>(AEGetWindowHeight() / BINARY_MAP_HEIGHT * j));
 
-			AEMtx33Trans(&cellTranslation, i + 0.5f, j - 0.5f);
+			AEMtx33Trans(&cellTranslation, i + 0.5f, j + 0.5f);
 
 			AEMtx33Concat(&cellFinalTransformation, &MapTransform, &cellTranslation);
 			AEGfxSetTransform(cellFinalTransformation.m);
@@ -1154,15 +1042,11 @@ void GameStateLevelsDraw(void)
 				AEGfxTextureSet(stoneTexture, 0.f, 0.f);
 				AEGfxMeshDraw(PlatformInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
-			else if (GetCellValue(i, j - 1, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT) // remove -1 after adding dirt texture
+			else if (GetCellValue(i, j, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == TYPE_DIRT)
 			{
+				AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+				AEGfxTextureSet(dirtTexture, 0.f, 0.f);
 				AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-			}
-			else
-			{
-				AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-				AEGfxTextureSet(NULL, 0, 0);
-				AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 			}
 		}
 	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
@@ -1198,24 +1082,8 @@ void GameStateLevelsDraw(void)
 		if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
 			continue;
 
-		//Don't forget to concatenate the MapTransform matrix with the transformation of each game object instance
-		//AEMtx33 concatTransform{};
-		//AEMtx33Concat(&concatTransform, &MapTransform, &pInst->transform);
-
-		// Set the current object instance's transform matrix using "AEGfxSetTransform"
-		//AEGfxSetTransform(concatTransform.m);
 		AEMtx33Concat(&cellFinalTransformation, &MapTransform, &pInst->transform);
 		AEGfxSetTransform(cellFinalTransformation.m);
-		// Draw the shape used by the current object instance using "AEGfxMeshDraw"
-		//if (pInst->pObject->type == TYPE_DIRT && pInst->state == STATE_ALERT) // particles for dirt destroy
-		//{
-		//	AEGfxSetTransparency(pInst->dirCurr);
-		//	if (pInst->dirCurr <= 0)
-		//	{
-		//		gameObjInstDestroy(pInst);
-		//	}
-		//	pInst->dirCurr -= g_dt;
-		//}
 		if (pInst->pObject->type == TYPE_PARTICLE1) // Particle transparancy handler
 		{
 			AEGfxSetTransparency(pInst->dirCurr);
@@ -1226,11 +1094,11 @@ void GameStateLevelsDraw(void)
 
 			if (pInst->state == STATE_ALERT)
 			{
-				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f); //0.5f, 0.1f, 0.f, 1.f alt color
+				AEGfxSetBlendColor(1.0f, 0.35f, 0.0f, 1.f);
 			}
 			pInst->dirCurr -= g_dt;
 		}
-		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)             // uncomment this if want to hide enemy line of sight
+		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)           
 		{
 			AEGfxSetTransparency(0.f);
 		}
@@ -1251,16 +1119,6 @@ void GameStateLevelsDraw(void)
 	}
 
 	//// ----- Drawing UI elements -----
-
-	//// ----- Draw ammo count on screen -----
-	//// Find offset transform from player's position	
-	//AEMtx33 translate, transform;
-	//// Compute the translation matrix
-	//AEMtx33Trans(&translate, PlayerBody->posCurr.x - 0.75f, PlayerBody->posCurr.y - 1.0f);
-	//// Concat with map transform
-	//AEMtx33Concat(&transform, &MapTransform, &translate);
-	//// Set transform
-	//AEGfxSetTransform(transform.m);
 
 	//	Drawing for Font for all states
 	f32 TextWidth = 1.0f;
@@ -1303,40 +1161,6 @@ void GameStateLevelsDraw(void)
 		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
 		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
 	}
-
-	// Tutorial text scripts
-	//sprintf_s(strBuffer, "Use A & D keys to move left & right!");
-	//AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	//AEGfxPrint(g_font20, strBuffer, -0.9f, -0.5f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-
-	/*sprintf_s(strBuffer, "D key - Move Right");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.85f - TextWidth / 2, 0.50f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "W key - Jump Up");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.40f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Left mouse button - Fire bullet");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, 0.70f - TextWidth / 2, 0.30f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Use the walls to ricochet your bullets");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.75f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-	sprintf_s(strBuffer, "to destroy the enemy tanks");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, 0.65f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "Destroy all enemy tanks");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.15f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
-
-	sprintf_s(strBuffer, "to clear the level");
-	AEGfxGetPrintSize(g_font20, strBuffer, 1.0f, TextWidth, TextHeight);
-	AEGfxPrint(g_font20, strBuffer, -0.40f - TextWidth / 2, -0.25f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);*/
-
 }
 
 /******************************************************************************/
