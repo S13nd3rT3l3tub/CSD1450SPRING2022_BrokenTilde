@@ -358,18 +358,18 @@ void GameStateLevelsLoad(void)
 /******************************************************************************/
 void GameStateLevelsInit(void)
 {
+	// Initialize variables to zero
 	levelTime = 0;
 	totalEnemyCount = 0;
 	// Set player's initial health
 	playerHealth = PLAYER_INITIAL_HEALTH;
-	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
-	EmptyInstance->flag ^= FLAG_VISIBLE;
-	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
 
+	// Create platform instance
 	PlatformInstance = gameObjInstCreate(&sGameObjList[platformObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;
 	PlatformInstance->flag |= FLAG_NON_COLLIDABLE;
 
+	// Create destructible platform instance
 	DirtInstance = gameObjInstCreate(&sGameObjList[dirtObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	DirtInstance->flag ^= FLAG_VISIBLE;
 	DirtInstance->flag |= FLAG_NON_COLLIDABLE;

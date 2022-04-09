@@ -71,8 +71,7 @@ void GameStateWinLoad() {
 */
 /******************************************************************************/
 void GameStateWinInit() {
-
-
+	//blank by design
 }
 
 /******************************************************************************/
@@ -197,13 +196,6 @@ void GameStateWinUpdate() {
 			// ----- Update Position -----
 			pInst->posCurr.x += pInst->velCurr.x * g_dt;
 			pInst->posCurr.y += pInst->velCurr.y * g_dt;
-
-			//// ----- Update Bounding Box -----
-			//pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-			//pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-
-			//pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-			//pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
 		}
 
 		// =====================================
