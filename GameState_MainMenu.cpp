@@ -108,83 +108,90 @@ void GameStateMainMenuLoad()
 	// =========================
 	// Load textures
 	// =========================
-	// Background texture
-	backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
-	AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+	{
+		// Background texture
+		backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
+		AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
 
-	// Start button texture
-	buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
-	AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
+		// Start button texture
+		buttonTexture_START = AEGfxTextureLoad(".\\Resources\\Assets\\start_button.png");
+		AE_ASSERT_MESG(buttonTexture_START, "failed to create start button texture");
 
-	// Options button texture
-	buttonTexture_OPTIONS = AEGfxTextureLoad(".\\Resources\\Assets\\option_button.png");
-	AE_ASSERT_MESG(buttonTexture_OPTIONS, "failed to create option button texture");
+		// Options button texture
+		buttonTexture_OPTIONS = AEGfxTextureLoad(".\\Resources\\Assets\\option_button.png");
+		AE_ASSERT_MESG(buttonTexture_OPTIONS, "failed to create option button texture");
 
-	// Credits button texture
-	buttonTexture_CREDITS = AEGfxTextureLoad(".\\Resources\\Assets\\credit_button.png");
-	AE_ASSERT_MESG(buttonTexture_CREDITS, "failed to create credit button texture");
+		// Credits button texture
+		buttonTexture_CREDITS = AEGfxTextureLoad(".\\Resources\\Assets\\credit_button.png");
+		AE_ASSERT_MESG(buttonTexture_CREDITS, "failed to create credit button texture");
 
-	// Quit button texture
-	buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
-	AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
+		// Quit button texture
+		buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
+		AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
 
-	// Toggle fullscreen button texture
-	buttonTexture_TOGGLE_FS = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_fs.png");
-	AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
+		// Toggle fullscreen button texture
+		buttonTexture_TOGGLE_FS = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_fs.png");
+		AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
 
-	// Toggle sound button texture
-	buttonTexture_TOGGLE_SOUND = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_sound.png");
-	AE_ASSERT_MESG(buttonTexture_TOGGLE_SOUND, "failed to create toggle sound button texture");
+		// Toggle sound button texture
+		buttonTexture_TOGGLE_SOUND = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_sound.png");
+		AE_ASSERT_MESG(buttonTexture_TOGGLE_SOUND, "failed to create toggle sound button texture");
 
-	// Return button texture
-	buttonTexture_RETURN = AEGfxTextureLoad(".\\Resources\\Assets\\return_button.png");
-	AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
+		// Return button texture
+		buttonTexture_RETURN = AEGfxTextureLoad(".\\Resources\\Assets\\return_button.png");
+		AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
 
-	// Yes button texture
-	buttonTexture_YES = AEGfxTextureLoad(".\\Resources\\Assets\\yes_button.png");
-	AE_ASSERT_MESG(buttonTexture_YES, "failed to create toggle fullscreen button texture");
+		// Yes button texture
+		buttonTexture_YES = AEGfxTextureLoad(".\\Resources\\Assets\\yes_button.png");
+		AE_ASSERT_MESG(buttonTexture_YES, "failed to create toggle fullscreen button texture");
 
-	// No button texture
-	buttonTexture_NO = AEGfxTextureLoad(".\\Resources\\Assets\\no_button.png");
-	AE_ASSERT_MESG(buttonTexture_NO, "failed to create toggle fullscreen button texture");
-
-	// =========================
-	// Create the Button Shape
-	// =========================
-	buttonObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_BUTTON;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
-		BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
-	AEGfxTriAdd(
-		BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
-		BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
-		-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ BUTTON_MESHSIZE.x, BUTTON_MESHSIZE.y };
-	AE_ASSERT_MESG(pObj->pMesh, "fail to create BUTTON object!!");
+		// No button texture
+		buttonTexture_NO = AEGfxTextureLoad(".\\Resources\\Assets\\no_button.png");
+		AE_ASSERT_MESG(buttonTexture_NO, "failed to create toggle fullscreen button texture");
+	}
 
 	// =========================
-	// Create the background mesh
+	// Create Meshes
 	// =========================
-	bgObjIndex = sGameObjNum;
-	pObj = sGameObjList + sGameObjNum++;
-	pObj->type = TYPE_BG;
-	AEGfxMeshStart();
-	AEGfxTriAdd(
-		-static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 1.0f,
-		static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
-	AEGfxTriAdd(
-		static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
-		static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 0.0f,
-		-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
-	pObj->pMesh = AEGfxMeshEnd();
-	pObj->meshSize = AEVec2{ 1.0f, 1.0f };
-	AE_ASSERT_MESG(pObj->pMesh, "Failed to create bgMesh!!");
+	{
+		// ----- Create the Button Shape -----
+		{
+			buttonObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_BUTTON;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+				BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+				-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ BUTTON_MESHSIZE.x, BUTTON_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create BUTTON object!!");
+		}
+
+		// ----- Create the background mesh ------
+		{
+			bgObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_BG;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 1.0f,
+				static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
+				-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
+				static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 0.0f,
+				-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ 1.0f, 1.0f };
+			AE_ASSERT_MESG(pObj->pMesh, "Failed to create bgMesh!!");
+		}
+	}
 
 	// Move camera to 0,0 in event menu is loaded after game
 	AEGfxSetCamPosition(0.0f, 0.0f);

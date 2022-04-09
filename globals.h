@@ -52,11 +52,13 @@ extern AEVec2		HEALTHBAR_SCALE;			// Health bar scale size
 const float			GRAVITY{ -9.8f };					// World gravity
 
 // Player
-const float			PLAYER_DEATH_ANIME_TIME{ 2.0f };	// Player death animation max time
-const float			PLAYER_INITIAL_HEALTH{ 100.0f };	// Player initial health
-const float			JUMP_VELOCITY{ 800.0f };			// Player jump speed
-const float			HOVER_VELOCITY{ 7.0f };				// Player hover speed
-const float			MOVE_VELOCITY{ 17.0f };				// Player move speed
+const float			PLAYER_DEATH_ANIME_TIME	{ 2.0f };	// Player death animation max time
+const float			PLAYER_INITIAL_HEALTH	{ 100.0f };	// Player initial health
+const float			JUMP_VELOCITY			{ 800.0f };	// Player jump speed
+const float			HOVER_VELOCITY			{ 7.0f };	// Player hover speed
+const float			FUEL_MAX_VALUE			{ 1.5f };	// Max amount of jump fuel
+const float			MOVE_VELOCITY			{ 17.0f };	// Player move speed
+
 
 // Enemy
 const float			MOVE_VELOCITY_ENEMY{ 2.5f };		// Enemy move speed

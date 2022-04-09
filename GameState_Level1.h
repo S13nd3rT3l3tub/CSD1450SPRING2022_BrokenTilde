@@ -1,11 +1,12 @@
 /*!
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
-@file       BinaryMap.cpp
+@file       GameState_Level1.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
+@role		
 *//*_________________________________________________________________________*/
 
+// ----- Include Guard ------
 #ifndef GAME_STATE_TUTORIAL_H_
 #define GAME_STATE_TUTORIAL_H_
 
