@@ -18,10 +18,11 @@ enemies in the level before proceeding to the next.
 
 By Broken Tidle - CSD1450 Sections C & D
 
-RTIS	Lee Hsien Wei, Joachim - Programmer
-RTIS	Zafir MOHAMAD	       - Programmer
-IMGD	Desmond Too Wei Kang   - Programmer
-RTIS	Leong Wai Kit	       - Programmer
+RTIS	Lee Hsien Wei, Joachim - Lead Programmer
+RTIS	Zafir MOHAMAD	       - Level design & simulation Programmer
+RTIS	Leong Wai Kit	       - Level design & UI Programmer 
+IMGD	Desmond Too Wei Kang   - Programmer & Artist
+
 
 Game Controls
 	A - to move left
@@ -31,7 +32,14 @@ Game Controls
 	RMB - to aim with projectile trajectory
 
 Tips
-	You are given limited ammo so use them wisely to dispense your enemies.
+	Make use of the bouncing bullets to dispense your enemies in creative ways.
+	You can destroy dirt blocks to create new lines of sights.
+	You have limited ammo so use them wisely.
+
+Performance
+	If you are playing on a laptop, be sure to turn off Window's power saving mode
+	and enable performance mode to run the game smoothly. Otherwise, the game may
+	feel slugglish.
 
 Cheatcode
 	Press down arrow key to instantly kill all enemies and proceed to next level.
