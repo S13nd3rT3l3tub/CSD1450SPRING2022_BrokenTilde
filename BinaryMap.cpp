@@ -6,7 +6,8 @@
 @role
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		
+@role		Authored CheckInstanceBinaryMapCollision_Bullet and parts of 
+			CheckInstanceBinaryMapCollision.
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role
@@ -26,8 +27,6 @@ int ImportMapDataFromFile(std::string FileName, int*** _MapData, int*** _BinaryC
 	std::fstream fs(FileName, std::ios_base::in);
 	// Check if file was unsuccessfully opened
 	if (!fs){
-		// Print out debug and return 0
-		//std::cout << "File " << FileName << " not found.\n";
 		return 0;
 	}
 

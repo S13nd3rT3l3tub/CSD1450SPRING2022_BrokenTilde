@@ -64,7 +64,7 @@ int WINAPI WinMain(HINSTANCE instanceH, HINSTANCE prevInstanceH, LPSTR command_l
 	#endif
 
 	// Initialize the system & window
-	AESysInit(instanceH, show, winWidth, winHeight, 1, 60, false, NULL);
+	AESysInit(instanceH, show, winWidth, winHeight, 0, 60, false, NULL);
 
 	// Changing the window title
 	AESysSetWindowTitle("Ricochet");

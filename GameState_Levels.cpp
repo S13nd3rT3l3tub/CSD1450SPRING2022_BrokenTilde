@@ -320,11 +320,6 @@ void GameStateLevelsInit(void)
 	playerDeathTimer = 0.0f;					// Timer for player defeat
 	playerHealth = PLAYER_INITIAL_HEALTH;	// Player health
 
-	//----- Create empty instance ------
-	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
-	EmptyInstance->flag ^= FLAG_VISIBLE;
-	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
-
 	// ----- Create platform instance -----
 	PlatformInstance = gameObjInstCreate(&sGameObjList[platformObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
 	PlatformInstance->flag ^= FLAG_VISIBLE;

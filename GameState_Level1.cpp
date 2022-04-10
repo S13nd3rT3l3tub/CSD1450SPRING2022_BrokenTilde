@@ -6,7 +6,7 @@
 @role		
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		
+@role		Physics, particle simulation
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role		
@@ -73,7 +73,7 @@ void GameStateLevel1Load(void)
 	// =========================
 	// Load/create the mesh data 
 	// Game objects / Shapes
-	// =========================	L
+	// =========================	
 	{
 		GameObj* pObj;
 		// ----- Create the non collidable shape -----
@@ -312,11 +312,6 @@ void GameStateLevel1Init(void)
 	totalEnemyCount = 0;						// Total enemies in level
 	playerDeathTimer = 0.0f;					// Timer for player defeat
 	playerHealth	= PLAYER_INITIAL_HEALTH;	// Player health
-
-	//----- Create empty instance ------
-	EmptyInstance = gameObjInstCreate(&sGameObjList[emptyObjIndex], &EMPTY_SCALE, 0, 0, 0.0f, STATE_NONE);
-	EmptyInstance->flag ^= FLAG_VISIBLE;
-	EmptyInstance->flag |= FLAG_NON_COLLIDABLE;
 	
 	// ----- Create platform instance -----
 	PlatformInstance = gameObjInstCreate(&sGameObjList[platformObjIndex], &PLATFORM_SCALE, 0, 0, 0.0f, STATE_NONE);
@@ -440,8 +435,6 @@ void GameStateLevel1Update(void)
 						{
 							gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // Orange particles
 						}
-						
-						
 					}
 					else
 					{
@@ -1189,12 +1182,6 @@ void GameStateLevel1Draw(void)
 					AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 					break;
 				}
-				// Anything else
-				//default: {
-				//	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-				//	AEGfxTextureSet(NULL, 0, 0);
-				//	AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-				//}
 			}
 		}
 	}
