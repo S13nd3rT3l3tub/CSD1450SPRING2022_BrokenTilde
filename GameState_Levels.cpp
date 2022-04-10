@@ -853,9 +853,6 @@ void GameStateLevelsUpdate(void)
 			AEVec2 BarrelEnd{}, dirBullet{};
 			// Shoot a bullet if left mouse button is triggered (Create a new object instance)
 			if (AEInputCheckReleased(VK_LBUTTON) && ammoCount > 0) {
-				// Variable declaration
-				AEVec2 dirBullet;
-
 				// Get the bullet's direction according to the player's direction
 				AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
 
