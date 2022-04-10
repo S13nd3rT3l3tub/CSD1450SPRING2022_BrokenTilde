@@ -700,6 +700,33 @@ void GameStateLevel1Update(void)
 			int i{};
 			GameObjInst* pInst;
 
+			//Update object instances physics and behavior
+			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+			{
+				pInst = sGameObjInstList + i;
+
+				// skip non-active object
+				if (0 == (pInst->flag & FLAG_ACTIVE))
+					continue;
+
+				// Destory player shot bullet after 3 bounces
+				if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
+					gameObjInstDestroy(pInst);
+
+				// Destory enemy shot bullet after it collides with environment
+				if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1)
+					gameObjInstDestroy(pInst);
+
+				// Apply gravity to enemies and player
+				if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
+					pInst->velCurr.y += GRAVITY * g_dt;
+
+				// Apply enemy state machine to enemy AI.
+				if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
+					EnemyStateMachine(pInst);
+				}
+			}
+
 			// Update object instances positions
 			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 			{
