@@ -205,6 +205,10 @@ extern unsigned long		sGameObjNum;								// The number of defined game objects
 extern GameObjInst			sGameObjInstList[GAME_OBJ_INST_NUM_MAX];	// Each element in this array represents a unique game object instance (sprite)
 extern unsigned long		sGameObjInstNum;							// The number of used game object instances
 
+// ----- Pause Menu Textures ------
+extern GameObjInst		sPauseMenuInstList[GAME_OBJ_INST_NUM_MAX];	// Each element in this array represents a unique game object instance for Pause Menu(sprite)
+extern unsigned long	sPauseMenuInstNum;							// The number of used game object instances for Pause Menu
+
 // Pointer to specific game object instances
 extern GameObjInst* PlayerBody;			// Player object instance
 extern GameObjInst* PlayerGun;			// Player barrel object instance
@@ -255,6 +259,27 @@ extern int		g_chosenLevel;			// Chosen level number
 extern AEGfxTexture* stoneTexture;	// Stone texture
 extern AEGfxTexture* dirtTexture;	// Dirt texture
 
+// ----- Textures ------
+extern AEGfxTexture* backgroundTexture;				// Background texture	
+extern AEGfxTexture* buttonTexture_QUIT;			// Quit game button texture
+extern AEGfxTexture* buttonTexture_OPTIONS;			// Options button texture
+extern AEGfxTexture* buttonTexture_RETURN;			// Return button texture
+extern AEGfxTexture* buttonTexture_TOGGLE_FS;		// Toggle fullscreen button texture
+extern AEGfxTexture* buttonTexture_TOGGLE_SOUND;	// Toggle sound button texture
+extern AEGfxTexture* buttonTexture_YES;				// Yes button texture
+extern AEGfxTexture* buttonTexture_NO;				// No button texture
+
+// Pointer to specific game object instances
+extern GameObjInst* ButtonInstance_QUIT;			// Quit button object instance
+extern GameObjInst* ButtonInstance_OPTIONS;			// Options button object instance
+extern GameObjInst* ButtonInstance_QUIT;			// Quit button object instance
+extern GameObjInst* ButtonInstance_OPTIONS;			// Options button object instance
+extern GameObjInst* ButtonInstance_TOGGLE_FS;		// Toggle fullscreen button object instance
+extern GameObjInst* ButtonInstance_TOGGLE_SOUND;	// Toggle sound button object instance
+extern GameObjInst* ButtonInstance_RETURN;			// Return button object instance
+extern GameObjInst* ButtonInstance_YES;				// Yes button object instance
+extern GameObjInst* ButtonInstance_NO;				// No button object instancce
+
 /******************************************************************************/
 /*!
 	Helper Functions
@@ -268,5 +293,13 @@ GameObjInst*	gameObjInstCreate(GameObj* objType, AEVec2* scale,
 void			gameObjInstDestroy(GameObjInst* pInst);
 // Enemy state machine
 void			EnemyStateMachine(GameObjInst* pInst);
+
+//	Create Pause Menu
+void			PauseMenu();
+
+//	Function to create a game object instance for Pause Menu
+GameObjInst* PauseMenuInstCreate(GameObj* objType, AEVec2* scale,
+	AEVec2* pPos, AEVec2* pVel,
+	float dir, enum STATE startState);
 
 #endif 
