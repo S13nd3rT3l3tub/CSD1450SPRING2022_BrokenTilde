@@ -396,9 +396,9 @@ void GameStateLevelsUpdate(void)
 	// Switch logic based on the InnerState of the current game stae
 	switch (gGameStateInnerState) {
 		// Pause State
-	case GAME_PAUSE: {
-		// Pause sound channel
-		soundChannel->setPaused(true);
+		case GAME_PAUSE: {
+			// Pause sound channel
+			soundChannel->setPaused(true);
 
 			// Check if game is to be unpaused
 			if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
@@ -464,6 +464,7 @@ void GameStateLevelsUpdate(void)
 			// Restart the level
 			gGameStateNext = GS_RESTART;
 			// Reload level data
+			FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 			if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 				gGameStateNext = GS_QUIT;
 			break;

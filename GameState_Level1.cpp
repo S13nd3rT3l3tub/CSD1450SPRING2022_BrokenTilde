@@ -400,6 +400,7 @@ void GameStateLevel1Update(void)
 				gGameStateNext = GS_RESTART;		// Update nextState to restart
 				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
 				// Reload level data
+				FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 				if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 					gGameStateNext = GS_QUIT;
 
