@@ -44,6 +44,10 @@ extern AEVec2		EMPTY_SCALE;				// Void scale size
 extern AEVec2		HEALTHBAR_MESHSIZE;			// Health bar mesh size
 extern AEVec2		HEALTHBAR_SCALE;			// Health bar scale size
 
+// ----- Mesh Sizes & Scales -----
+extern AEVec2		BUTTON_MESHSIZE;			// Button mesh size
+extern AEVec2		BUTTON_SCALE;				// Button scale size
+
 // ----- Gameplay Related Variables -----
 // Environment
 const float			GRAVITY{ -9.8f };					// World gravity
@@ -125,6 +129,29 @@ enum INNER_GAME_STATE {
 	GAME_PLAY,
 	GAME_WIN,
 	GAME_LOSE
+};
+
+//	Menu button types
+enum BUTTON_TYPE {
+	START_GAME = 1,
+	OPTIONS,
+	CREDITS,
+	EXIT_GAME,
+	RETURN,
+	TOGGLE_FS,
+	TOGGLE_SOUND,
+	YES,
+	NO,
+	BG
+};
+
+//	Menu Screen Types
+enum SCREEN_TYPE {
+	MAIN_SCREEN = 0,
+	CREDIT_SCREEN,
+	OPTION_SCREEN,
+	EXIT_SCREEN,
+	GAME_SCREEN
 };
 
 /******************************************************************************/

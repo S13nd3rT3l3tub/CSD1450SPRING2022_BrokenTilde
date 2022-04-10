@@ -29,25 +29,7 @@
 	Enums/Struct/Class Definitions
 */
 /******************************************************************************/
-enum BUTTON_TYPE {
-	START_GAME = 1,
-	OPTIONS,
-	CREDITS,
-	EXIT_GAME,
-	RETURN,
-	TOGGLE_FS,
-	TOGGLE_SOUND,
-	YES,
-	NO,
-	BG
-};
 
-enum SCREEN_TYPE {
-	MAIN_SCREEN = 0,
-	CREDIT_SCREEN,
-	OPTION_SCREEN,
-	EXIT_SCREEN
-};
 
 
 /******************************************************************************/
@@ -66,10 +48,6 @@ AEGfxTexture* buttonTexture_TOGGLE_SOUND{};		// Toggle sound button texture
 AEGfxTexture* buttonTexture_RETURN{};			// Return button texture
 AEGfxTexture* buttonTexture_YES{};				// Yes button texture
 AEGfxTexture* buttonTexture_NO{};				// No button texture
-
-// ----- Mesh Sizes & Scales -----
-AEVec2		BUTTON_MESHSIZE { 500.0f, 100.0f };		// Button mesh size
-AEVec2		BUTTON_SCALE	{ 1.0f, 1.0f };			// Button scale size
 
 // Pointer to specific game object instances
 static GameObjInst* ButtonInstance_START;			// Start button object instance

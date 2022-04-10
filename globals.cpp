@@ -37,6 +37,10 @@ AEVec2		EMPTY_SCALE			{ 1.0f, 1.0f };		// Void scale size
 AEVec2		HEALTHBAR_MESHSIZE	{ 0.1f, 0.75f };	// Health bar mesh size
 AEVec2		HEALTHBAR_SCALE		{ 15.0f, 0.5f, };	// Health bar scale size
 
+// ----- Mesh Sizes & Scales -----
+AEVec2		BUTTON_MESHSIZE{ 500.0f, 100.0f };		// Button mesh size
+AEVec2		BUTTON_SCALE{ 1.0f, 1.0f };				// Button scale size
+
 /******************************************************************************/
 /*!
 	Static Variables
