@@ -37,7 +37,7 @@
 /******************************************************************************/
 static std::string levelFileName{ "" };
 
-
+static enum	SCREEN_TYPE	screen;						// Variable to store the current screen to display
 /******************************************************************************/
 /*!
 	Helper Functions
@@ -284,6 +284,79 @@ void GameStateLevelsLoad(void)
 			pObj->meshSize = AEVec2{ HEALTHBAR_MESHSIZE.x, HEALTHBAR_MESHSIZE.y };
 			AE_ASSERT_MESG(pObj->pMesh, "fail to create healthbar object!!");
 		}
+		// ----- Create the background mesh ------
+		{
+			bgObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_BG;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 1.0f,
+				static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
+				-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				static_cast<float>(winWidth) / 2, -static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 1.0f,
+				static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 1.0f, 0.0f,
+				-static_cast<float>(winWidth) / 2, static_cast<float>(winHeight) / 2, 0x00FFFFFF, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ 1.0f, 1.0f };
+			AE_ASSERT_MESG(pObj->pMesh, "Failed to create bgMesh!!");
+		}
+		// ----- Create the Button Shape -----
+		{
+			buttonObjIndex = sGameObjNum;
+			pObj = sGameObjList + sGameObjNum++;
+			pObj->type = TYPE_BUTTON;
+			AEGfxMeshStart();
+			AEGfxTriAdd(
+				-BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 1.0f,
+				BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+			AEGfxTriAdd(
+				BUTTON_MESHSIZE.x / 2, -BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 1.0f,
+				BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 1.0f, 0.0f,
+				-BUTTON_MESHSIZE.x / 2, BUTTON_MESHSIZE.y / 2, 0xFF4D5853, 0.0f, 0.0f);
+			pObj->pMesh = AEGfxMeshEnd();
+			pObj->meshSize = AEVec2{ BUTTON_MESHSIZE.x, BUTTON_MESHSIZE.y };
+			AE_ASSERT_MESG(pObj->pMesh, "fail to create BUTTON object!!");
+		}
+	}
+
+	// =========================
+	// Load textures for Pause Menu
+	// =========================
+	{
+		// Background texture
+		backgroundTexture = AEGfxTextureLoad(".\\Resources\\Assets\\background.png");
+		AE_ASSERT_MESG(backgroundTexture, "failed to create background texture");
+
+		// Options button texture
+		buttonTexture_OPTIONS = AEGfxTextureLoad(".\\Resources\\Assets\\option_button.png");
+		AE_ASSERT_MESG(buttonTexture_OPTIONS, "failed to create option button texture");
+
+		// Quit button texture
+		buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
+		AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
+
+		// Toggle fullscreen button texture
+		buttonTexture_TOGGLE_FS = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_fs.png");
+		AE_ASSERT_MESG(buttonTexture_TOGGLE_FS, "failed to create toggle fullscreen button texture");
+
+		// Toggle sound button texture
+		buttonTexture_TOGGLE_SOUND = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_sound.png");
+		AE_ASSERT_MESG(buttonTexture_TOGGLE_SOUND, "failed to create toggle sound button texture");
+
+		// Return button texture
+		buttonTexture_RETURN = AEGfxTextureLoad(".\\Resources\\Assets\\return_button.png");
+		AE_ASSERT_MESG(buttonTexture_RETURN, "failed to create toggle return button texture");
+
+		// Yes button texture
+		buttonTexture_YES = AEGfxTextureLoad(".\\Resources\\Assets\\yes_button.png");
+		AE_ASSERT_MESG(buttonTexture_YES, "failed to create toggle yes button texture");
+
+		// No button texture
+		buttonTexture_NO = AEGfxTextureLoad(".\\Resources\\Assets\\no_button.png");
+		AE_ASSERT_MESG(buttonTexture_NO, "failed to create toggle no button texture");
 	}
 
 	// =====================
@@ -393,6 +466,146 @@ void GameStateLevelsUpdate(void)
 	switch (gGameStateInnerState) {
 		// Pause State
 		case GAME_PAUSE: {
+			//	Check input for left mouse click
+			if (AEInputCheckReleased(VK_LBUTTON)) {
+				// Switch logic based on the current display screen
+				switch (screen) {
+					// Main Menu
+					case SCREEN_TYPE::MAIN_SCREEN: {
+						// Check if mouse clicked on Options button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_OPTIONS->boundingBox)) {
+							//	Update current display screen to Options
+							screen = SCREEN_TYPE::OPTION_SCREEN;
+							AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
+							AEGfxGetCamPosition(&pos.x, &pos.y);
+							// Create instance of background to overlay over the main menu
+							GameObjInst* bg{ PauseMenuInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE) };
+							bg->sub_type = BUTTON_TYPE::BG;
+
+							// Create Toggle Fullscreen button
+							scaling = { 1.0f, 1.0f };
+							AEGfxGetCamPosition(&pos.x, &pos.y);
+							pos = { pos.x + 0.0f, pos.y - 0.0f };
+							ButtonInstance_TOGGLE_FS = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+							ButtonInstance_TOGGLE_FS->sub_type = BUTTON_TYPE::TOGGLE_FS;
+
+							// Create Toggle Sound button
+							scaling = { 1.0f, 1.0f };
+							AEGfxGetCamPosition(&pos.x, &pos.y);
+							pos = { pos.x + 0.0f, pos.y - 130.0f };
+							ButtonInstance_TOGGLE_SOUND = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+							ButtonInstance_TOGGLE_SOUND->sub_type = BUTTON_TYPE::TOGGLE_SOUND;
+
+							// Create Return button
+							scaling = { 1.0f, 1.0f };
+							AEGfxGetCamPosition(&pos.x, &pos.y);
+							pos = { pos.x + 0, pos.y - 300.0f };
+							ButtonInstance_RETURN = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+							ButtonInstance_RETURN->sub_type = BUTTON_TYPE::RETURN;
+						}
+
+						// Check if mosue was clicked on Return button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox)) {
+							screen = SCREEN_TYPE::GAME_SCREEN;
+							gGameStateInnerState = GAME_PLAY;
+						}
+
+
+						// Check if mosue was clicked on Quit button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox)) {
+							// Update current display screen to exit confirmation
+							screen = SCREEN_TYPE::EXIT_SCREEN;
+							AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
+							AEGfxGetCamPosition(&pos.x, &pos.y);
+							// Create instance of background to overlay over the main menu
+							GameObjInst* bg{ PauseMenuInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos, 0, 0.0f, STATE_NONE) };
+							bg->sub_type = BUTTON_TYPE::BG;
+
+							// Create Yes button
+							scaling = { 0.5f, 0.5f };
+							AEGfxGetCamPosition(&pos.x, &pos.y);
+							pos = { pos.x - 300.0f, pos.y - 300.0f };
+							ButtonInstance_YES = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+							ButtonInstance_YES->sub_type = BUTTON_TYPE::YES;
+
+							// Create No button
+							scaling = { 0.5f, 0.5f };
+							AEGfxGetCamPosition(&pos.x, &pos.y);
+							pos = { pos.x + 300.0f , pos.y - 300.0f };
+							ButtonInstance_NO = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+							ButtonInstance_NO->sub_type = BUTTON_TYPE::NO;
+						}
+						break;
+					}
+					// Options
+					case SCREEN_TYPE::OPTION_SCREEN: {
+						//	Check if mouse was clicked on Toggle Fullscreen button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_FS->boundingBox)) {
+							// Invert flag variable's current value
+							toFullScreen = !toFullScreen;
+							// Set fullscreen
+							AEToogleFullScreen(toFullScreen);
+						}
+
+						//	Check if mouse was clicked on Toggle Sound button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_TOGGLE_SOUND->boundingBox)) {
+							// Invert flag variable's current value
+							soundVolumeLevel = !soundVolumeLevel;
+							// Based on value, set whether to mute the channel or set volume
+							if (soundVolumeLevel)
+								soundChannel->setVolume(0.7f);
+							else
+								soundChannel->setVolume(0.0f);
+						}
+
+						//	Check if mouse was clicked on Return button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox)) {
+							// Update screen display to main menu
+							screen = SCREEN_TYPE::MAIN_SCREEN;
+							PauseMenu();
+						}
+						break;
+					}
+					// Exit Confirmation
+					case EXIT_SCREEN: {
+						// Check if mouse was clicked on Yes button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_YES->boundingBox))
+							gGameStateNext = GS_MAINMENU;	// Return to Main menu
+
+						// Check if mouse was clicked on No button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_NO->boundingBox)) {
+							// Update display screen to be main menu
+							screen = SCREEN_TYPE::MAIN_SCREEN;
+							PauseMenu();
+						}
+						break;
+					}
+				}
+			}
+			// Variable declaration
+			int i{};
+			GameObjInst* pInst;
+
+			// Update object instances positions
+			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+			{
+				pInst = sPauseMenuInstList + i;
+
+				// skip non-active object
+				if (0 == (pInst->flag & FLAG_ACTIVE))
+					continue;
+
+				// ----- Update Position -----
+				pInst->posCurr.x += pInst->velCurr.x * g_dt;
+				pInst->posCurr.y += pInst->velCurr.y * g_dt;
+
+				// ----- Update Bounding Box -----
+				pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+				pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+
+				pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+				pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+			}
 			// Pause sound channel
 			soundChannel->setPaused(true);
 
@@ -523,7 +736,12 @@ void GameStateLevelsUpdate(void)
 		{
 			// Check if escape key is pressed
 			if (AEInputCheckReleased(AEVK_ESCAPE))
+			{
 				gGameStateInnerState = GAME_PAUSE;	// Update innerState to pause state
+				//	Update current display screen to Options
+				screen = SCREEN_TYPE::MAIN_SCREEN;
+				PauseMenu();
+			}
 
 			// Check if down arrow key was pressed (Cheatcode to go next level)
 			if (AEInputCheckReleased(AEVK_DOWN))
@@ -1093,6 +1311,29 @@ void GameStateLevelsUpdate(void)
 	}
 
 	// =====================================
+	// Calculate the matrix for all Pause Menu objects
+	// =====================================
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+		pInst = sPauseMenuInstList + i;
+		AEMtx33		 trans, rot, scale;
+
+		// skip non-active object
+		if ((pInst->flag & FLAG_ACTIVE) == 0)
+			continue;
+
+		// Compute the scaling matrix
+		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
+		// Compute the rotation matrix 	
+		AEMtx33Rot(&rot, pInst->dirCurr);
+		// Compute the translation matrix
+		AEMtx33Trans(&trans, pInst->posCurr.x, pInst->posCurr.y);
+		// Concatenate the 3 matrix in the correct order in the object instance's "transform" matrix
+		AEMtx33Concat(&pInst->transform, &rot, &scale);
+		AEMtx33Concat(&pInst->transform, &trans, &pInst->transform);
+	}
+
+	// =====================================
 	// Camera 
 	// =====================================
 	{
@@ -1296,25 +1537,84 @@ void GameStateLevelsDraw(void)
 
 	// ----- Render Pause Menu ------
 	if (gGameStateInnerState == GAME_PAUSE) {
-		// Inform player of pause state
-		sprintf_s(strBuffer, "GAME PAUSED");
-		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.4f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
-	
-		// Inform player of key press to continue game
-		sprintf_s(strBuffer, "Press 'Esc' to Continue Game");
-		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
-		
-		// Inform player of key press to restart game
-		sprintf_s(strBuffer, "Press 'R' to Restart Level");
-		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		// Set background color
+		AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
-		// Inform player of key press to return to main menu
-		sprintf_s(strBuffer, "Press 'M' to Return to Main Menu");
-		AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
-		AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, -0.2f - TextHeight / 2, 1.0f, 1.f, 1.f, 0.f);
+		// Set render settings
+		AEGfxSetBlendMode(AE_GFX_BM_NONE);
+		AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 0.0f);
+
+		// draw all object instances in the list
+		for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+		{
+			GameObjInst* pInst = sPauseMenuInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
+				continue;
+
+			// Set the current object instance's transform matrix using "AEGfxSetTransform"
+			AEGfxSetTransform(pInst->transform.m);
+			// ----- Render objects on screen ------
+			// Switch texture based on the button type
+			switch (pInst->sub_type) {
+				// Exit game
+				case BUTTON_TYPE::EXIT_GAME: {
+					AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
+					break;
+				}
+				// Options
+				case BUTTON_TYPE::OPTIONS: {
+					AEGfxTextureSet(buttonTexture_OPTIONS, 0.0f, 0.0f);
+					break;
+				}
+				// Toggle Fullscreen
+				case BUTTON_TYPE::TOGGLE_FS: {
+					AEGfxTextureSet(buttonTexture_TOGGLE_FS, 0.0f, 0.0f);
+					break;
+				}
+				// Toggle Sound
+				case BUTTON_TYPE::TOGGLE_SOUND: {
+					AEGfxTextureSet(buttonTexture_TOGGLE_SOUND, 0.0f, 0.0f);
+					break;
+				}
+				// Return
+				case BUTTON_TYPE::RETURN: {
+					AEGfxTextureSet(buttonTexture_RETURN, 0.0f, 0.0f);
+					break;
+				}
+				// Yes
+				case BUTTON_TYPE::YES: {
+					AEGfxTextureSet(buttonTexture_YES, 0.0f, 0.0f);
+					break;
+				}
+				// No
+				case BUTTON_TYPE::NO: {
+					AEGfxTextureSet(buttonTexture_NO, 0.0f, 0.0f);
+					break;
+				}
+				// Background
+				case BUTTON_TYPE::BG: {
+					AEGfxTextureSet(backgroundTexture, 0.0f, 0.0f);
+					break;
+				}
+			}
+			AEGfxMeshDraw(pInst->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
+		}
+
+		// Set render mode
+		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+
+		switch (screen) {
+			//	Exit Confirmation to Menu
+			case SCREEN_TYPE::EXIT_SCREEN: {
+				sprintf_s(strBuffer, "Are you sure you want to exit to Main Menu?");
+				AEGfxGetPrintSize(g_font30, strBuffer, 1.0f, TextWidth, TextHeight);
+				AEGfxPrint(g_font30, strBuffer, 0.0f - TextWidth / 2, 0.0f - TextHeight / 2, 1.0f, 1.f, 1.f, 1.f);
+				break;
+			}
+		}
 	}
 }
 
@@ -1359,4 +1659,11 @@ void GameStateLevelsUnload(void)
 	stoneTexture = nullptr;
 	AEGfxTextureUnload(dirtTexture);
 	dirtTexture = nullptr;
+
+	AEGfxTextureUnload(backgroundTexture);
+	AEGfxTextureUnload(buttonTexture_QUIT);
+	AEGfxTextureUnload(buttonTexture_OPTIONS);
+	AEGfxTextureUnload(buttonTexture_TOGGLE_FS);
+	AEGfxTextureUnload(buttonTexture_TOGGLE_SOUND);
+	AEGfxTextureUnload(buttonTexture_RETURN);
 }

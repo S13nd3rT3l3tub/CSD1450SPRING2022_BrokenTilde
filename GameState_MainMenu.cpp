@@ -37,29 +37,13 @@
 	(Static) Variables
 */
 /******************************************************************************/
-// ----- Textures ------
-AEGfxTexture* backgroundTexture{};				// Background texture	
+// ----- Textures ------	
 AEGfxTexture* buttonTexture_START{};			// Start game button texture
-AEGfxTexture* buttonTexture_QUIT{};				// Quit game button texture
-AEGfxTexture* buttonTexture_OPTIONS{};			// Options button texture
 AEGfxTexture* buttonTexture_CREDITS{};			// Credits button texture
-AEGfxTexture* buttonTexture_TOGGLE_FS{};		// Toggle fullscreen button texture
-AEGfxTexture* buttonTexture_TOGGLE_SOUND{};		// Toggle sound button texture
-AEGfxTexture* buttonTexture_RETURN{};			// Return button texture
-AEGfxTexture* buttonTexture_YES{};				// Yes button texture
-AEGfxTexture* buttonTexture_NO{};				// No button texture
 
 // Pointer to specific game object instances
 static GameObjInst* ButtonInstance_START;			// Start button object instance
-static GameObjInst* ButtonInstance_QUIT;			// Quit button object instance
-static GameObjInst* ButtonInstance_OPTIONS;			// Options button object instance
 static GameObjInst* ButtonInstance_CREDITS;			// Credits button object instance
-static GameObjInst* ButtonInstance_TOGGLE_FS;		// Toggle fullscreen button object instance
-static GameObjInst* ButtonInstance_TOGGLE_SOUND;	// Toggle sound button object instance
-static GameObjInst* ButtonInstance_RETURN;			// Return button object instance
-static GameObjInst* ButtonInstance_YES;				// Yes button object instance
-static GameObjInst* ButtonInstance_NO;				// No button object instancce
-
 
 static enum	SCREEN_TYPE	screen;						// Variable to store the current screen to display
 
@@ -319,7 +303,7 @@ void GameStateMainMenuUpdate()
 							ButtonInstance_RETURN->sub_type = BUTTON_TYPE::RETURN;
 						}
 
-						// Check if mosue was clicked on Credits button
+						// Check if mosue was clicked on Quit button
 						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox)) {
 							// Update current display screen to exit confirmation
 							screen = SCREEN_TYPE::EXIT_SCREEN;
