@@ -16,13 +16,11 @@ ricochet projectiles off walls while being able to take multiple hits from oppos
 However, bullet ammunition is limited! The player must make each shot count and clear all 
 enemies in the level before proceeding to the next.
 
-By Broken Tidle - CSD1450 Sections C & D
-
-RTIS	Lee Hsien Wei, Joachim - Lead Programmer
-RTIS	Zafir MOHAMAD	       - Level design & simulation Programmer
-RTIS	Leong Wai Kit	       - Level design & UI Programmer 
-IMGD	Desmond Too Wei Kang   - Programmer & Artist
-
+Game installation instructions
+	1. Run Ricochet_Setup.exe
+	2. Allow app to make changes to device when prompted
+	3. Complete setup wizard
+	
 
 Game Controls
 	A - to move left
@@ -44,5 +42,38 @@ Performance
 
 Cheatcode
 	Press down arrow key to instantly kill all enemies and proceed to next level.
+
+
+Credits
+	Made by Broken Tidle - CSD1450 2022 Sections C & D:
+		Lee Hsien Wei, Joachim - Lead Programmer
+		Mohamed Zafir	       - Level design & simulation Programmer
+		Leong Wai Kit	       - UI Programmer 
+		Desmond Too Wei Kang   - Programmer & Artist
+
+	Instructors:
+		Cheng Ding Xiang
+		Gerald Wong Han Feng
+
+	President:
+		Claude Comair
+
+	Executives:
+		Jason Chu
+		Michele Comair
+		Prasanna Ghali
+		Melvin Gonsalvez
+		Ben Ellinger
+		Christopher Comair
+		Raymond Yan
+		John Bauer
+		Angela Kugler
+		Johnny Deek
+		Michael Gats
+		Samir Abou Samra
+		Dr. Erik Mohramann
+		Dr. Charles Duba
+
+All content © 2022 DigiPen Institute of Technology Singapore. All rights reserved.
 
 	
