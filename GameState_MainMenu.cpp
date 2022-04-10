@@ -780,12 +780,14 @@ void GameStateMainMenuFree() {
 */
 /******************************************************************************/
 void GameStateMainMenuUnload() {
+	// ----- Free Textures Used -----
 	AEGfxTextureUnload(backgroundTexture);
 	AEGfxTextureUnload(buttonTexture_START);
 	AEGfxTextureUnload(buttonTexture_QUIT);
 	AEGfxTextureUnload(buttonTexture_CREDITS);
 	AEGfxTextureUnload(buttonTexture_OPTIONS);
 	AEGfxTextureUnload(buttonTexture_TOGGLE_FS);
+	AEGfxTextureUnload(buttonTexture_TOGGLE_SOUND);
 	AEGfxTextureUnload(buttonTexture_RETURN);
 	AEGfxTextureUnload(buttonTexture_YES);
 	AEGfxTextureUnload(buttonTexture_NO);
