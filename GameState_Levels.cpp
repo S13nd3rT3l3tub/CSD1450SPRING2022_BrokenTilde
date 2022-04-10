@@ -383,7 +383,7 @@ void GameStateLevelsInit(void)
 	}
 
 	// Set ammo capacity based on the number of enemies in the level
-	ammoCount = static_cast<int>(totalEnemyCount * 4);
+	ammoCount = static_cast<int>(totalEnemyCount * 5.0f);
 }
 
 /******************************************************************************/
@@ -396,393 +396,393 @@ void GameStateLevelsUpdate(void)
 	// Switch logic based on the InnerState of the current game stae
 	switch (gGameStateInnerState) {
 		// Pause State
-		case GAME_PAUSE: {
-			// Pause sound channel
-			soundChannel->setPaused(true);
+	case GAME_PAUSE: {
+		// Pause sound channel
+		soundChannel->setPaused(true);
 
-			// Check if game is to be unpaused
-			if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
-				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-			else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
-				gGameStateNext = GS_RESTART;		// Update nextState to restart
-				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-				// Reload level data
-				if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
-					gGameStateNext = GS_QUIT;
-			}
-			else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
-				gGameStateNext = GS_MAINMENU;		// Update next state to main menu
-				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-			}
-			break;
+		// Check if game is to be unpaused
+		if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
+			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+		else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
+			gGameStateNext = GS_RESTART;		// Update nextState to restart
+			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			// Reload level data
+			if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+				gGameStateNext = GS_QUIT;
 		}
-		// Win State
-		case GAME_WIN: {
-			// Update next state to win screen state
-			gGameStateNext = GS_WINSCREEN;
+		else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
+			gGameStateNext = GS_MAINMENU;		// Update next state to main menu
+			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+		}
+		break;
+	}
+				   // Win State
+	case GAME_WIN: {
+		// Update next state to win screen state
+		gGameStateNext = GS_WINSCREEN;
+		// Update innerState to play state
+		gGameStateInnerState = GAME_PLAY;
+		// Increment chosen level
+		++g_chosenLevel;
+		break;
+	}
+				 // Lose State
+	case GAME_LOSE: {
+		// Check if it is the first time we are entering this innerState
+		if (playerDeathTimer == PLAYER_DEATH_ANIME_TIME) {
+			// Simulate/Create particles upon player death
+			AEVec2 particleVel;
+			for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
+			{
+				AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
+				if (rand() % 2) // randomize polarity of particleVel.x
+				{
+					particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+				}
+				else
+				{
+					particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+				}
+			}
+
+			// Destroy player instance
+			gameObjInstDestroy(PlayerGun);
+			gameObjInstDestroy(PlayerBody);
+		}
+
+		// ----- Post player death control ------
+		// Decrement timer
+		playerDeathTimer -= g_dt;
+		// Check if timer is less than 0
+		if (playerDeathTimer < 0)	// Restart level
+		{
 			// Update innerState to play state
 			gGameStateInnerState = GAME_PLAY;
-			// Increment chosen level
-			++g_chosenLevel;
+			// Restart the level
+			gGameStateNext = GS_RESTART;
+			// Reload level data
+			if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+				gGameStateNext = GS_QUIT;
 			break;
 		}
-		// Lose State
-		case GAME_LOSE: {
-			// Check if it is the first time we are entering this innerState
-			if (playerDeathTimer == PLAYER_DEATH_ANIME_TIME) {
-				// Simulate/Create particles upon player death
-				AEVec2 particleVel;
-				for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
+
+		// Variable declaration
+		int i{};
+		GameObjInst* pInst;
+
+		// Update object instances positions
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+			// ----- Update Position -----
+			pInst->posCurr.x += pInst->velCurr.x * g_dt;
+			pInst->posCurr.y += pInst->velCurr.y * g_dt;
+
+			// ----- Update Bounding Box -----
+			pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+
+			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+		}
+		break;
+	}
+				  // Play State		  
+	case GAME_PLAY: {
+		// Check if window was unfocused
+		if (winFocused == false)
+			gGameStateInnerState = GAME_PAUSE;	// Set innerState to pause state
+
+		// Check if sound is paused; If so, unpause it
+		bool result;
+		soundChannel->getPaused(&result);
+		if (result)
+			soundChannel->setPaused(false);
+
+		// Update level time
+		levelTime += g_dt;
+
+		// Check win condition
+		if (totalEnemyCount <= 0 && ammoCount > 1)
+			gGameStateInnerState = GAME_WIN;	// Update innerState to win state
+
+		// Check lose condition
+		if (playerHealth <= 0.0f || ammoCount <= 0) {
+			playerDeathTimer = PLAYER_DEATH_ANIME_TIME;	// Set timer to defined const
+			gGameStateInnerState = GAME_LOSE;			// Update innerState to lose state
+		}
+
+		// =========================
+		// Ipdate according to input
+		// =========================
+		{
+			// Check if escape key is pressed
+			if (AEInputCheckReleased(AEVK_ESCAPE))
+				gGameStateInnerState = GAME_PAUSE;	// Update innerState to pause state
+
+			// Check if down arrow key was pressed (Cheatcode to go next level)
+			if (AEInputCheckReleased(AEVK_DOWN))
+				totalEnemyCount = 0;	// Set enemy count in level to 0
+
+			// ----------------------------------------------------------------------------------------------------------------------------------------------
+			// Change the following input movement based on our player movement
+			// ----------------------------------------------------------------------------------------------------------------------------------------------
+			{
+				// Check if W key was pressed and there is jumpfuel
+				if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to thrust upward
 				{
-					AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
-					if (rand() % 2) // randomize polarity of particleVel.x
+					// Variable declaration
+					AEVec2 added;
+
+					// Add velocity to player
+					AEVec2Set(&added, 0.f, 1.f);
+					added.x *= 1;
+					added.y *= 20 * g_dt;
+					AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+
+					// Limit velocity
+					AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+
+					// Deplete jumpfuel
+					jumpFuel -= g_dt;
+
+					// Simulate/Create particles when thrust is active
+					AEVec2 particleVel = { 0, -1.5f };
+					for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
 					{
-						particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
-					}
-					else
-					{
-						particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+						AEVec2 particlespawn = { static_cast<float>(i), PlayerBody->posCurr.y - 0.5f };
+						if (rand() % 2) {
+
+							gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
+						}
+						else {
+							gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orange color
+						}
 					}
 				}
 
-				// Destroy player instance
-				gameObjInstDestroy(PlayerGun);
-				gameObjInstDestroy(PlayerBody);
-			}
-
-			// ----- Post player death control ------
-			// Decrement timer
-			playerDeathTimer -= g_dt;
-			// Check if timer is less than 0
-			if (playerDeathTimer < 0)	// Restart level
-			{
-				// Update innerState to play state
-				gGameStateInnerState = GAME_PLAY;
-				// Restart the level
-				gGameStateNext = GS_RESTART;
-				// Reload level data
-				if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
-					gGameStateNext = GS_QUIT;
-				break;
-			}
-
-			// Variable declaration
-			int i{};
-			GameObjInst* pInst;
-
-			// Update object instances positions
-			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-			{
-				pInst = sGameObjInstList + i;
-
-				// skip non-active object
-				if (0 == (pInst->flag & FLAG_ACTIVE))
-					continue;
-
-				// ----- Update Position -----
-				pInst->posCurr.x += pInst->velCurr.x * g_dt;
-				pInst->posCurr.y += pInst->velCurr.y * g_dt;
-
-				// ----- Update Bounding Box -----
-				pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-				pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-
-				pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-				pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-			}
-			break;
-		}
-		// Play State		  
-		case GAME_PLAY: {
-			// Check if window was unfocused
-			if (winFocused == false)
-				gGameStateInnerState = GAME_PAUSE;	// Set innerState to pause state
-
-			// Check if sound is paused; If so, unpause it
-			bool result;
-			soundChannel->getPaused(&result);
-			if (result)
-				soundChannel->setPaused(false);
-
-			// Update level time
-			levelTime += g_dt;
-
-			// Check win condition
-			if (totalEnemyCount <= 0 && ammoCount > 1) 
-				gGameStateInnerState = GAME_WIN;	// Update innerState to win state
-
-			// Check lose condition
-			if (playerHealth <= 0.0f || ammoCount <= 0) {
-				playerDeathTimer = PLAYER_DEATH_ANIME_TIME;	// Set timer to defined const
-				gGameStateInnerState = GAME_LOSE;			// Update innerState to lose state
-			}
-
-			// =========================
-			// Ipdate according to input
-			// =========================
-			{
-				// Check if escape key is pressed
-				if (AEInputCheckReleased(AEVK_ESCAPE))
-					gGameStateInnerState = GAME_PAUSE;	// Update innerState to pause state
-
-				// Check if down arrow key was pressed (Cheatcode to go next level)
-				if (AEInputCheckReleased(AEVK_DOWN))
-					totalEnemyCount = 0;	// Set enemy count in level to 0
-
-				// ----------------------------------------------------------------------------------------------------------------------------------------------
-				// Change the following input movement based on our player movement
-				// ----------------------------------------------------------------------------------------------------------------------------------------------
+				// Check if A or D key was pressed
+				if (AEInputCheckCurr(AEVK_A)) // Move left
 				{
-					// Check if W key was pressed and there is jumpfuel
-					if (AEInputCheckCurr(AEVK_W) && jumpFuel > 0) // Hold to thrust upward
-					{
-						// Variable declaration
-						AEVec2 added;
-						
-						// Add velocity to player
-						AEVec2Set(&added, 0.f, 1.f);
-						added.x *= 1;
-						added.y *= 20 * g_dt;
-						AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
+					// Variable declaration
+					AEVec2 added;
+					AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
 
-						// Limit velocity
-						AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.99f);
+					// Find the velocity according to the acceleration
+					added.x *= -MOVE_VELOCITY * g_dt;
+					added.y *= -MOVE_VELOCITY * g_dt;
+					AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 
-						// Deplete jumpfuel
-						jumpFuel -= g_dt;
+					// Limit velocity
+					AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
+				}
+				else if (AEInputCheckCurr(AEVK_D)) // Move right
+				{
+					// Variable declaration
+					AEVec2 added;
+					AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
 
-						// Simulate/Create particles when thrust is active
-						AEVec2 particleVel = { 0, -1.5f };
-						for (double i = PlayerBody->posCurr.x - 0.6; i < PlayerBody->posCurr.x + 0.6; i += ((1.f + rand() % 50) / 100.f))
-						{
-							AEVec2 particlespawn = { static_cast<float>(i), PlayerBody->posCurr.y - 0.5f };
-							if (rand() % 2) {
+					// Find the velocity according to the acceleration
+					added.x *= MOVE_VELOCITY * g_dt;
+					added.y *= MOVE_VELOCITY * g_dt;
+					AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
 
-								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_NONE); // red color
-							}
-							else {
-								gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 0.6f, STATE_ALERT); // orange color
-							}
-						}
-					}
-
-					// Check if A or D key was pressed
-					if (AEInputCheckCurr(AEVK_A)) // Move left
-					{
-						// Variable declaration
-						AEVec2 added;
-						AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
-
-						// Find the velocity according to the acceleration
-						added.x *= -MOVE_VELOCITY * g_dt;
-						added.y *= -MOVE_VELOCITY * g_dt;
-						AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-
-						// Limit velocity
-						AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
-					}
-					else if (AEInputCheckCurr(AEVK_D)) // Move right
-					{
-						// Variable declaration
-						AEVec2 added;
-						AEVec2Set(&added, cosf(PlayerBody->dirCurr), sinf(PlayerBody->dirCurr));
-
-						// Find the velocity according to the acceleration
-						added.x *= MOVE_VELOCITY * g_dt;
-						added.y *= MOVE_VELOCITY * g_dt;
-						AEVec2Add(&PlayerBody->velCurr, &PlayerBody->velCurr, &added);
-
-						// Limit velocity
-						AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
-					}
-
-					// Limit player movement velocity
+					// Limit velocity
 					AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
 				}
 
-				// ------------------------------------------------------------------------------------
-				// Change to bullet spawning on mouse click in direction
-				// ------------------------------------------------------------------------------------
+				// Limit player movement velocity
+				AEVec2Scale(&PlayerBody->velCurr, &PlayerBody->velCurr, 0.98f);
+			}
+
+			// ------------------------------------------------------------------------------------
+			// Change to bullet spawning on mouse click in direction
+			// ------------------------------------------------------------------------------------
+			// Variable declaration
+			AEVec2 BarrelEnd{}, dirBullet{};
+			// Shoot a bullet if left mouse button is triggered (Create a new object instance)
+			if (AEInputCheckReleased(VK_LBUTTON) && ammoCount > 0) {
 				// Variable declaration
-				AEVec2 BarrelEnd{}, dirBullet{};
-				// Shoot a bullet if left mouse button is triggered (Create a new object instance)
-				if (AEInputCheckReleased(VK_LBUTTON) && ammoCount > 0) {
-					// Variable declaration
-					AEVec2 dirBullet;
+				AEVec2 dirBullet;
 
-					// Get the bullet's direction according to the player's direction
-					AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+				// Get the bullet's direction according to the player's direction
+				AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
 
-					// Set the velocity
-					dirBullet.x *= BULLET_SPEED;
-					dirBullet.y *= BULLET_SPEED;
+				// Set the velocity
+				dirBullet.x *= BULLET_SPEED;
+				dirBullet.y *= BULLET_SPEED;
 
-					// Calculate end of gun barrel position
-					BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
-					BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
+				// Calculate end of gun barrel position
+				BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * 0.11f;
+				BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * 0.11f;
 
-					// Create projectile instance
-					gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
-					// Deplete ammoCount
-					--ammoCount;
-					
-					// Check soundVolume flag variable
-					if (soundVolumeLevel)
-						fModSys->playSound(playerShoot, nullptr, false, &soundChannel);	// Play sound on projectile spawned
-				}
+				// Create projectile instance
+				gameObjInstCreate(&sGameObjList[bulletObjIndex], &BULLET_SCALE, &BarrelEnd, &dirBullet, PlayerGun->dirCurr, STATE_NONE);
+				// Deplete ammoCount
+				--ammoCount;
 
-				// Projectile trajectory prediction (Aim with trajectory line)
-				if (AEInputCheckCurr(VK_RBUTTON)){
-					// Get the bullet's direction according to the player's direction
-					AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
-					
-					// Calculate end of gun barrel position
-					BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * BULLET_SPEED * 0.11f;
-					BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * BULLET_SPEED * 0.11f;
-					
-					// Variable declaration
-					AEVec2 currPos{ BarrelEnd };
-					int bounceCount{ 0 };
+				// Check soundVolume flag variable
+				if (soundVolumeLevel)
+					fModSys->playSound(playerShoot, nullptr, false, &soundChannel);	// Play sound on projectile spawned
+			}
 
-					// Loop through calculated trajectory of the projectile
-					for (int i{ 1 }; i < 1000; ++i) {
-						// Move current position
+			// Projectile trajectory prediction (Aim with trajectory line)
+			if (AEInputCheckCurr(VK_RBUTTON)) {
+				// Get the bullet's direction according to the player's direction
+				AEVec2Set(&dirBullet, cosf(PlayerGun->dirCurr), sinf(PlayerGun->dirCurr));
+
+				// Calculate end of gun barrel position
+				BarrelEnd.x = PlayerGun->posCurr.x + dirBullet.x * BULLET_SPEED * 0.11f;
+				BarrelEnd.y = PlayerGun->posCurr.y + dirBullet.y * BULLET_SPEED * 0.11f;
+
+				// Variable declaration
+				AEVec2 currPos{ BarrelEnd };
+				int bounceCount{ 0 };
+
+				// Loop through calculated trajectory of the projectile
+				for (int i{ 1 }; i < 1000; ++i) {
+					// Move current position
+					currPos.x += dirBullet.x * g_dt;
+					currPos.y += dirBullet.y * g_dt;
+
+					// Call to find for collision with environment
+					int collisionFlag = CheckInstanceBinaryMapCollision_Dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+
+					// Check if there is collision with a destructable wall
+					if ((collisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
+						break;
+
+					// Check which side is the collision coming from
+					bool reflectedFlag{ false };
+					AEVec2 normal{};
+					if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {	// Collision with top of platform
+						// Set normal of surface
+						normal = { 0, -1 };
+						// Increment bounceCount and check if less than or equal to 3
+						if (++bounceCount < 3)
+							reflectedFlag = true;
+						else
+							break;
+					}
+					if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {	// Collision with bottom of platform
+						// Set normal of surface
+						normal = { 0, 1 };
+						// Increment bounceCount and check if less than or equal to 3
+						if (++bounceCount < 3)
+							reflectedFlag = true;
+						else
+							break;
+					}
+					if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {	// Collision with left side of platform
+						// Set normal of surface
+						normal = { 1, 0 };
+						// Increment bounceCount and check if less than or equal to 3
+						if (++bounceCount < 3)
+							reflectedFlag = true;
+						else
+							break;
+					}
+					if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {	// Collision with right side of platform
+						// Set normal of surface
+						normal = { -1, 0 };
+						// Increment bounceCount and check if less than or equal to 3
+						if (++bounceCount < 3)
+							reflectedFlag = true;
+						else
+							break;
+					}
+
+					// To reflect trajectory
+					if (reflectedFlag) {
+						// Calculate new direction after ricochet (newVel = currVel - 2(currVel . normal) * normal)
+						AEVec2 newVel{ dirBullet.x - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.x,  dirBullet.y - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.y };
+						AEVec2Normalize(&newVel, &newVel);
+						// Assign it to the bullet
+						dirBullet = newVel;
+
+						// Move by 1 frame
 						currPos.x += dirBullet.x * g_dt;
 						currPos.y += dirBullet.y * g_dt;
-						
-						// Call to find for collision with environment
-						int collisionFlag = CheckInstanceBinaryMapCollision_Dotted(currPos.x, currPos.y, BULLET_MESHSIZE.x * BULLET_SCALE.x, BULLET_MESHSIZE.y * BULLET_SCALE.y, &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-
-						// Check if there is collision with a destructable wall
-						if ((collisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
-							break;
-
-						// Check which side is the collision coming from
-						bool reflectedFlag{ false };
-						AEVec2 normal{};
-						if ((collisionFlag & COLLISION_TOP) == COLLISION_TOP && reflectedFlag == false) {	// Collision with top of platform
-							// Set normal of surface
-							normal = { 0, -1 };
-							// Increment bounceCount and check if less than or equal to 3
-							if (++bounceCount < 3)
-								reflectedFlag = true;
-							else
-								break;
-						}
-						if ((collisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM && reflectedFlag == false) {	// Collision with bottom of platform
-							// Set normal of surface
-							normal = { 0, 1 };
-							// Increment bounceCount and check if less than or equal to 3
-							if (++bounceCount < 3)
-								reflectedFlag = true;
-							else
-								break;
-						}
-						if ((collisionFlag & COLLISION_LEFT) == COLLISION_LEFT && reflectedFlag == false) {	// Collision with left side of platform
-							// Set normal of surface
-							normal = { 1, 0 };
-							// Increment bounceCount and check if less than or equal to 3
-							if (++bounceCount < 3)
-								reflectedFlag = true;
-							else
-								break;
-						}
-						if ((collisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT && reflectedFlag == false) {	// Collision with right side of platform
-							// Set normal of surface
-							normal = { -1, 0 };
-							// Increment bounceCount and check if less than or equal to 3
-							if (++bounceCount < 3)
-								reflectedFlag = true;
-							else
-								break;
-						}
-
-						// To reflect trajectory
-						if (reflectedFlag) {
-							// Calculate new direction after ricochet (newVel = currVel - 2(currVel . normal) * normal)
-							AEVec2 newVel{ dirBullet.x - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.x,  dirBullet.y - 2 * (AEVec2DotProduct(&dirBullet, &normal)) * normal.y };
-							AEVec2Normalize(&newVel, &newVel);
-							// Assign it to the bullet
-							dirBullet = newVel;
-							
-							// Move by 1 frame
-							currPos.x += dirBullet.x * g_dt;
-							currPos.y += dirBullet.y * g_dt;
-						}
-
-						// Check if current iteration of i is a multiple of 30
-						if (i % 30 == 0)
-							gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_NONE);	// Create a dotted instance of it
 					}
+
+					// Check if current iteration of i is a multiple of 30
+					if (i % 30 == 0)
+						gameObjInstCreate(&sGameObjList[dottedObjIndex], &BULLET_SCALE, &currPos, 0, 0, STATE_NONE);	// Create a dotted instance of it
 				}
 			}
-
-			// Variable declaration
-			int i{};
-			GameObjInst* pInst;
-
-			//Update object instances physics and behavior
-			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-			{
-				pInst = sGameObjInstList + i;
-
-				// Skip non-active object
-				if (0 == (pInst->flag & FLAG_ACTIVE))
-					continue;
-
-				// Destory player shot bullet after 3 bounces
-				if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
-					gameObjInstDestroy(pInst);
-
-				// Destory enemy shot bullet after it collides with game
-				if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1)
-					gameObjInstDestroy(pInst);
-
-				// Apply gravity to enemies and player
-				if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
-					pInst->velCurr.y += GRAVITY * g_dt;
-
-				// Apply enemy state machine to enemy AI.
-				if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
-					EnemyStateMachine(pInst);
-				}
-			}
-
-			// Update object instances positions
-			for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
-			{
-				pInst = sGameObjInstList + i;
-
-				// skip non-active object
-				if (0 == (pInst->flag & FLAG_ACTIVE))
-					continue;
-
-				// ----- Update Position -----
-				pInst->posCurr.x += pInst->velCurr.x * g_dt;
-				pInst->posCurr.y += pInst->velCurr.y * g_dt;
-
-				// ----- Update Bounding Box -----
-				pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-				pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-
-				pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
-				pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
-			}
-
-			// Calculate the direction of the player's barrel based on the mouse position
-			{
-				AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-				// Calculate mouse position in world coordinates
-				AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
-				// Find the direction
-				float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
-				// Set it to player gun
-				PlayerGun->dirCurr = dotProduct;
-			}
-			break;
 		}
+
+		// Variable declaration
+		int i{};
+		GameObjInst* pInst;
+
+		//Update object instances physics and behavior
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// Skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+			// Destroy player shot bullet after 3 bounces
+			if (pInst->pObject->type == TYPE_BULLET && pInst->bounceCount >= 3)
+				gameObjInstDestroy(pInst);
+
+			// Destroy enemy shot bullet after it collides with game
+			if (pInst->pObject->type == TYPE_BULLET && pInst->state == STATE::STATE_GOING_LEFT && pInst->bounceCount >= 1)
+				gameObjInstDestroy(pInst);
+
+			// Apply gravity to enemies and player
+			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_PLAYER)
+				pInst->velCurr.y += GRAVITY * g_dt;
+
+			// Apply enemy state machine to enemy AI.
+			if (pInst->pObject->type == TYPE_ENEMY1 || pInst->pObject->type == TYPE_ENEMY2) {
+				EnemyStateMachine(pInst);
+			}
+		}
+
+		// Update object instances positions
+		for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+		{
+			pInst = sGameObjInstList + i;
+
+			// Skip non-active object
+			if (0 == (pInst->flag & FLAG_ACTIVE))
+				continue;
+
+			// ----- Update Position -----
+			pInst->posCurr.x += pInst->velCurr.x * g_dt;
+			pInst->posCurr.y += pInst->velCurr.y * g_dt;
+
+			// ----- Update Bounding Box -----
+			pInst->boundingBox.min.x = -(pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.min.y = -(pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+
+			pInst->boundingBox.max.x = (pInst->pObject->meshSize.x / 2) * pInst->scale.x + pInst->posCurr.x;
+			pInst->boundingBox.max.y = (pInst->pObject->meshSize.y / 2) * pInst->scale.y + pInst->posCurr.y;
+		}
+
+		// Calculate the direction of the player's barrel based on the mouse position
+		{
+			AEVec2 playerWorldPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+			// Calculate mouse position in world coordinates
+			AEMtx33MultVec(&playerWorldPos, &MapTransform, &playerWorldPos);
+			// Find the direction
+			float dotProduct = atan2(worldMouseY - playerWorldPos.y, worldMouseX - playerWorldPos.x);
+			// Set it to player gun
+			PlayerGun->dirCurr = dotProduct;
+		}
+		break;
+	}
 	}
 
 	// Variable declaration 
@@ -818,17 +818,17 @@ void GameStateLevelsUpdate(void)
 		if (pInst->pObject->type == TYPE_BULLET) // Check map collision for bullets
 		{
 			// Call bullet type binary map collision check
-			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_Bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, 
-																			  &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision_Bullet(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y,
+				&MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT, &BinaryCollisionArray);
 		}
 		else // Check map collision for all other dynamic objects
 		{
-			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y, 
-																	   &MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+			pInst->gridCollisionFlag = CheckInstanceBinaryMapCollision(pInst->posCurr.x, pInst->posCurr.y, pInst->pObject->meshSize.x * pInst->scale.x, pInst->pObject->meshSize.y * pInst->scale.y,
+				&MapData, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 		}
 
 		// Simulate particles when destructible block gets destroyed
-		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable) 
+		if (pInst->pObject->type == TYPE_BULLET && (pInst->gridCollisionFlag & COLLISION_Destructable) == COLLISION_Destructable)
 		{
 			AEVec2 particlevel{ 0,0 };
 			AEVec2 hold;
@@ -847,7 +847,7 @@ void GameStateLevelsUpdate(void)
 				gameObjInstCreate(&sGameObjList[particleObjIndex], &particlescale, &particlepos, &particlevel, 1.5f, STATE_GOING_LEFT);
 			}
 			// Destroy the projectile
-			gameObjInstDestroy(pInst); 
+			gameObjInstDestroy(pInst);
 		}
 
 		// Check if dynamic game objects collides with left side of level object
@@ -981,34 +981,47 @@ void GameStateLevelsUpdate(void)
 	{
 		pInst = sGameObjInstList + i;
 
-		// skip non-active object
+		// Skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
 
+		// Switch logic based on current object's type
 		switch (pInst->pObject->type) {
-		case TYPE_BULLET:
+			// Projectile
+		case TYPE_BULLET: {
+			// Loop through all other objects
 			for (unsigned long j = 0; j < GAME_OBJ_INST_NUM_MAX; j++)
 			{
 				GameObjInst* pOtherInst = sGameObjInstList + j;
-				// skip non-active object
+
+				// Skip non-active object
 				if ((pOtherInst->flag & FLAG_ACTIVE) == 0)
 					continue;
 
+				// Switch logic based on other object's type
 				switch (pOtherInst->pObject->type) {
-				case TYPE_PLAYER: // If player gets hit by bullet
+					// Player (Gets hit by bullet)
+				case TYPE_PLAYER: {
+					// Check for collision
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						if (pInst->state == STATE::STATE_GOING_LEFT || pInst->state == STATE::STATE_NONE)
-							playerHealth -= 10.0f; // Deplete playerhealth
-						gameObjInstDestroy(pInst); // Destroy bullet
+						// Deplete player's health
+						playerHealth -= 10.0f;
+						// Destroy the projectile
+						gameObjInstDestroy(pInst);
 					}
 					break;
-				case TYPE_ENEMY1: // If enemy gets hit by bullet 
+				}
+								// 1st Enemy Variant (Gets hit by bullet)
+				case TYPE_ENEMY1: {
+					// Check for collision
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst); // Destroy bullet
-						gameObjInstDestroy(pOtherInst); // Destory enemey
-						--totalEnemyCount; // Deplete enemy count
+						// Destroy enemy and projectile instance
+						gameObjInstDestroy(pInst);
+						gameObjInstDestroy(pOtherInst);
+						// Decrement number of enemies in level
+						--totalEnemyCount;
 
-						// Simulate particles upon enemy death
+						// Simulate/Create  particles upon enemy death
 						AEVec2 particleVel;
 						for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 						{
@@ -1026,22 +1039,31 @@ void GameStateLevelsUpdate(void)
 						}
 					}
 					break;
-				case TYPE_BULLET: // If a bullet collides with another bullet
-					if (pInst->posCurr.x == pOtherInst->posCurr.x && pInst->posCurr.y == pOtherInst->posCurr.y) // Don't check the same bullet to itself
-					{
+				}
+								// Projectile (Collides with another projectile)
+				case TYPE_BULLET: {
+					// Don't check the same bullet to itself
+					if (pInst->posCurr.x == pOtherInst->posCurr.x && pInst->posCurr.y == pOtherInst->posCurr.y)
 						break;
-					}
+
+					// Destroy two bullets if they collide with one another
 					if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
-						gameObjInstDestroy(pInst); // destory bullet
-						gameObjInstDestroy(pOtherInst); // destory bullet
+						gameObjInstDestroy(pInst);
+						gameObjInstDestroy(pOtherInst);
 					}
+					break;
+				}
 				}
 			}
 			break;
-		case TYPE_ENEMY1: // If player collides with enemy
-			if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr)) {
-				playerHealth = 0; // Player dies if collide with enemy
-			}
+		}
+						// 1st Enemy Variant (Player collides with enemy)
+		case TYPE_ENEMY1: {
+			// Check for collision
+			if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr))
+				playerHealth = 0.0f; // Player dies if collide with enemy
+
+		}
 		}
 	}
 
@@ -1049,21 +1071,20 @@ void GameStateLevelsUpdate(void)
 	// =====================================
 	// calculate the matrix for all objects
 	// =====================================
-
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
 		pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
 
-		// skip non-active object
+		// Skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
 
 		// Compute the scaling matrix
 		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
-
+		// Compute the rotation matrix
 		if (pInst->pObject->type == TYPE_BULLET)
-			AEMtx33Rot(&rot, 0);
+			AEMtx33Rot(&rot, 0);	// No rotation for projectiles
 		else
 			AEMtx33Rot(&rot, pInst->dirCurr);
 		// Compute the translation matrix
@@ -1073,27 +1094,35 @@ void GameStateLevelsUpdate(void)
 		AEMtx33Concat(&pInst->transform, &pInst->transform, &scale);
 	}
 
-	// Update Camera position, for Levels
-	float cameraX, cameraY;
-	AEGfxGetCamPosition(&cameraX, &cameraY);
+	// =====================================
+	// Camera 
+	// =====================================
+	{
+		// Update Camera position, for Levels
+		float cameraX, cameraY;
+		AEGfxGetCamPosition(&cameraX, &cameraY);
 
-	AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
-	AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
+		// Calculate the camera position based on the player's position
+		AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
+		AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
 
-	// Clamp camera within the level frame
-	NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
-	NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
-	if (playerDeathTimer == 0)
-		AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y); // reset camera upon level reset
+		// Clamp camera within the level frame
+		NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
+		NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
+		
+		// Reset camera upon level reset
+		if (playerDeathTimer == 0)
+			AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
 
-	// Mouse in world coordinates
-	worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
-	worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
+		// Calculate mouse position in world coordinates based on camera
+		worldMouseX = cameraX + (static_cast<float>(g_mouseX) - static_cast<float>(AEGetWindowWidth()) / 2);
+		worldMouseY = cameraY + (-1) * (static_cast<float>(g_mouseY) - static_cast<float>(AEGetWindowHeight()) / 2);
+	}
 }
 
 /******************************************************************************/
 /*!
-	Render game objects
+	"Draw" function of this state / Render all game elements
 */
 /******************************************************************************/
 void GameStateLevelsDraw(void)
@@ -1299,7 +1328,7 @@ void GameStateLevelsDraw(void)
 
 /******************************************************************************/
 /*!
-
+	"Free" function of this state
 */
 /******************************************************************************/
 void GameStateLevelsFree(void)
@@ -1317,7 +1346,7 @@ void GameStateLevelsFree(void)
 
 /******************************************************************************/
 /*!
-
+	"Unload" function of this state
 */
 /******************************************************************************/
 void GameStateLevelsUnload(void)
