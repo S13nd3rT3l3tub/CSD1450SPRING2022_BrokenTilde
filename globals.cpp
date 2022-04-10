@@ -17,6 +17,38 @@
 
 /******************************************************************************/
 /*!
+	Main Globals
+*/
+/******************************************************************************/
+// ----- Time -----
+float	 g_dt{ 0.0f };			// Delta time
+double	 g_appTime{ 0.0 };		// Application time
+double	 levelTime{ 0.0 };		// Level time
+
+// ----- Font -----
+s8		 g_font12{};			// Font size 12
+s8		 g_font20{};			// Font size 20
+s8		 g_font30{};			// Font size 30
+
+// ----- Mouse -----
+int		 g_mouseX{ 0 };			// Mouse window pos X
+int		 g_mouseY{ 0 };			// Mouse window pos Y
+float	 worldMouseX{ 0.0f };	// World window pos X
+float	 worldMouseY{ 0.0f };	// World window pos Y
+
+// ----- Window -----
+bool winFocused{ true };		// Window focused flag variable
+bool toFullScreen{ true };		// Window fullscreen flag variable
+
+// ----- Sound -----
+bool			soundVolumeLevel{ true };	// Sound volume flag variable
+FMOD::System* fModSys{ nullptr };			// FMOD system
+FMOD::Sound* mainMenuBG{ nullptr };		// Background sound pointer
+FMOD::Sound* playerShoot{ nullptr };		// Projectile shooting sount pointer
+FMOD::Channel* soundChannel{ nullptr };	// FMOD sound channel pointer
+
+/******************************************************************************/
+/*!
 	Defines
 */
 /******************************************************************************/

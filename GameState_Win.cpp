@@ -69,7 +69,7 @@ void GameStateWinLoad() {
 /******************************************************************************/
 void GameStateWinInit() {
 	// Set camera to local origin
-	AEGfxSetCamPosition(BINARY_MAP_WIDTH * -12, BINARY_MAP_HEIGHT * -12);
+	AEGfxSetCamPosition(BINARY_MAP_WIDTH * -12.0f, BINARY_MAP_HEIGHT * -12.0f);
 }
 
 /******************************************************************************/
@@ -237,7 +237,7 @@ void GameStateWinDraw() {
 	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
 	{
 		GameObjInst* pInst = sGameObjInstList + i;
-		AEMtx33 cellTranslation, cellFinalTransformation;
+		AEMtx33 cellFinalTransformation;
 		// skip non-active object
 		if (0 == (pInst->flag & FLAG_ACTIVE) || 0 == (pInst->flag & FLAG_VISIBLE))
 			continue;
