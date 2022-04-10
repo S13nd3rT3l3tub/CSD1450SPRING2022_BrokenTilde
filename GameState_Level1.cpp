@@ -395,6 +395,7 @@ void GameStateLevel1Update(void)
 				gGameStateNext = GS_RESTART;		// Update nextState to restart
 				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
 				// Reload level data
+				FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 				if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 					gGameStateNext = GS_QUIT;
 
@@ -981,7 +982,7 @@ void GameStateLevel1Update(void)
 	{
 		pInst = sGameObjInstList + i;
 
-		// skip non-active object
+		// Skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
 
@@ -1000,18 +1001,18 @@ void GameStateLevel1Update(void)
 					
 					// Switch logic based on other object's type
 					switch (pOtherInst->pObject->type) {
-						// Player
+						// Player (Gets hit by bullet)
 						case TYPE_PLAYER: {
 							// Check for collision
 							if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) { // player is hit
-								// Decrement player's health
+								// Deplete player's health
 								playerHealth -= 10.0f;	
 								// Destroy the projectile
 								gameObjInstDestroy(pInst);
 							}
 							break;
 						}
-						// 1st Enemy Variant
+						// 1st Enemy Variant (Gets hit by bullet)
 						case TYPE_ENEMY1: {
 							// Check for collision
 							if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
@@ -1020,9 +1021,9 @@ void GameStateLevel1Update(void)
 								gameObjInstDestroy(pOtherInst);
 								// Decrement number of enemies in level
 								--totalEnemyCount;
-								AEVec2 particleVel;
-
+								
 								// Simulate/Create particles upon enemy death
+								AEVec2 particleVel;
 								for (double x = pOtherInst->posCurr.x - 1.5; x < pOtherInst->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
 								{
 									AEVec2 particlespawn = { static_cast<float>(x), pOtherInst->posCurr.y };
@@ -1054,13 +1055,13 @@ void GameStateLevel1Update(void)
 							}
 							break;
 						}
-						// Bullet
+						// Projectile (Collides with another projectile)
 						case TYPE_BULLET: {
 							// Don't check the same bullet to itself
 							if (pInst->posCurr.x == pOtherInst->posCurr.x && pInst->posCurr.y == pOtherInst->posCurr.y) 
 								break;
 
-							// Destroy two bullets if they collide with one another.
+							// Destroy two bullets if they collide with one another
 							if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, pOtherInst->boundingBox, pOtherInst->velCurr)) {
 								gameObjInstDestroy(pInst);
 								gameObjInstDestroy(pOtherInst);
@@ -1071,11 +1072,11 @@ void GameStateLevel1Update(void)
 				}
 				break;
 			}
-			// 1st Enemy Variant
+			// 1st Enemy Variant (Player collides with enemy)
 			case TYPE_ENEMY1: {
 				// Check for collision
 				if (CollisionIntersection_RectRect(pInst->boundingBox, pInst->velCurr, PlayerBody->boundingBox, PlayerBody->velCurr))
-					playerHealth = 0; // player dies if collide with enemy
+					playerHealth = 0.0f; // Player dies if collide with enemy
 				break;
 			}
 		}
@@ -1090,7 +1091,7 @@ void GameStateLevel1Update(void)
 		pInst = sGameObjInstList + i;
 		AEMtx33		 trans, rot, scale;
 
-		// skip non-active object
+		// Skip non-active object
 		if ((pInst->flag & FLAG_ACTIVE) == 0)
 			continue;
 
@@ -1098,7 +1099,7 @@ void GameStateLevel1Update(void)
 		AEMtx33Scale(&scale, pInst->scale.x, pInst->scale.y);
 		// Compute the rotation matrix 
 		if (pInst->pObject->type == TYPE_BULLET)
-			AEMtx33Rot(&rot, 0);	// No rotation for bullet
+			AEMtx33Rot(&rot, 0);	// No rotation for projectiles
 		else
 			AEMtx33Rot(&rot, pInst->dirCurr);
 		// Compute the translation matrix
@@ -1120,9 +1121,10 @@ void GameStateLevel1Update(void)
 		AEVec2 NewCamPos{ PlayerBody->posCurr.x, PlayerBody->posCurr.y };
 		AEMtx33MultVec(&NewCamPos, &MapTransform, &NewCamPos);
 
-		// Clamp the values 
+		// Clamp camera within the level frame 
 		NewCamPos.x = AEClamp(NewCamPos.x, -(static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)), (static_cast<float>(AEGetWindowWidth() / static_cast<float>(BINARY_MAP_WIDTH) * 141.0f)));
 		NewCamPos.y = AEClamp(NewCamPos.y, -(static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f), (static_cast<float>(AEGetWindowHeight()) / static_cast<float>(BINARY_MAP_HEIGHT) * 46.0f));
+		
 		// Reset camera upon level reset
 		if (playerDeathTimer == 0.0f)
 			AEGfxSetCamPosition(NewCamPos.x, NewCamPos.y);
@@ -1429,7 +1431,7 @@ void GameStateLevel1Free(void)
 
 /******************************************************************************/
 /*!
-
+	"Unload" function of this state
 */
 /******************************************************************************/
 void GameStateLevel1Unload(void)
