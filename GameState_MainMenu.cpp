@@ -41,18 +41,9 @@
 AEGfxTexture* buttonTexture_START{};			// Start game button texture
 AEGfxTexture* buttonTexture_CREDITS{};			// Credits button texture
 
-
 // Pointer to specific game object instances
 static GameObjInst* ButtonInstance_START;			// Start button object instance
-//static GameObjInst* ButtonInstance_QUIT;			// Quit button object instance
-//static GameObjInst* ButtonInstance_OPTIONS;			// Options button object instance
 static GameObjInst* ButtonInstance_CREDITS;			// Credits button object instance
-//static GameObjInst* ButtonInstance_TOGGLE_FS;		// Toggle fullscreen button object instance
-//static GameObjInst* ButtonInstance_TOGGLE_SOUND;	// Toggle sound button object instance
-//static GameObjInst* ButtonInstance_RETURN;			// Return button object instance
-//static GameObjInst* ButtonInstance_YES;				// Yes button object instance
-//static GameObjInst* ButtonInstance_NO;				// No button object instancce
-
 
 static enum	SCREEN_TYPE	screen;						// Variable to store the current screen to display
 
