@@ -7,9 +7,6 @@
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
 @role		Authored Functions
--------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		Authored Functions
 *//*_________________________________________________________________________*/
 
 #include "Main.h"

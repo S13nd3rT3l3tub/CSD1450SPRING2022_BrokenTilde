@@ -6,7 +6,7 @@
 @role
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role
+@role		Creation of some variables and parts of the AI algorithm.
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role

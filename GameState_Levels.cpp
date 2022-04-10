@@ -6,7 +6,8 @@
 @role		
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		
+@role		Physics, particle system,
+			texture mapping, game logic
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role		

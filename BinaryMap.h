@@ -6,7 +6,7 @@
 @role		
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		
+@role		Authored CheckInstanceBinaryMapCollision_Bullet
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role		

@@ -3,10 +3,7 @@
 @file       GameStateList.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
--------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		
+@role			
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
 @role		
