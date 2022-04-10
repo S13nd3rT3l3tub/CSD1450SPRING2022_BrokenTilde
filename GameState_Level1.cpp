@@ -432,12 +432,28 @@ void GameStateLevel1Update(void)
 					if (rand() % 2) // randomize polarity of particleVel.x
 					{
 						particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+						if (rand() % 2)
+						{
+							gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); //Red particles
+						}
+						else
+						{
+							gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // Orange particles
+						}
+						
+						
 					}
 					else
 					{
 						particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+						if (rand() % 2)
+						{
+							gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); //Red particles
+						}
+						else
+						{
+							gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // Orange particles
+						}
 					}
 				}
 
@@ -457,6 +473,7 @@ void GameStateLevel1Update(void)
 				// Restart the level
 				gGameStateNext = GS_RESTART;
 				// Reload level data
+				FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 				if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 					gGameStateNext = GS_QUIT;
 				break;
@@ -1019,12 +1036,26 @@ void GameStateLevel1Update(void)
 									if (rand() % 2) // randomize polarity of particleVel.x
 									{
 										particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-										gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+										if (rand() % 2)
+										{
+											gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // Red particles
+										}
+										else
+										{
+											gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // Orange Particles
+										}
 									}
 									else
 									{
 										particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-										gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+										if (rand() % 2)
+										{
+											gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE); // Red particles
+										}
+										else
+										{
+											gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT); // Orange Particles
+										}
 									}
 								}
 							}

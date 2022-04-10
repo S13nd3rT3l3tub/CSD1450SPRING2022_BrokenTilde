@@ -400,52 +400,53 @@ void GameStateLevelsUpdate(void)
 		// Pause sound channel
 		soundChannel->setPaused(true);
 
-		// Check if game is to be unpaused
-		if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
-			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-		else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
-			gGameStateNext = GS_RESTART;		// Update nextState to restart
-			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-			// Reload level data
-			if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
-				gGameStateNext = GS_QUIT;
-		}
-		else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
-			gGameStateNext = GS_MAINMENU;		// Update next state to main menu
-			gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-		}
-		break;
-	}
-				   // Win State
-	case GAME_WIN: {
-		// Update next state to win screen state
-		gGameStateNext = GS_WINSCREEN;
-		// Update innerState to play state
-		gGameStateInnerState = GAME_PLAY;
-		// Increment chosen level
-		++g_chosenLevel;
-		break;
-	}
-				 // Lose State
-	case GAME_LOSE: {
-		// Check if it is the first time we are entering this innerState
-		if (playerDeathTimer == PLAYER_DEATH_ANIME_TIME) {
-			// Simulate/Create particles upon player death
-			AEVec2 particleVel;
-			for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
-			{
-				AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
-				if (rand() % 2) // randomize polarity of particleVel.x
-				{
-					particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
-				}
-				else
-				{
-					particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
-					gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
-				}
+			// Check if game is to be unpaused
+			if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
+				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
+				gGameStateNext = GS_RESTART;		// Update nextState to restart
+				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+				// Reload level data
+				FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+				if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+					gGameStateNext = GS_QUIT;
 			}
+			else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
+				gGameStateNext = GS_MAINMENU;		// Update next state to main menu
+				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			}
+			break;
+		}
+		// Win State
+		case GAME_WIN: {
+			// Update next state to win screen state
+			gGameStateNext = GS_WINSCREEN;
+			// Update innerState to play state
+			gGameStateInnerState = GAME_PLAY;
+			// Increment chosen level
+			++g_chosenLevel;
+			break;
+		}
+		// Lose State
+		case GAME_LOSE: {
+			// Check if it is the first time we are entering this innerState
+			if (playerDeathTimer == PLAYER_DEATH_ANIME_TIME) {
+				// Simulate/Create particles upon player death
+				AEVec2 particleVel;
+				for (double x = PlayerBody->posCurr.x - 1.5; x < PlayerBody->posCurr.x + 1.5; x += ((1.f + rand() % 50) / 100.f))
+				{
+					AEVec2 particlespawn = { static_cast<float>(x), PlayerBody->posCurr.y };
+					if (rand() % 2) // randomize polarity of particleVel.x
+					{
+						particleVel = { rand() % 20 / -10.0f, rand() % 20 / 10.f };
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_NONE);
+					}
+					else
+					{
+						particleVel = { rand() % 20 / 10.f, rand() % 20 / 10.f };
+						gameObjInstCreate(&sGameObjList[particleObjIndex], &EMPTY_SCALE, &particlespawn, &particleVel, 1.8f, STATE_ALERT);
+					}
+				}
 
 			// Destroy player instance
 			gameObjInstDestroy(PlayerGun);
@@ -1169,12 +1170,6 @@ void GameStateLevelsDraw(void)
 					AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 					break;
 				}
-				// Anything else
-				//default: {
-				//	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-				//	AEGfxTextureSet(NULL, 0, 0);
-				//	AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-				//}
 			}
 		}
 	}
@@ -1253,7 +1248,7 @@ void GameStateLevelsDraw(void)
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)	// Enemy LoS object instance       
 			AEGfxSetTransparency(0.f); // Make enemy line of sight detection invisible
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE) // Projectile trajectory prediction object instance
-			AEGfxSetTransparency(0.4f); // MAke projectile trajectory prediction translucent
+			AEGfxSetTransparency(0.4f); // Make projectile trajectory prediction translucent
 		
 		// Set render settings
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
