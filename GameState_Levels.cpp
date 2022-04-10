@@ -407,6 +407,7 @@ void GameStateLevelsUpdate(void)
 				gGameStateNext = GS_RESTART;		// Update nextState to restart
 				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
 				// Reload level data
+				FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
 				if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
 					gGameStateNext = GS_QUIT;
 			}
@@ -1140,12 +1141,6 @@ void GameStateLevelsDraw(void)
 					AEGfxMeshDraw(DirtInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
 					break;
 				}
-				// Anything else
-				//default: {
-				//	AEGfxSetRenderMode(AE_GFX_RM_COLOR);
-				//	AEGfxTextureSet(NULL, 0, 0);
-				//	AEGfxMeshDraw(EmptyInstance->pObject->pMesh, AE_GFX_MDM_TRIANGLES);
-				//}
 			}
 		}
 	}
@@ -1224,7 +1219,7 @@ void GameStateLevelsDraw(void)
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_GOING_RIGHT)	// Enemy LoS object instance       
 			AEGfxSetTransparency(0.f); // Make enemy line of sight detection invisible
 		else if (pInst->pObject->type == TYPE_DOTTED && pInst->state == STATE_NONE) // Projectile trajectory prediction object instance
-			AEGfxSetTransparency(0.4f); // MAke projectile trajectory prediction translucent
+			AEGfxSetTransparency(0.4f); // Make projectile trajectory prediction translucent
 		
 		// Set render settings
 		AEGfxSetBlendMode(AE_GFX_BM_BLEND);
