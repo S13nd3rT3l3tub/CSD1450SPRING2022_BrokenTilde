@@ -465,7 +465,7 @@ void GameStateLevel1Init(void)
 	ammoCount = static_cast<int>(totalEnemyCount * 5.0f);
 
 	// Set level background color to dark grey
-	AEGfxSetBackgroundColor(0.18f, 0.18f, 0.18f);
+	AEGfxSetBackgroundColor(0.16f, 0.16f, 0.18f);
 }
 
 /******************************************************************************/
@@ -475,6 +475,9 @@ void GameStateLevel1Init(void)
 /******************************************************************************/
 void GameStateLevel1Update(void)
 {	
+	// Set level background color to dark grey
+	AEGfxSetBackgroundColor(0.16f, 0.16f, 0.18f);
+
 	// Switch logic based on the InnerState of the current game stae
 	switch (gGameStateInnerState) {
 		// Pause State
