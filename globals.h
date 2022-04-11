@@ -168,6 +168,8 @@ enum INNER_GAME_STATE {
 //	Menu button types
 enum BUTTON_TYPE {
 	START_GAME = 1,
+	RESUME_GAME,
+	RESTART_GAME,
 	OPTIONS,
 	CREDITS,
 	EXIT_GAME,
@@ -302,17 +304,21 @@ extern AEGfxTexture* buttonTexture_TOGGLE_FS;		// Toggle fullscreen button textu
 extern AEGfxTexture* buttonTexture_TOGGLE_SOUND;	// Toggle sound button texture
 extern AEGfxTexture* buttonTexture_YES;				// Yes button texture
 extern AEGfxTexture* buttonTexture_NO;				// No button texture
+extern AEGfxTexture* buttonTexture_RESUME_GAME;		// Resume game button texture
+extern AEGfxTexture* buttonTexture_RESTART_GAME;	// Restart game button texture
+extern AEGfxTexture* buttonTexture_RETURN_MAIN_MENU;// Return to main menu game button texture
 
 // Pointer to specific game object instances
-extern GameObjInst* ButtonInstance_QUIT;			// Quit button object instance
-extern GameObjInst* ButtonInstance_OPTIONS;			// Options button object instance
 extern GameObjInst* ButtonInstance_QUIT;			// Quit button object instance
 extern GameObjInst* ButtonInstance_OPTIONS;			// Options button object instance
 extern GameObjInst* ButtonInstance_TOGGLE_FS;		// Toggle fullscreen button object instance
 extern GameObjInst* ButtonInstance_TOGGLE_SOUND;	// Toggle sound button object instance
 extern GameObjInst* ButtonInstance_RETURN;			// Return button object instance
 extern GameObjInst* ButtonInstance_YES;				// Yes button object instance
-extern GameObjInst* ButtonInstance_NO;				// No button object instancce
+extern GameObjInst* ButtonInstance_NO;				// No button object instance
+extern GameObjInst* ButtonInstance_RESUME_GAME;		// Resume game button object instance
+extern GameObjInst* ButtonInstance_RESTART_GAME;	// Restart game button object instance
+extern GameObjInst* ButtonInstance_RETURN_MAIN_MENU;// Return to main menu game button object instance
 
 /******************************************************************************/
 /*!

@@ -149,6 +149,9 @@ AEGfxTexture* buttonTexture_TOGGLE_FS{};		// Toggle fullscreen button texture
 AEGfxTexture* buttonTexture_TOGGLE_SOUND{};		// Toggle sound button texture
 AEGfxTexture* buttonTexture_YES{};				// Yes button texture
 AEGfxTexture* buttonTexture_NO{};				// No button texture
+AEGfxTexture* buttonTexture_RESUME_GAME;		// Resume game button texture
+AEGfxTexture* buttonTexture_RESTART_GAME;		// Restart game button texture
+AEGfxTexture* buttonTexture_RETURN_MAIN_MENU;	// Return to main menu game button texture
 
 // Pointer to specific game object instances
 GameObjInst* ButtonInstance_QUIT{};				// Quit button object instance
@@ -157,7 +160,10 @@ GameObjInst* ButtonInstance_TOGGLE_FS{};		// Toggle fullscreen button object ins
 GameObjInst* ButtonInstance_TOGGLE_SOUND{};		// Toggle sound button object instance
 GameObjInst* ButtonInstance_RETURN{};			// Return button object instance
 GameObjInst* ButtonInstance_YES{};				// Yes button object instance
-GameObjInst* ButtonInstance_NO{};				// No button object instancce
+GameObjInst* ButtonInstance_NO{};				// No button object instance
+GameObjInst* ButtonInstance_RESUME_GAME;		// Resume game button object instance
+GameObjInst* ButtonInstance_RESTART_GAME;		// Restart game button object instance
+GameObjInst* ButtonInstance_RETURN_MAIN_MENU;	// Return to main menu game button object instance
 
 /******************************************************************************/
 /*!
@@ -514,24 +520,31 @@ void PauseMenu()
 	GameObjInst* bg{ PauseMenuInstCreate(&sGameObjList[bgObjIndex], &scaling, &pos,0, 0.0f, STATE_NONE) };
 	bg->sub_type = BUTTON_TYPE::BG;
 
-	// Options button
+	// Resume Game button
 	scaling = { 1.0f, 1.0f };
 	AEGfxGetCamPosition(&pos.x, &pos.y);
 	pos = { pos.x + 0.0f, pos.y - 0.0f };
-	ButtonInstance_OPTIONS = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-	ButtonInstance_OPTIONS->sub_type = BUTTON_TYPE::OPTIONS;
+	ButtonInstance_RESUME_GAME = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+	ButtonInstance_RESUME_GAME->sub_type = BUTTON_TYPE::RESUME_GAME;
 
-	// Return button
+	// Restart Game button
+	scaling = { 1.0f, 1.0f };
+	AEGfxGetCamPosition(&pos.x, &pos.y);
+	pos = { pos.x + 0.0f, pos.y - 100.0f };
+	ButtonInstance_RESTART_GAME = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+	ButtonInstance_RESTART_GAME->sub_type = BUTTON_TYPE::RESTART_GAME;
+
+	// Options button
 	scaling = { 1.0f, 1.0f };
 	AEGfxGetCamPosition(&pos.x, &pos.y);
 	pos = { pos.x + 0.0f, pos.y - 200.0f };
-	ButtonInstance_RETURN = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-	ButtonInstance_RETURN->sub_type = BUTTON_TYPE::RETURN;
+	ButtonInstance_OPTIONS = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+	ButtonInstance_OPTIONS->sub_type = BUTTON_TYPE::OPTIONS;
 
-	// Exit game button
+	// Return to Main Menu game button
 	scaling = { 1.0f, 1.0f };
 	AEGfxGetCamPosition(&pos.x, &pos.y);
-	pos = { pos.x + 0.0f, pos.y - 300.0F };
-	ButtonInstance_QUIT = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
-	ButtonInstance_QUIT->sub_type = BUTTON_TYPE::EXIT_GAME;
+	pos = { pos.x + 0.0f, pos.y - 300.0f };
+	ButtonInstance_RETURN_MAIN_MENU = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
+	ButtonInstance_RETURN_MAIN_MENU->sub_type = BUTTON_TYPE::EXIT_GAME;
 }

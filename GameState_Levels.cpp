@@ -334,9 +334,17 @@ void GameStateLevelsLoad(void)
 		buttonTexture_OPTIONS = AEGfxTextureLoad(".\\Resources\\Assets\\option_button.png");
 		AE_ASSERT_MESG(buttonTexture_OPTIONS, "failed to create option button texture");
 
+		// Resume Game button texture
+		buttonTexture_RESUME_GAME = AEGfxTextureLoad(".\\Resources\\Assets\\resume_level.png");
+		AE_ASSERT_MESG(buttonTexture_RESUME_GAME, "failed to create resume game button texture");
+
+		// Restart Game button texture
+		buttonTexture_RESTART_GAME = AEGfxTextureLoad(".\\Resources\\Assets\\restart_level.png");
+		AE_ASSERT_MESG(buttonTexture_RESTART_GAME, "failed to create restart game button texture");
+
 		// Quit button texture
-		buttonTexture_QUIT = AEGfxTextureLoad(".\\Resources\\Assets\\exit_button.png");
-		AE_ASSERT_MESG(buttonTexture_QUIT, "failed to create quit button texture");
+		buttonTexture_RETURN_MAIN_MENU = AEGfxTextureLoad(".\\Resources\\Assets\\return_main_menu.png");
+		AE_ASSERT_MESG(buttonTexture_RETURN_MAIN_MENU, "failed to create return to menu button texture");
 
 		// Toggle fullscreen button texture
 		buttonTexture_TOGGLE_FS = AEGfxTextureLoad(".\\Resources\\Assets\\toggle_fs.png");
@@ -504,15 +512,27 @@ void GameStateLevelsUpdate(void)
 							ButtonInstance_RETURN->sub_type = BUTTON_TYPE::RETURN;
 						}
 
-						// Check if mosue was clicked on Return button
-						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox)) {
+						// Check if mouse was clicked on Resume Game button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RESUME_GAME->boundingBox)) {
 							screen = SCREEN_TYPE::GAME_SCREEN;
 							gGameStateInnerState = GAME_PLAY;
 						}
 
+						// Check if mouse was clicked on Restart Game button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RESTART_GAME->boundingBox)) {
+							screen = SCREEN_TYPE::GAME_SCREEN;
+							gGameStateInnerState = GAME_PLAY;
+							gGameStateNext = GS_RESTART;
 
-						// Check if mosue was clicked on Quit button
-						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_QUIT->boundingBox)) {
+							// Reload level data
+							FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+							if (ImportMapDataFromFile(levelFileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+								gGameStateNext = GS_QUIT;
+						}
+
+
+						// Check if mosue was clicked on Return To Main Menu button
+						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN_MAIN_MENU->boundingBox)) {
 							// Update current display screen to exit confirmation
 							screen = SCREEN_TYPE::EXIT_SCREEN;
 							AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
@@ -582,6 +602,7 @@ void GameStateLevelsUpdate(void)
 					}
 				}
 			}
+
 			// Variable declaration
 			int i{};
 			GameObjInst* pInst;
@@ -1686,9 +1707,13 @@ void GameStateLevelsUnload(void)
 	dirtTexture = nullptr;
 
 	AEGfxTextureUnload(backgroundTexture);
-	AEGfxTextureUnload(buttonTexture_QUIT);
 	AEGfxTextureUnload(buttonTexture_OPTIONS);
+	AEGfxTextureUnload(buttonTexture_RESUME_GAME);
+	AEGfxTextureUnload(buttonTexture_RESTART_GAME);
+	AEGfxTextureUnload(buttonTexture_RETURN_MAIN_MENU);
 	AEGfxTextureUnload(buttonTexture_TOGGLE_FS);
 	AEGfxTextureUnload(buttonTexture_TOGGLE_SOUND);
 	AEGfxTextureUnload(buttonTexture_RETURN);
+	AEGfxTextureUnload(buttonTexture_YES);
+	AEGfxTextureUnload(buttonTexture_NO);
 }
