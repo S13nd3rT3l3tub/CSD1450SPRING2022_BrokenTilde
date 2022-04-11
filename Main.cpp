@@ -3,11 +3,11 @@
 @project	Ricochet
 @file       Main.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [100% of code]
 @role		Initial creation & loading of fonts, FMOD sound initialization & 
 			Alt-Tab sminimization handling
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
+@author		Leong Wai Kit (l.waikit@digipen.edu)	[15% of code]
 @role		Assisted with Alt-Tab minimization handling
 *//*_________________________________________________________________________*/
 

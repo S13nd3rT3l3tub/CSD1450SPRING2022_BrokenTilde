@@ -3,11 +3,11 @@
 @project	Ricochet
 @file       Collision.h
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)	 [75% of code]
 @role		Initial creation
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		Added Point vs Rect axis aligned static intersection check for
+@author		Leong Wai Kit (l.waikit@digipen.edu)	[25% of code]
+@role		Added Point vs Rect axis aligned static intersection check for 
 			mouse click in buttons
 *//*_________________________________________________________________________*/
 

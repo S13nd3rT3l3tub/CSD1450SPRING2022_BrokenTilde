@@ -3,7 +3,7 @@
 @project	Ricochet
 @file       GameStateMgr.h
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [100% of code]
 @role		Initial creation 
 *//*_________________________________________________________________________*/
 

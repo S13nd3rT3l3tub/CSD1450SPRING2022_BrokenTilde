@@ -3,7 +3,7 @@
 @project	Ricochet
 @file       GameState_Win.cpp
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu)
+@author		Mohamed Zafir (m.zafir@digipen.edu)	[100% of code]
 @role		Initial creation & did the win screen state
 *//*_________________________________________________________________________*/
 

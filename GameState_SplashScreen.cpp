@@ -3,12 +3,16 @@
 @project	Ricochet
 @file       GameState_SplashScreen.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [10% of code]
 @role		Initial creation and assisted with the handling of the splash screen
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Did first pass of code inside Main Menu state before it was shifted 
-			over by Joachim into here
+@author		Mohamed Zafir (m.zafir@digipen.edu) [45% of code]
+@role		Did first pass of code inside Main Menu state together with Desmond
+			before it was shifted over by Joachim into here
+-------------------------------------------------------------------------------
+@author		Desmond Too Wei Kang (d.too@digipen.edu) [45% of code]
+@role		Did first pass of code inside Main Menu state together with Desmond
+			before it was shifted over by Joachim into here
 *//*_________________________________________________________________________*/
 
 // ----- Include Files ------

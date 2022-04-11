@@ -3,7 +3,7 @@
 @project	Ricochet
 @file       GameState_Levels.h	
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
+@author		Leong Wai Kit (l.waikit@digipen.edu) [100% of code]
 @role		Initial creation
 *//*_________________________________________________________________________*/
 

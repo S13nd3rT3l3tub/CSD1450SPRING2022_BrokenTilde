@@ -3,16 +3,16 @@
 @project	Ricochet
 @file       GameState_MainMenu.cpp
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
+@author		Leong Wai Kit (l.waikit@digipen.edu) [45% of code]
 @role		Creation of the menu
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu)
+@author		Mohamed Zafir (m.zafir@digipen.edu) [5% of code]
 @role		Assisted part of game's credits
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [5% of code]
 @role		Assisted with game's credits
 -------------------------------------------------------------------------------
-@author		Desmond Too Wei Kang (d.too@digipen.edu)
+@author		Desmond Too Wei Kang (d.too@digipen.edu) [45% of code]
 @role		Assisted with the creation of the menu
 *//*_________________________________________________________________________*/
 

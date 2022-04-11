@@ -3,17 +3,17 @@
 @project	Ricochet
 @file       GameState_Level1.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [45% of code]
 @role		Projectile ricochet & trajectory prediction. Sound handling during
 			pause/minimized state. Assisted with in-game pause menu. 
 			Player health & ammo capacity. Camera view. InnerState management &
 			assisted with collision. Mini tutorial display during level
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu)
+@author		Mohamed Zafir (m.zafir@digipen.edu) [50% of code]
 @role		Physics, particle system, texture mapping, game logic, collision
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		Level loading, in- game pause menu
+@author		Leong Wai Kit (l.waikit@digipen.edu) [20% of code]
+@role		Level loading, in-game pause menu
 *//*_________________________________________________________________________*/
 
 // ----- Include Files -----
