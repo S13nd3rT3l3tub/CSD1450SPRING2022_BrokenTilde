@@ -64,6 +64,11 @@ void GameStateLevelsLoad(void)
 	// No game object instances (sprites) at this point
 	sGameObjInstNum = 0;
 
+	// zero the game object instance array
+	memset(sPauseMenuInstList, 0, sizeof(GameObjInst) * GAME_OBJ_INST_NUM_MAX);
+	// No game object instances (sprites) at this point
+	sPauseMenuInstNum = 0;
+
 	// ----- Set objects to nullptr first -----
 	{
 		PlayerBody = nullptr;

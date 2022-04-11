@@ -333,5 +333,13 @@ void GameStateWinFree() {
 */
 /******************************************************************************/
 void GameStateWinUnload() {
+	// Free all mesh data (shapes) of each object using "AEGfxTriFree"
+	for (unsigned long i = 0; i < sGameObjNum; i++) {
+		GameObj* pObj = sGameObjList + i;
+		// Check if object mesh is not a nullptr
+		if (pObj->pMesh != nullptr)
+			AEGfxMeshFree(pObj->pMesh);
+	}
+
 	soundChannel->stop(); //stop background music
 }
