@@ -1,5 +1,6 @@
 /*!
-@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@copyright	All content © 2022 DigiPen Institute of Technology Singapore. All rights reserved.
+@project	Ricochet
 @file       GameState_Win.cpp
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)

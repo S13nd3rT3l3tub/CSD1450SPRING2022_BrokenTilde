@@ -1,5 +1,6 @@
 /*!
-@Copyright	Copyright © 2022 DigiPen, All rights reserved.
+@copyright	All content © 2022 DigiPen Institute of Technology Singapore. All rights reserved.
+@project	Ricochet
 @file       BinaryMap.h
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
