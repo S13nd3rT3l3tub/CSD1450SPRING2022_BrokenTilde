@@ -339,8 +339,9 @@ void			gameObjInstDestroy(GameObjInst* pInst);
 // Enemy state machine
 void			EnemyStateMachine(GameObjInst* pInst);
 
-//	Create Pause Menu
-void			PauseMenu();
+//	Create & Destroy Pause Menu
+void			PauseMenuInIt();
+void			PauseMenuDestroy();
 
 //	Function to create a game object instance for Pause Menu
 GameObjInst* PauseMenuInstCreate(GameObj* objType, AEVec2* scale,

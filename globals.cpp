@@ -514,7 +514,7 @@ GameObjInst* PauseMenuInstCreate(GameObj* objType, AEVec2* scale,
 	Create Pause Menu
 */
 /******************************************************************************/
-void PauseMenu()
+void PauseMenuInIt()
 {
 	// Create an instance of the background 
 	AEVec2 scaling{ 1.0f, 1.0f }, pos{ 0.0f, 0.0f };
@@ -549,4 +549,13 @@ void PauseMenu()
 	pos = { pos.x + 0.0f, pos.y - 300.0f };
 	ButtonInstance_RETURN_MAIN_MENU = PauseMenuInstCreate(&sGameObjList[buttonObjIndex], &BUTTON_SCALE, &pos, 0, 0.0f, STATE_NONE);
 	ButtonInstance_RETURN_MAIN_MENU->sub_type = BUTTON_TYPE::EXIT_GAME;
+}
+
+void PauseMenuDestroy() {
+	// kill all object instances in the array using "gameObjInstDestroy"
+	for (unsigned long i = 0; i < GAME_OBJ_INST_NUM_MAX; i++) {
+		GameObjInst* pInst = sPauseMenuInstList + i;
+
+		gameObjInstDestroy(pInst);
+	}
 }

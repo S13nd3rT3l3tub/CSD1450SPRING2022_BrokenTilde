@@ -522,15 +522,18 @@ void GameStateLevel1Update(void)
 
 						// Check if mouse was clicked on Resume Game button
 						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RESUME_GAME->boundingBox)) {
-							screen = SCREEN_TYPE::GAME_SCREEN;
-							gGameStateInnerState = GAME_PLAY;
+							screen = SCREEN_TYPE::GAME_SCREEN;	// Update screen to game screen
+							gGameStateInnerState = GAME_PLAY;	// Update innerState to play
+							PauseMenuDestroy();					// Destroy menu instances
 						}
 
 						// Check if mouse was clicked on Restart Game button
 						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RESTART_GAME->boundingBox)) {
-							screen = SCREEN_TYPE::GAME_SCREEN;
-							gGameStateInnerState = GAME_PLAY;
-							gGameStateNext = GS_RESTART;
+							screen = SCREEN_TYPE::GAME_SCREEN;	// Update screen to game screen
+							gGameStateInnerState = GAME_PLAY;	// Update innerState to play
+							gGameStateNext = GS_RESTART;		// Update nextState to restart
+
+							PauseMenuDestroy();					// Destroy menu instances
 
 							// Reload level data
 							FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
@@ -539,7 +542,7 @@ void GameStateLevel1Update(void)
 						}
 
 
-						// Check if mosue was clicked on Return To Main Menu button
+						// Check if mouse was clicked on Return To Main Menu button
 						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN_MAIN_MENU->boundingBox)) {
 							// Update current display screen to exit confirmation
 							screen = SCREEN_TYPE::EXIT_SCREEN;
@@ -590,7 +593,8 @@ void GameStateLevel1Update(void)
 						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_RETURN->boundingBox)) {
 							// Update screen display to main menu
 							screen = SCREEN_TYPE::MAIN_SCREEN;
-							PauseMenu();
+							PauseMenuDestroy();		// Destroy menu instances
+							PauseMenuInIt();		// Recreate initial menu instances
 						}
 						break;
 					}
@@ -604,7 +608,8 @@ void GameStateLevel1Update(void)
 						if (CollisionIntersection_PointRect(worldMouseX, worldMouseY, ButtonInstance_NO->boundingBox)) {
 							// Update display screen to be main menu
 							screen = SCREEN_TYPE::MAIN_SCREEN;
-							PauseMenu();
+							PauseMenuDestroy();		// Destroy menu instances
+							PauseMenuInIt();		// Recreate initial menu instances
 						}
 						break;
 					}
@@ -638,22 +643,22 @@ void GameStateLevel1Update(void)
 			// Pause sound channel
 			soundChannel->setPaused(true);
 
-			// Check if game is to be unpaused
-			if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
-				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-			else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
-				gGameStateNext = GS_RESTART;		// Update nextState to restart
-				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-				// Reload level data
-				FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
-				if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
-					gGameStateNext = GS_QUIT;
+			//// Check if game is to be unpaused
+			//if (AEInputCheckReleased(AEVK_ESCAPE) && winFocused)
+			//	gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			//else if (AEInputCheckReleased(AEVK_R) && winFocused) {	// Check if game is to be restarted
+			//	gGameStateNext = GS_RESTART;		// Update nextState to restart
+			//	gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			//	// Reload level data
+			//	FreeMapData(&MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT);
+			//	if (ImportMapDataFromFile(fileName, &MapData, &BinaryCollisionArray, BINARY_MAP_WIDTH, BINARY_MAP_HEIGHT) == 0)
+			//		gGameStateNext = GS_QUIT;
 
-			}
-			else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
-				gGameStateNext = GS_MAINMENU;		// Update next state to main menu
-				gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
-			}
+			//}
+			//else if (AEInputCheckReleased(AEVK_M) && winFocused) {	// Check if game is to be returned to main menu
+			//	gGameStateNext = GS_MAINMENU;		// Update next state to main menu
+			//	gGameStateInnerState = GAME_PLAY;	// Update innerState to play state
+			//}
 			break;
 		}
 		// Win State
@@ -811,7 +816,7 @@ void GameStateLevel1Update(void)
 					gGameStateInnerState = GAME_PAUSE;	// Update innerState to pause state
 					//	Update current display screen to Options
 					screen = SCREEN_TYPE::MAIN_SCREEN;
-					PauseMenu();
+					PauseMenuInIt();
 				}
 
 				// Check if down arrow key was pressed (Cheatcode to go next level)
