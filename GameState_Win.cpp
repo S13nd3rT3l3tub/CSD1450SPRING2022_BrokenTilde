@@ -2,15 +2,17 @@
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
 @file       GameState_Win.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		Authored Functions
--------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Authored Functions
+@role		Initial creation & did the win screen state
 *//*_________________________________________________________________________*/
 
 #include "Main.h"
 
+/******************************************************************************/
+/*!
+	(Static) Variables
+*/
+/******************************************************************************/
 static double fireworktimer{};
 static double textblinktimer{};
 

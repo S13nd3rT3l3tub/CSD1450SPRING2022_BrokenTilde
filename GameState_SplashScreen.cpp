@@ -3,7 +3,11 @@
 @file       GameState_SplashScreen.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial creation and assisted with the handling of the splash screen
+-------------------------------------------------------------------------------
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Did first pass of code inside Main Menu state before it was shifted 
+			over by Joachim into here
 *//*_________________________________________________________________________*/
 
 // ----- Include Files ------

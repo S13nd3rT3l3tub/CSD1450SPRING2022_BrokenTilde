@@ -3,10 +3,11 @@
 @file       Collision.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial creation
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		
+@role		Added Point vs Rect axis aligned static intersection check for
+			mouse click in buttons
 *//*_________________________________________________________________________*/
 
 // ----- Include Guard -----

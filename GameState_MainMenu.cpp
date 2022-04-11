@@ -2,17 +2,17 @@
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
 @file       GameState_MainMenu.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Creation of the menu
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Part of game's credits
+@role		Assisted part of game's credits
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Assisted with game's credits
 -------------------------------------------------------------------------------
 @author		Desmond Too Wei Kang (d.too@digipen.edu)
-@role
+@role		Assisted with the creation of the menu
 *//*_________________________________________________________________________*/
 
 #include "Main.h"

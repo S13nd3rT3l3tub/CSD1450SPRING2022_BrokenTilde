@@ -3,7 +3,7 @@
 @file       GameState_MainMenu.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial creation
 *//*_________________________________________________________________________*/
 
 // ----- Include Guard ------

@@ -3,10 +3,11 @@
 @file       GameStateMgr.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial Creation. Added Splashscreen after creation
 -------------------------------------------------------------------------------
 @author     Leong Wai Kit (l.waikit@digipen.edu)
-@role		
+@role		Added pointers to Levels state for levels beyond the tutorial and 
+			pointers to the Win state
 *//*_________________________________________________________________________*/
 
 // ----- Include Files -----

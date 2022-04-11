@@ -3,7 +3,7 @@
 @file       GameState_Level1.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial creation
 *//*_________________________________________________________________________*/
 
 // ----- Include Guard ------

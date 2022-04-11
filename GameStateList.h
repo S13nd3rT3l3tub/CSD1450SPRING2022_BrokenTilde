@@ -3,10 +3,10 @@
 @file       GameStateList.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role			
+@role		Initial creation. Added splashscreen after creation
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		
+@role		Added state for levels and win screen
 *//*_________________________________________________________________________*/
 
 // ----- Include Guard ------

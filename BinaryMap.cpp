@@ -2,15 +2,16 @@
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
 @file       BinaryMap.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role
+@author		Leong Wai Kit (l.waikit@digipen.edu)
+@role		Initial creation
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Authored CheckInstanceBinaryMapCollision_Bullet and parts of 
-			CheckInstanceBinaryMapCollision.
+@role		Authored CheckInstanceBinaryMapCollision_Bullet &
+			CheckInstanceBinaryMapCollision_Dotted
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)
-@role
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
+@role		Assisted Wai Kit with conversion of functions to take in MapData &
+			BinaryCollisionArray
 *//*_________________________________________________________________________*/
 
 // ----- Include File -----

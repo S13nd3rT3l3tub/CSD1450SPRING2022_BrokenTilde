@@ -3,10 +3,11 @@
 @file       Main.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial creation & loading of fonts, FMOD sound initialization & 
+			Alt-Tab sminimization handling
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		
+@role		Assisted with Alt-Tab minimization handling
 *//*_________________________________________________________________________*/
 
 

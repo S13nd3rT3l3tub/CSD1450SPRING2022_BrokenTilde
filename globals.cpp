@@ -3,13 +3,15 @@
 @file       Globals.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role
+@role		Initial creation & defining variables used across multiple files.
+			Assisted with Enemy AI algorithm
 -------------------------------------------------------------------------------
 @author		Mohamed Zafir (m.zafir@digipen.edu)
-@role		Creation of some variables and parts of the AI algorithm.
+@role		Added variables and parts of the Enemy AI algorithm
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role
+@role		Added variables and functions required for pause menu & in-game pause
+			menu
 *//*_________________________________________________________________________*/
 
 // ----- Include Files -----

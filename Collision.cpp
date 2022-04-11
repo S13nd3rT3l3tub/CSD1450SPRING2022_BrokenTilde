@@ -3,21 +3,22 @@
 @file       Collision.cpp
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial creation 
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role
+@role		Added Point vs Rect axis aligned static intersection check for
+			mouse click in buttons
 *//*_________________________________________________________________________*/
 
 // ----- Include Files -----
 #include "Main.h"
 #include <iostream>
 
-/******************************************************************************/
+/**************************************************************************/
 /*!
-	Collision Intersection Check between 2 Dynamic (Axis-Aligned) Rectangles 
+	Collision Intersection Check between a Point and a (Axis-Aligned) Rectangle
 */
-/******************************************************************************/
+/**************************************************************************/
 bool CollisionIntersection_PointRect(float PointX, float PointY, const AABB& aabb)
 {
 	// Check if point is within the rectangle's AABB
@@ -28,11 +29,11 @@ bool CollisionIntersection_PointRect(float PointX, float PointY, const AABB& aab
 		return false;
 }
 
-/**************************************************************************/
+/******************************************************************************/
 /*!
-	Collision Intersection Check between a Point and a (Axis-Aligned) Rectangle
+	Collision Intersection Check between 2 Dynamic (Axis-Aligned) Rectangles
 */
-/**************************************************************************/
+/******************************************************************************/
 bool CollisionIntersection_RectRect(const AABB& aabb1, const AEVec2& vel1,
 									const AABB& aabb2, const AEVec2& vel2)
 {

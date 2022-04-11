@@ -3,10 +3,15 @@
 @file       Globals.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role			
+@role		Initial creation & moving variables required across multiple files 
+			into this header file
+-------------------------------------------------------------------------------
+@author		Mohamed Zafir (m.zafir@digipen.edu)
+@role		Added variables for enemy AI 
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		
+@role		Added variables and functions required for pause menu & in-game pause
+			menu
 *//*_________________________________________________________________________*/
 
 // ----- Include Guard -----

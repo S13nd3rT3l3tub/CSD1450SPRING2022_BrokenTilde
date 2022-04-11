@@ -1,12 +1,9 @@
 /*!
 @Copyright	Copyright © 2022 DigiPen, All rights reserved.
-@file       GameState_Levels.h
--------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@file       GameState_Levels.h	
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role		
+@role		Initial creation
 *//*_________________________________________________________________________*/
 
 // ----- Include Guard -----

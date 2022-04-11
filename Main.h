@@ -3,10 +3,11 @@
 @file       Main.h
 -------------------------------------------------------------------------------
 @author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)
-@role		
+@role		Initial creation & added include files required for sound system,
+			alt tabbing minimization handling & global header file
 -------------------------------------------------------------------------------
 @author		Leong Wai Kit (l.waikit@digipen.edu)
-@role
+@role		Added BinaryMap, Levels state & Win state header files
 *//*_________________________________________________________________________*/
 
 // ----- Include Guard -----
