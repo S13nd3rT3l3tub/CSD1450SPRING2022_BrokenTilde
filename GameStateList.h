@@ -3,10 +3,10 @@
 @project	Ricochet
 @file       GameStateList.h
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [80% of code]
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [~80% of code]
 @role		Initial creation. Added splashscreen after creation
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)	[20% of code]
+@author		Leong Wai Kit (l.waikit@digipen.edu)	[~20% of code]
 @role		Added state for levels and win screen
 *//*_________________________________________________________________________*/
 

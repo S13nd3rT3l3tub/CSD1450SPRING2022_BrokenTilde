@@ -3,11 +3,11 @@
 @project	Ricochet
 @file       Main.h
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [90% of code]
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [~90% of code]
 @role		Initial creation & added include files required for sound system,
 			alt tabbing minimization handling & global header file
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu) [10% of code]
+@author		Leong Wai Kit (l.waikit@digipen.edu) [~10% of code]
 @role		Added BinaryMap, Levels state & Win state header files
 *//*_________________________________________________________________________*/
 

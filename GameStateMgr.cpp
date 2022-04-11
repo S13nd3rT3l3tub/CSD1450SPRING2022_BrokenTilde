@@ -3,10 +3,10 @@
 @project	Ricochet
 @file       GameStateMgr.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [80% of code]
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [~80% of code]
 @role		Initial Creation. Added Splashscreen after creation
 -------------------------------------------------------------------------------
-@author     Leong Wai Kit (l.waikit@digipen.edu)	[20% of code]
+@author     Leong Wai Kit (l.waikit@digipen.edu)	[~20% of code]
 @role		Added pointers to Levels state for levels beyond the tutorial and 
 			pointers to the Win state
 *//*_________________________________________________________________________*/

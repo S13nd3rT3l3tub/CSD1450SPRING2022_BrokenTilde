@@ -3,18 +3,18 @@
 @project	Ricochet
 @file       Globals.h
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [40% of code]
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [~40% of code]
 @role		Initial creation & moving variables required across multiple files 
 			into this header file
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu) [30% of code]
+@author		Mohamed Zafir (m.zafir@digipen.edu) [~30% of code]
 @role		Added variables for enemy AI 
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu) [30% of code]
+@author		Leong Wai Kit (l.waikit@digipen.edu) [~30% of code]
 @role		Added variables and functions required for pause menu & in-game pause
 			menu
 -------------------------------------------------------------------------------
-@author		Desmond Too Wei Kang (d.too@digipen.edu) [30% of code]
+@author		Desmond Too Wei Kang (d.too@digipen.edu) [~30% of code]
 @role		Added variables for textures and object instances
 *//*_________________________________________________________________________*/
 

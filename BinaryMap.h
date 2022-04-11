@@ -3,14 +3,14 @@
 @project	Ricochet
 @file       BinaryMap.h
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu)	[80% of code]
+@author		Leong Wai Kit (l.waikit@digipen.edu)	[~80% of code]
 @role		Initial creation
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu) [20% of code]
+@author		Mohamed Zafir (m.zafir@digipen.edu) [~20% of code]
 @role		Authored CheckInstanceBinaryMapCollision_Bullet & 
 			CheckInstanceBinaryMapCollision_Dotted
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [1% of code]
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [~1% of code]
 @role		Assisted Wai Kit with conversion of functions to take in MapData &
 			BinaryCollisionArray 
 *//*_________________________________________________________________________*/

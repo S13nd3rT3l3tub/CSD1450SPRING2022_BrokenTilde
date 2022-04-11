@@ -3,14 +3,14 @@
 @project	Ricochet
 @file       Globals.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [40% of code]
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu) [~40% of code]
 @role		Initial creation & defining variables used across multiple files.
 			Assisted with Enemy AI algorithm
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu) [30% of code]
+@author		Mohamed Zafir (m.zafir@digipen.edu) [~30% of code]
 @role		Added variables and parts of the Enemy AI algorithm
 -------------------------------------------------------------------------------
-@author		Leong Wai Kit (l.waikit@digipen.edu) [30% of code]
+@author		Leong Wai Kit (l.waikit@digipen.edu) [~30% of code]
 @role		Added variables and functions required for pause menu & in-game pause
 			menu
 *//*_________________________________________________________________________*/

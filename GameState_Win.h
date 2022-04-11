@@ -3,7 +3,7 @@
 @project	Ricochet
 @file       BinaryMap.cpp
 -------------------------------------------------------------------------------
-@author		Mohamed Zafir (m.zafir@digipen.edu) [100% of code]
+@author		Mohamed Zafir (m.zafir@digipen.edu) [~100% of code]
 @role		Initial creation
 *//*_________________________________________________________________________*/
 

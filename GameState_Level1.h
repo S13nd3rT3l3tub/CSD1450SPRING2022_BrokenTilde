@@ -3,7 +3,7 @@
 @project	Ricochet
 @file       GameState_Level1.cpp
 -------------------------------------------------------------------------------
-@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)  [100% of code]
+@author     Lee Hsien Wei, Joachim (l.hsienweijoachim@digipen.edu)  [~100% of code]
 @role		Initial creation
 *//*_________________________________________________________________________*/
 
