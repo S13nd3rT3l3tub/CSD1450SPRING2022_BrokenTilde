@@ -1713,6 +1713,7 @@ void GameStateLevel1Draw(void)
 
 			// Set the current object instance's transform matrix using "AEGfxSetTransform"
 			AEGfxSetTransform(pInst->transform.m);
+			
 			// ----- Render objects on screen ------
 			// Switch texture based on the button type
 			switch (pInst->sub_type) {
@@ -1726,6 +1727,7 @@ void GameStateLevel1Draw(void)
 					AEGfxTextureSet(buttonTexture_RESUME_GAME, 0.0f, 0.0f);
 					break;
 				}
+				// Restart Game
 				case BUTTON_TYPE::RESTART_GAME: {
 					AEGfxTextureSet(buttonTexture_RESTART_GAME, 0.0f, 0.0f);
 					break;

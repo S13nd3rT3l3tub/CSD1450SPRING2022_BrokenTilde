@@ -1615,7 +1615,17 @@ void GameStateLevelsDraw(void)
 			switch (pInst->sub_type) {
 				// Exit game
 				case BUTTON_TYPE::EXIT_GAME: {
-					AEGfxTextureSet(buttonTexture_QUIT, 0.0f, 0.0f);
+					AEGfxTextureSet(buttonTexture_RETURN_MAIN_MENU, 0.0f, 0.0f);
+					break;
+				}
+				// Resume Game
+				case BUTTON_TYPE::RESUME_GAME: {
+					AEGfxTextureSet(buttonTexture_RESUME_GAME, 0.0f, 0.0f);
+					break;
+				}
+				// Restart Game
+				case BUTTON_TYPE::RESTART_GAME: {
+					AEGfxTextureSet(buttonTexture_RESTART_GAME, 0.0f, 0.0f);
 					break;
 				}
 				// Options
