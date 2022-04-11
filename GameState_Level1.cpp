@@ -387,6 +387,9 @@ void GameStateLevel1Load(void)
 
 	// Set screen variable to main menu display
 	screen = SCREEN_TYPE::GAME_SCREEN;
+
+	// Set level background color to dark grey
+	AEGfxSetBackgroundColor(0.16f, 0.16f, 0.18f);
 }
 
 /******************************************************************************/
@@ -461,9 +464,6 @@ void GameStateLevel1Init(void)
 
 	// Set ammo capacity based on the number of enemies in the level
 	ammoCount = static_cast<int>(totalEnemyCount * 5.0f);
-
-	// Set level background color to dark grey
-	AEGfxSetBackgroundColor(0.18f, 0.18f, 0.18f);
 }
 
 /******************************************************************************/
