@@ -45,7 +45,7 @@ Cheatcode
 
 
 Credits
-	Made by Broken Tidle - CSD1450 2022 Sections C & D:
+	Made by Broken Tidle - CSD1450 2022 Sections A, C & D:
 		Lee Hsien Wei, Joachim - Lead Programmer
 		Mohamed Zafir	       - Level design & simulation Programmer
 		Leong Wai Kit	       - UI Programmer 
